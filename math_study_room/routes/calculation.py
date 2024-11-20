@@ -29,7 +29,7 @@ def add(num_times, num_range):
 
 
 # 引き算
-def subtract(num_range, num_times):
+def subtract(num_times, num_range):
     output_range = get_output_range(num_range)
     question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_times)]
     answer = 0
@@ -72,17 +72,15 @@ def get_limit(num_range):
 #     return question_list, answer
 
 
-def divide(num_range):
+def divide(num_times, num_range):
     output_range = get_output_range(num_range)
-    question_list = []
-    question_list.append(random.randint(output_range[0], output_range[1]))
-    question_list.append(random.randint(output_range[0], question_list[0]))
+    question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_times)]
     answer = question_list[0] / question_list[1]
     return question_list, answer
 
 
 # 掛け算
-def multiply(num_range, num_times):
+def multiply(num_times, num_range):
     output_range = get_output_range(num_range)
     question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_times)]
     answer = question_list[0] * question_list[1]
