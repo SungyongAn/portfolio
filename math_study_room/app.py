@@ -112,7 +112,7 @@ if st.sidebar.button(" ÷ (割り算)"):
 
         for i in range(num_questions):
             url = 'http://127.0.0.1:8000/page_divide'
-            response = requests.post(url, json={"num_range": num_digits})
+            response = requests.post(url, json={"num_times": 2,"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -138,35 +138,3 @@ if st.session_state.questions:
         st.write("# 正解一覧")
         for idx, answer in enumerate(st.session_state.answers, 1):
             st.write(f'<p style="font-size: 20px;">問{idx}）{answer}</p>', unsafe_allow_html=True)
-
-
-# if st.sidebar.button("フラッシュ暗算"):
-#     url = 'http://127.0.0.1:8000/page_add'
-#     response = requests.post(url, json={"num_times": a, "num_range": b})
-#     st.write('')
-#     st.write('')
-#     if response.status_code == 200:
-#         multiply_file = response.json()
-#         question_list = multiply_file["question_list"]
-#         answer = multiply_file["answer"]
-        
-#         image_path = "/Users/sungyongan/Desktop/画像素材/corkboard.jpg"
-#         image = Image.open(image_path)
-#         st.image(image, use_column_width=True)
-            
-        # screen = st.empty()
-        # for i in range(int(a)):
-        #     if i == int(a) - 1:
-        #         screen.markdown("<center>"f'<p style="font-size: 50px;">{question_list[i]}</p>'"</center>", unsafe_allow_html=True)
-        #         time.sleep(1.5)
-        #         screen.markdown("<center>"'<p> </p>'"</center>")
-        #         time.sleep(0.5)
-        #         screen.markdown("<center>"'<p style="font-size: 60px;">finish!</p>'"</center>", unsafe_allow_html=True)
-        #     else:
-        #         screen.markdown("<center>"f'<p style="font-size: 60px;">{question_list[i]}</p>'"</center>", unsafe_allow_html=True)
-        #         time.sleep(1.5)
-        #         screen.markdown("<center>"'<p> </p>'"</center>")
-        #         time.sleep(0.5)
-                
-    # if right.button("正解"):
-    #     st.write(answer)
