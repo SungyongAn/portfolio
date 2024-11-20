@@ -85,7 +85,7 @@ if st.sidebar.button(" × (掛け算)"):
 
         for i in range(num_questions):
             url = 'http://127.0.0.1:8000/page_multiply'
-            response = requests.post(url, json={"num_times": 2, "num_range": num_digits})
+            response = requests.post(url, json=())
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -112,7 +112,7 @@ if st.sidebar.button(" ÷ (割り算)"):
 
         for i in range(num_questions):
             url = 'http://127.0.0.1:8000/page_divide'
-            response = requests.post(url, json={"num_range": num_digits})
+            response = requests.post(url, json=())
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -137,7 +137,7 @@ if st.session_state.questions:
     if st.session_state.show_answers:
         st.write("# 正解一覧")
         for idx, answer in enumerate(st.session_state.answers, 1):
-            st.write(f'<p style="font-size: 20px;">問{idx}）{answer}</p>', unsafe_allow_html=True)
+            st.write(f'<p style="font-size: 20px;">問{idx}）{int(answer)}</p>', unsafe_allow_html=True)
 
 
 # if st.sidebar.button("フラッシュ暗算"):
