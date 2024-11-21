@@ -7,6 +7,8 @@ if 'questions' not in st.session_state:
     st.session_state.questions = []
 if 'answers' not in st.session_state:
     st.session_state.answers = []
+if 'residue' not in st.session_state:
+    st.session_state.residues = []
 if 'show_answers' not in st.session_state:
     st.session_state.show_answers = False
 
@@ -38,7 +40,7 @@ if st.sidebar.button(" ＋ (足し算)"):
                 answer = data["answer"]
                 question = f"{question_list[0]} + {question_list[1]} ="
                 st.session_state.questions.append(question)
-                st.session_state.answers.append(answer)
+                st.session_state.answers.append(int(answer))
             else:
                 st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
                 st.json(response.json())
@@ -65,7 +67,7 @@ if st.sidebar.button(" ー (引き算)"):
                 answer = data["answer"]
                 question = f"{question_list[0]} - {question_list[1]} ="
                 st.session_state.questions.append(question)
-                st.session_state.answers.append(answer)
+                st.session_state.answers.append(int(answer))
             else:
                 st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
                 st.json(response.json())
@@ -92,27 +94,39 @@ if st.sidebar.button(" × (掛け算)"):
                 answer = data["answer"]
                 question = f"{question_list[0]} × {question_list[1]} ="
                 st.session_state.questions.append(question)
-                st.session_state.answers.append(answer)
+                st.session_state.answers.append(int(answer))
             else:
                 st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
                 st.json(response.json())
                 break
 
 # 割り算
-if st.sidebar.button(" ÷ (割り算)"):
-    try:
-        num_questions = int(a)
-        num_digits = int(b)
-    except ValueError:
-        st.sidebar.error("問題数と桁数には整数を入力してください。")
-    else:
-        st.session_state.questions = []
-        st.session_state.answers = []
-        st.session_state.show_answers = False
+kinds = st.sidebar.radio(
+    "回答形式",
+    ["実数", "余り"],
+    captions=[
+        "回答例）0.125",
+        "回答例）1と余り3",
+    ],
+)
+
+divide = st.sidebar.button(" ÷ (割り算)")
+
+if divide:
+    if kinds == "実数":
+        try:
+            num_questions = int(a)
+            num_digits = int(b)
+        except ValueError:
+            st.sidebar.error("問題数と桁数には整数を入力してください。")
+        else:
+            st.session_state.questions = []
+            st.session_state.answers = []
+            st.session_state.show_answers = False
 
         for i in range(num_questions):
             url = 'http://127.0.0.1:8000/page_divide'
-            response = requests.post(url, json={"num_range": num_digits})
+            response = requests.post(url, json={"num_times": 2, "num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -120,6 +134,34 @@ if st.sidebar.button(" ÷ (割り算)"):
                 question = f"{question_list[0]} ÷ {question_list[1]} ="
                 st.session_state.questions.append(question)
                 st.session_state.answers.append(answer)
+            else:
+                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.json(response.json())
+                break
+
+    elif kinds == "余り":
+        try:
+            num_questions = int(a)
+            num_digits = int(b)
+        except ValueError:
+            st.sidebar.error("問題数と桁数には整数を入力してください。")
+        else:
+            st.session_state.questions = []
+            st.session_state.answers = []
+            st.session_state.residues = []
+            st.session_state.show_answers = False
+        for i in range(num_questions):
+            url = 'http://127.0.0.1:8000/page_divide_residue'
+            response = requests.post(url, json={"num_times": 2, "num_range": num_digits})
+            if response.status_code == 200:
+                data = response.json()
+                question_list = data["question_list"]
+                answer = int(data["answer"])
+                residue = int(data["residue"])
+                question = f"{question_list[0]} ÷ {question_list[1]} ="
+                answer_zero = str(answer) + "と余り" + str(residue)
+                st.session_state.questions.append(question)
+                st.session_state.answers.append(answer_zero)
             else:
                 st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
                 st.json(response.json())

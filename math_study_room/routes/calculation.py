@@ -52,31 +52,32 @@ def get_limit(num_range):
     return limit
 
 
-# 割り算
-# def divide(num_range, num_times):
-#     limit = get_limit(num_range)
-#     question_list = []
-#     answer = []
-#     for i in range(num_times):
-#         if i == 0:
-#             question_list.append(random.randint(limit//2, limit))
-#         else:
-#             question_list.append(random.randint(2, limit//2))
-
-#     if question_list[0] % question_list[1] == 0:
-#         answer = question_list[0] // question_list[1]
-#     else:
-#         answer = str(question_list[0] // question_list[1]) + "と余り" + str(question_list[0] % question_list[1])
-#         for _ in range(2):
-#             answer.append(question_list[0] // question_list[1])
-#     return question_list, answer
-
-
+# 割り算（実数）
 def divide(num_times, num_range):
-    output_range = get_output_range(num_range)
-    question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_times)]
+    limit = get_limit(num_range)
+    question_list = []
+    for i in range(num_times):
+        if i == 0:
+            question_list.append(random.randint(limit//2, limit))
+        else:
+            question_list.append(random.randint(2, limit//2))
     answer = question_list[0] / question_list[1]
     return question_list, answer
+
+
+# 割り算（余り表記）
+def divide_residue(num_times, num_range):
+    limit = get_limit(num_range)
+    question_list = []
+    for i in range(num_times):
+        if i == 0:
+            question_list.append(random.randint(limit//2, limit))
+        else:
+            question_list.append(random.randint(2, limit//2))
+    answer = question_list[0] // question_list[1]
+    residue = question_list[0] % question_list[1]
+    return question_list, answer, residue
+
 
 
 # 掛け算
