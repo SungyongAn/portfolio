@@ -2,8 +2,9 @@ from fastapi import APIRouter
 from routes.schema import (
     CaluculationPayload,
     CaluculationResponse,
+    Divide_residueResponse,
 )
-from routes.calculation import add, subtract, divide, multiply
+from routes.calculation import add, subtract, divide, divide_residue, multiply
 
 router = APIRouter()
 
@@ -22,8 +23,14 @@ async def page_subtract(caluculation_payload:CaluculationPayload) -> Caluculatio
 
 @router.post("/page_divide")
 async def page_divide(caluculation_payload:CaluculationPayload) -> CaluculationResponse:
-    question_list, answer = divide(caluculation_payload.num_range)
+    question_list, answer = divide(caluculation_payload.num_times, caluculation_payload.num_range)
     return CaluculationResponse(question_list=question_list, answer=answer)
+
+
+@router.post("/page_divide_residue")
+async def page_divide_residue(caluculation_payload:CaluculationPayload) -> Divide_residueResponse:
+    question_list, answer, residue = divide_residue(caluculation_payload.num_times, caluculation_payload.num_range)
+    return Divide_residueResponse(question_list=question_list, answer=answer, residue=residue)
 
 
 @router.post("/page_multiply")
