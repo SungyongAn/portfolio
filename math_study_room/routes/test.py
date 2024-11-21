@@ -19,14 +19,14 @@ def get_output_range(num_range):
     return output_range
 
 
-def add(num_range, num_timses):
+def multiply(num_range, num_times):
     output_range = get_output_range(num_range)
-    question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_timses)]
-    answer = sum(question_list)
+    question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_times)]
+    answer = question_list[0] * question_list[1]
     print(question_list)
     return question_list, answer
 
-num_range = 1
+num_range = 3
 num_times = 2
-add(num_range, num_times)
+multiply(num_range, num_times)
 
