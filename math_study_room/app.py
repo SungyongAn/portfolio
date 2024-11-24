@@ -239,6 +239,9 @@ if st.sidebar.button("フラッシュ暗算"):
                 screen.markdown(" ")
                 time.sleep(0.5)
                 screen.markdown("<center>"f'<p style="font-size: 50px;">{question_list[i]}</p>'"</center>", unsafe_allow_html=True)
+                time.sleep(1.5)
+                screen.markdown(" ")
+                time.sleep(0.5)
             elif i == int(a) - 1:
                 screen.markdown("<center>"f'<p style="font-size: 50px;">{question_list[i]}</p>'"</center>", unsafe_allow_html=True)
                 time.sleep(1.5)
