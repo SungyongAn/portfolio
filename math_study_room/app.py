@@ -47,7 +47,7 @@ if st.sidebar.button(" ＋ (足し算)"):
                 data = response.json()
                 question_list = data["question_list"]
                 answer = data["answer"]
-                question = f"{question_list[0]} + {question_list[1]} ="
+                question = f"{question_list[0]} + {question_list[1]} = "
                 st.session_state.questions.append(question)
                 st.session_state.answers.append(int(answer))
             else:
@@ -263,7 +263,8 @@ if st.sidebar.button("フラッシュ暗算"):
 if st.session_state.questions:
     st.write("### 問題一覧")
     for idx, question in enumerate(st.session_state.questions, 1):
-        st.write(f'<p style="font-size: 20px;">問{idx}）{question}</p>', unsafe_allow_html=True)
+        st.write(f'<p style="font-size: 20px;">問{idx}){question}</p>', unsafe_allow_html=True)
+        answer = st.text_input(f"回答{idx}")
 
     if st.button('正解表示'):
         st.session_state.show_answers = True
