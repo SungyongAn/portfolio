@@ -261,10 +261,11 @@ if st.sidebar.button("フラッシュ暗算"):
 # 以下出力関係
 # 各計算問題の出力
 if st.session_state.questions:
+    answer_list = []
     st.write("### 問題一覧")
     for idx, question in enumerate(st.session_state.questions, 1):
         st.write(f'<p style="font-size: 20px;">問{idx}){question}</p>', unsafe_allow_html=True)
-        answer = st.text_input(f"回答{idx}")
+        answer_list.append(st.text_input(f"回答{idx}"))
 
     if st.button('正解表示'):
         st.session_state.show_answers = True
@@ -273,12 +274,22 @@ if st.session_state.questions:
         st.write("### 正解一覧")
         for idx, answer in enumerate(st.session_state.answers, 1):
             st.write(f'<p style="font-size: 20px;">問{idx}）{answer}</p>', unsafe_allow_html=True)
+            list_idx = idx - 1
+            if int(answer_list[list_idx]) == int(answer):
+                st.write("○")
+            else:
+                st.write("×")
+                
 
 
 # フラッシュ暗算の出力
 if st.session_state.flash_questions:
+    answer = st.text_input("回答")
     if st.button('正解表示'):
         st.session_state.show_flash_answer = True
         if st.session_state.show_flash_answer:
-            st.write("### 正解")
             st.write(f'<p style="font-size: 20px;">{st.session_state.flash_answer}</p>', unsafe_allow_html=True)
+            if st.session_state.flash_answer == int(answer):
+                st.write("○")
+            else:
+                st.write("×")
