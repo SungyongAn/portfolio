@@ -1,8 +1,6 @@
 from fractions import Fraction
 import requests
 import streamlit as st
-import time
-# from PIL import Image
 
 
 if 'questions' not in st.session_state:
@@ -23,10 +21,13 @@ if 'flash_show_answer' not in st.session_state:
 st.title('算数の勉強部屋')
 st.write('')
 
-st.sidebar.write("注意：半角小文字の数字を入力してください。")
-a = st.sidebar.text_input("問題数", value='5')
-b = st.sidebar.text_input("桁数", value='2')
+# st.sidebar.write("注意：半角小文字の数字を入力してください。")
+# a = st.sidebar.text_input("問題数", value='1')
+# b = st.sidebar.text_input("桁数", value='1')
 
+st.sidebar.write("問題数:１〜９問、桁数:１〜３桁から選択できます。")
+a = st.sidebar.slider("問題数", min_value=1, max_value=9, value=1, step=1)
+b = st.sidebar.slider("桁数", min_value=1, max_value=3, value=1, step=1)
 
 # 足し算
 if st.sidebar.button(" ＋ (足し算)"):
@@ -217,15 +218,20 @@ if divide:
 if st.session_state.questions:
     answer_list = []
     st.write("### 問題一覧")
-    # for idx, question in enumerate(st.session_state.questions, 1):
-    #     st.write(f'<p style="font-size: 20px;">問{idx}) {question} </p>', unsafe_allow_html=True)
-    #     answer_list.append(st.text_input(f"回答{idx}", value='0'))
+    if int(b) == 1:
+        col1, col2 = st.columns([1,4.7])
+    elif int(b) == 2:
+        col1, col2 = st.columns([1,3.7])
+    elif int(b) == 3:
+        col1, col2 = st.columns([1,3])
+
     for idx, question in enumerate(st.session_state.questions, 1):
-        output = st.empty()
-        output.write(f'<p style="font-size: 20px;">問{idx}) {question}</p>', unsafe_allow_html=True)
-        ans = st.text_input(f"回答{idx}", value='0')
-        answer_list.append(ans)
-        output.write(f'<p style="font-size: 20px;">問{idx}) {question} {ans}</p>', unsafe_allow_html=True)
+        with col1:
+            st.write(f'<p style="font-size: 25px; text-align: right;">問{idx})  {question} </p>', unsafe_allow_html=True)
+        with col2:
+            p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
+        answer_list.append(p_answer)
+
 
     if st.button('正解表示'):
         st.session_state.show_answers = True
