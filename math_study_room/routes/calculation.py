@@ -107,14 +107,11 @@ def get_limit(num_range):
 
 # 割り算（実数）
 def divide(num_range):
-    limit = get_limit(num_range)
-    question_list = []
-    for i in range(2):
-        if i == 0:
-            question_list.append(random.randint(limit//2, limit))
-        else:
-            question_list.append(random.randint(2, limit//2))
-    answer = question_list[0] / question_list[1]
+    output_range = get_range_real_numbers(num_range)
+    question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
+    idenominator = 10 ** num_range
+    question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
+    answer = question_list_zero[0] / question_list_zero[1]
     return question_list, answer
 
 
