@@ -1,5 +1,5 @@
 import random
-
+from decimal import Decimal, ROUND_HALF_UP
 
 # 整数）出題される数字の最小値、最大値を作成
 def get_output_range(num_range):
@@ -111,7 +111,8 @@ def divide(num_range):
     question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
     idenominator = 10 ** num_range
     question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
-    answer = question_list_zero[0] / question_list_zero[1]
+    answer_zero = str(question_list_zero[0] / question_list_zero[1])
+    answer = Decimal(str(answer_zero)).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
     return question_list, answer
 
 
