@@ -9,6 +9,9 @@ st.write('')
 # b = st.sidebar.text_input("桁数", value='1')
 
 with st.sidebar:
-    st.page_link("app.py", label="ホーム")
-    st.page_link("pages/page1.py", label="整数問題へ移動")
-    st.page_link("pages/page2.py", label="実数問題へ移動")
+    st.page_link("app.py", label="ホーム", icon="🏠")
+    st.page_link("pages/page1.py", label="整数")
+    # st.page_link("pages/page2.py", label="実数")
+
+
+
