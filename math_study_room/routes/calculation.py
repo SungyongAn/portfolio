@@ -1,6 +1,7 @@
 import random
 from decimal import Decimal, ROUND_HALF_UP
 
+
 # 整数）出題される数字の最小値、最大値を作成
 def get_output_range(num_range):
     output_range = []
@@ -116,7 +117,7 @@ def divide(num_range):
     return question_list, answer
 
 
-# 割り算（余り表記）
+# 割り算（余り、分数表記）
 def divide_residue(num_range):
     limit = get_limit(num_range)
     question_list = []
