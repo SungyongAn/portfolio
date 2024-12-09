@@ -235,16 +235,11 @@ if st.session_state.questions:
         st.write("### 問題一覧")
 
         if kinds == "余り":
-            if int(b) == 1:
-                col1, col2, col3, col4 = st.columns([2, 3, 1, 3])
-            elif int(b) == 2:
-                col1, col2, col3, col4 = st.columns([2, 3, 1, 3])
-            elif int(b) == 3:
-                col1, col2, col3, col4 = st.columns([2, 3, 1, 3])
+            col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
 
             for idx, question in enumerate(st.session_state.questions, 1):
                 with col1:
-                    st.write(f'<p style="font-size: 25px; text-align: right;">問{idx})  {question} </p>', unsafe_allow_html=True)
+                    st.write(f'<p style="font-size: 25px; text-align: left;">問{idx})  {question} </p>', unsafe_allow_html=True)
                 with col2:
                     p_answer_1 = st.text_input(label="", value=0, autocomplete="整数"f'{idx}', label_visibility="collapsed")
                 with col3:
@@ -268,16 +263,11 @@ if st.session_state.questions:
                         st.write("×")
 
         elif kinds == "分数":
-            if int(b) == 1:
-                col1, col2, col3, col4, col5 = st.columns([3, 3, 3, 1, 3])
-            elif int(b) == 2:
-                col1, col2, col3, col4, col5 = st.columns([2, 3, 1, 3, 3])
-            elif int(b) == 3:
-                col1, col2, col3, col4, col5 = st.columns([2, 3, 1, 3, 3])
+            col1, col2, col3, col4, col5 = st.columns([10, 9, 9, 2, 9])
 
             for idx, question in enumerate(st.session_state.questions, 1):
                 with col1:
-                    st.write(f'<p style="font-size: 25px; text-align: right;">問{idx})  {question} </p>', unsafe_allow_html=True)
+                    st.write(f'<p style="font-size: 25px; text-align: left;">問{idx}) {question} </p>', unsafe_allow_html=True)
                 with col2:
                     p_answer_1 = st.text_input(label="", value=0, autocomplete="整数"f'{idx}', label_visibility="collapsed")
                 with col3:
