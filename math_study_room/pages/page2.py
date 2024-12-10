@@ -154,7 +154,7 @@ if st.session_state.questions:
 
     for idx, question in enumerate(st.session_state.questions, 1):
         with col1:
-            st.write(f'<p style="font-size: 25px; text-align: right;">問{idx}) {question} </p>', unsafe_allow_html=True)
+            st.write(f'<p style="font-size: 25px; text-align: left;">問{idx}) {question} </p>', unsafe_allow_html=True)
         with col2:
             p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
         answer_list.append(p_answer)
