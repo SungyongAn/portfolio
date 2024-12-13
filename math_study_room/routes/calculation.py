@@ -1,8 +1,8 @@
 import random
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 
-# 整数）出題される数字の最小値、最大値を作成
+# 整数)出題される数字の最小値、最大値を作成
 def get_output_range(num_range):
     output_range = []
     for i in range(2):
@@ -14,14 +14,13 @@ def get_output_range(num_range):
                 else:
                     output_range_zero.append(0)
         else:
-            for j in range(num_range):
-                output_range_zero.append(9)
+            output_range_zero = [9 for _ in range(num_range)]
         str_list = map(str, output_range_zero)
         output_range.append(int("".join(str_list)))
     return output_range
 
 
-# 実数用）指定した桁数の最小値、最大値を作成
+# 実数用)指定した桁数の最小値、最大値を作成
 def get_range_real_numbers(num_range):
     output_range = []
     for i in range(2):
@@ -47,7 +46,7 @@ def addition(num_range, identification_code):
         answer = sum(question_list)
     elif identification_code == 2: # 実数
         output_range = get_range_real_numbers(num_range)
-        
+
         question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
         idenominator = 10 ** num_range
         question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
@@ -97,27 +96,23 @@ def multiply(num_range, identification_code):
 
 # 割り算で使用する最大値
 def get_limit(num_range):
-    limit_zero = []
-    for _ in range(num_range):
-        limit_zero.append(9)
-
+    limit_zero = [9 for _ in range(num_range)]
     str_list = map(str, limit_zero)
-    limit = (int("".join(str_list)))
-    return limit
+    return int("".join(str_list))
 
 
-# 割り算（実数）
+# 割り算)実数
 def divide(num_range):
     output_range = get_range_real_numbers(num_range)
     question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
     idenominator = 10 ** num_range
     question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
     answer_zero = str(question_list_zero[0] / question_list_zero[1])
-    answer = Decimal(str(answer_zero)).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
+    answer = Decimal(str(answer_zero)).quantize(Decimal("0.001"), rounding=ROUND_HALF_UP)
     return question_list, answer
 
 
-# 割り算（余り、分数表記）
+# 割り算(余り、分数表記)
 def divide_residue(num_range):
     limit = get_limit(num_range)
     question_list = []
