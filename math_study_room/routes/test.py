@@ -1,5 +1,5 @@
 import random
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 
 # 整数）出題される数字の最小値、最大値を作成
@@ -44,9 +44,9 @@ def divide(num_range):
     idenominator = 10 ** num_range
     question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
     answer_zero = str(question_list_zero[0] / question_list_zero[1])
-    print(answer_zero)
+    print(answer_zero) # noqa: T201
     answer = Decimal(str(answer_zero)).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
-    print(answer)
+    print(answer) # noqa: T201
     return question_list, answer
 
 divide(2)

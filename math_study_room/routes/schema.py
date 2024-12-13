@@ -15,7 +15,7 @@ class CaluculationResponse(BaseModel):
     answer: float
 
 
-class Divide_residueResponse(BaseModel):
+class DivideresidueResponse(BaseModel):
     question_list : list[float]
     answer: float
     residue: int
