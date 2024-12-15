@@ -1,31 +1,33 @@
 import requests
 import streamlit as st
 
-
-if 'questions' not in st.session_state:
+if "questions" not in st.session_state:
     st.session_state.questions = []
-if 'answers' not in st.session_state:
+if "answers" not in st.session_state:
     st.session_state.answers = []
-if 'residue' not in st.session_state:
+if "residue" not in st.session_state:
     st.session_state.residues = []
-if 'show_answers' not in st.session_state:
+if "show_answers" not in st.session_state:
     st.session_state.show_answers = False
-if 'flash_questions' not in st.session_state:
-    st.session_state.flash_questions = []
-if 'answers' not in st.session_state:
-    st.session_state.flash_answer = []
-if 'flash_show_answer' not in st.session_state:
-    st.session_state.show_flash_answer = False
 
-st.sidebar.write("# 実数問題")
-st.sidebar.page_link("pages/page1.py", label="整数問題へ移動")
-st.sidebar.write("問題数:１〜９問、桁数:１〜３桁から選択できます。")
-a = st.sidebar.slider("問題数", min_value=1, max_value=9, value=1, step=1)
-b = st.sidebar.slider("桁数", min_value=1, max_value=3, value=1, step=1)
-st.sidebar.write("桁数1:1.9 ~ 0.1、桁数2:1.9 ~ 0.01、桁数3:1.9 ~0.001")
+# 項目一覧
+with st.sidebar:
+    st.page_link("app.py", label="ホーム", icon="🏠")
+    st.page_link("pages/page1.py", label="整数問題", icon="1️⃣")
+    st.write("# 実数問題")
+    st.write("問題数:１〜９問、桁数:１〜３桁から選択できます。")
+    a = st.slider("問題数", min_value=1, max_value=9, value=1, step=1)
+    b = st.slider("桁数", min_value=1, max_value=3, value=1, step=1)
+    st.write("桁数1:1.9 ~ 0.1、桁数2:1.9 ~ 0.01、桁数3:1.9 ~0.001")
+    addition = st.button(" ＋ (足し算)")
+    subtract = st.button(" ー (引き算)")
+    multiply = st.button(" × (掛け算)")
+    divide = st.button(" ÷ (割り算)")
+    st.write("※小数点3位までに割り切れない場合は、小数点4位を四捨五入する。")
+
 
 # 足し算
-if st.sidebar.button(" ＋ (足し算)"):
+if addition:
     try:
         num_questions = int(a)
         num_digits = int(b)
@@ -37,7 +39,7 @@ if st.sidebar.button(" ＋ (足し算)"):
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = 'http://127.0.0.1:8000/page_addition'
+            url = "http://127.0.0.1:8000/page_addition"
             response = requests.post(url, json={"num_range": num_digits, "identification_code": 2})
             if response.status_code == 200:
                 data = response.json()
@@ -53,7 +55,7 @@ if st.sidebar.button(" ＋ (足し算)"):
                 break
 
 # 引き算
-if st.sidebar.button(" ー (引き算)"):
+if subtract:
     try:
         num_questions = int(a)
         num_digits = int(b)
@@ -65,7 +67,7 @@ if st.sidebar.button(" ー (引き算)"):
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = 'http://127.0.0.1:8000/page_subtract'
+            url = "http://127.0.0.1:8000/page_subtract"
             response = requests.post(url, json={"num_range": num_digits, "identification_code": 2})
             if response.status_code == 200:
                 data = response.json()
@@ -80,8 +82,8 @@ if st.sidebar.button(" ー (引き算)"):
                 st.json(response.json())
                 break
 
-
-if st.sidebar.button(" × (掛け算)"):
+# 掛け算
+if multiply:
     try:
         num_questions = int(a)
         num_digits = int(b)
@@ -93,7 +95,7 @@ if st.sidebar.button(" × (掛け算)"):
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = 'http://127.0.0.1:8000/page_multiply'
+            url = "http://127.0.0.1:8000/page_multiply"
             response = requests.post(url, json={"num_range": num_digits, "identification_code": 2})
             if response.status_code == 200:
                 data = response.json()
@@ -109,10 +111,6 @@ if st.sidebar.button(" × (掛け算)"):
                 break
 
 # 割り算
-divide = st.sidebar.button(" ÷ (割り算)")
-st.sidebar.write("※小数点3位までに割り切れない場合は、小数点4位を四捨五入する。")
-
-
 if divide:
     try:
         num_questions = int(a)
@@ -125,7 +123,7 @@ if divide:
         st.session_state.show_answers = False
 
     while len(st.session_state.questions) < num_questions:
-        url = 'http://127.0.0.1:8000/page_divide'
+        url = "http://127.0.0.1:8000/page_divide"
         response = requests.post(url, json={"num_range": num_digits})
         if response.status_code == 200:
             data = response.json()
@@ -159,7 +157,7 @@ if st.session_state.questions:
             p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
         answer_list.append(p_answer)
 
-    if st.button('正解表示'):
+    if st.button("正解表示"):
         st.session_state.show_answers = True
 
     if st.session_state.show_answers:
