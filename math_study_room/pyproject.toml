@@ -1,5 +1,5 @@
 [tool.ruff]
-extend-exclude = [] # チェックから対象のファイルを除外
+extend-exclude = ["routes/test.py"] # チェックから対象のファイルを除外
 target-version = "py310"
 
 lint.ignore = [
