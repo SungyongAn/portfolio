@@ -1,5 +1,4 @@
 from fractions import Fraction
-
 import requests
 import streamlit as st
 
@@ -9,6 +8,10 @@ if "answers" not in st.session_state:
     st.session_state.answers = []
 if "residue" not in st.session_state:
     st.session_state.residues = []
+if "incorrect_list" not in st.session_state:
+    st.session_state.incorrect_list = []
+if "num_correct" not in st.session_state:
+    st.session_state.num_correct = 0
 if "show_answers" not in st.session_state:
     st.session_state.show_answers = False
 if "divide_flag" not in st.session_state:
@@ -19,8 +22,8 @@ with st.sidebar:
     st.page_link("app.py", label="ホーム", icon="🏠")
     st.page_link("pages/page2.py", label="実数問題", icon="2️⃣")
     st.write("# 整数問題")
-    st.write("問題数:１〜９問、桁数:１〜３桁から選択できます。")
-    a = st.slider("問題数", min_value=1, max_value=9, value=1, step=1)
+    st.write("問題数:１〜10問、桁数:１〜３桁から選択できます。")
+    a = st.slider("問題数", min_value=1, max_value=10, value=1, step=1)
     b = st.slider("桁数", min_value=1, max_value=3, value=1, step=1)
     addition = st.button(" ＋ (足し算)")
     subtract = st.button(" ー (引き算)")
@@ -173,11 +176,9 @@ if divide:
                 answer_zero = data["answer"]
                 residue = data["residue"]
                 question = f"{int(question_list[0])} ÷ {int(question_list[1])} ="
-                answer_two = Fraction(int(residue), int(question_list[1]))
+                answer_two = str(Fraction(int(residue), int(question_list[1])))
                 answer = []
                 answer.append(answer_zero)
-                answer.append(residue)
-                answer.append(question_list[1])
                 answer.append(answer_two)
                 st.session_state.questions.append(question)
                 st.session_state.answers.append(answer)
@@ -189,15 +190,19 @@ if divide:
 
 # 各計算問題の出力
 if st.session_state.questions:
+    st.session_state.incorrect_list = []
+    st.session_state.num_correct = 0
+    
+    # 割り算以外の出力
     if st.session_state.divide_flag == False:
         answer_list = []
         st.write("### 問題一覧")
         if int(b) == 1:
-            col1, col2 = st.columns([1, 4.7])
+            col1, col2 = st.columns([1, 4.2])
         elif int(b) == 2:
-            col1, col2 = st.columns([1, 3.7])
+            col1, col2 = st.columns([1, 3.4])
         elif int(b) == 3:
-            col1, col2 = st.columns([1, 3])
+            col1, col2 = st.columns([1, 2.7])
 
         for idx, question in enumerate(st.session_state.questions, 1):
             with col1:
@@ -208,25 +213,40 @@ if st.session_state.questions:
                 p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
             answer_list.append(p_answer)
 
-        if st.button("正解表示"):
+        if st.button("採点"):
             st.session_state.show_answers = True
 
         if st.session_state.show_answers:
-            st.write("### 正解一覧")
             for idx, answer in enumerate(st.session_state.answers, 1):
-                st.write(f'<p style="font-size: 20px;">問{idx}){answer}</p>', unsafe_allow_html=True)
                 list_idx = idx - 1
                 if str(answer_list[list_idx]) == str(answer):
-                    st.write("○")
+                    st.session_state.num_correct += 1
                 else:
-                    st.write("×")
+                    incorrect_list_zero = []
+                    incorrect_list_zero.append(idx)
+                    incorrect_list_zero.append(answer)
+                    st.session_state.incorrect_list.append(incorrect_list_zero)
+            st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
 
+        if st.button("間違えた問題の正解表示"):
+            if len(st.session_state.incorrect_list) < 1:
+                st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
+            else:
+                for i in range(len(st.session_state.incorrect_list)):
+                    st.write(f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}） {st.session_state.incorrect_list[i][1]}</p>', unsafe_allow_html=True)
+
+    # 割り算の出力
     elif st.session_state.divide_flag == True:
         answer_list = []
         st.write("### 問題一覧")
 
         if kinds == "余り":
-            col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
+            if int(b) == 1:
+                col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
+            elif int(b) == 2:
+                col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
+            elif int(b) == 3:
+                col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
 
             for idx, question in enumerate(st.session_state.questions, 1):
                 with col1:
@@ -246,27 +266,8 @@ if st.session_state.questions:
                     )
                 answer_zero = [p_answer_1, p_answer_2]
                 answer_list.append(answer_zero)
-
-            if st.button("正解表示"):
-                st.session_state.show_answers = True
-
-            if st.session_state.show_answers:
-                st.write("### 正解一覧")
-                for idx, answer in enumerate(st.session_state.answers, 1):
-                    st.write(
-                        f'<p style="font-size: 20px;">問{idx}){int(answer[0])} 余り{int(answer[1])}</p>',
-                        unsafe_allow_html=True,
-                    )
-                    list_idx = idx - 1
-                    if int(answer_list[list_idx][0]) == int(answer[0]) and int(answer_list[list_idx][1]) == int(
-                        answer[1],
-                    ):
-                        st.write("○")
-                    else:
-                        st.write("×")
-
         elif kinds == "分数":
-            col1, col2, col3, col4, col5 = st.columns([10, 9, 9, 2, 9])
+            col1, col2, col3, col4, col5 = st.columns([10, 8, 8, 2, 8])
 
             for idx, question in enumerate(st.session_state.questions, 1):
                 with col1:
@@ -291,22 +292,46 @@ if st.session_state.questions:
                 answer_zero = [p_answer_1, p_answer_2, p_answer_3]
                 answer_list.append(answer_zero)
 
-            if st.button("正解表示"):
-                st.session_state.show_answers = True
+        if st.button("採点"):
+            st.session_state.show_answers = True
 
-            if st.session_state.show_answers:
-                st.write("### 正解一覧")
-                for idx, answer in enumerate(st.session_state.answers, 1):
-                    st.write(
-                        f'<p style="font-size: 20px;">問{idx}){int(answer[0])}  {answer[3]}</p>',
-                        unsafe_allow_html=True,
-                    )
-                    list_idx = idx - 1
-                    if (
-                        int(answer_list[list_idx][0]) == int(answer[0])
-                        and int(answer_list[list_idx][1]) == int(answer[1])
-                        and int(answer_list[list_idx][2]) == int(answer[2])
-                    ):
-                        st.write("○")
-                    else:
-                        st.write("×")
+        if st.session_state.show_answers and kinds == "余り":
+            for idx, answer in enumerate(st.session_state.answers, 1):
+                list_idx = idx - 1
+                if int(answer_list[list_idx][0]) == int(answer[0]) and int(answer_list[list_idx][1]) == int(answer[1]):
+                    st.session_state.num_correct += 1
+                else:
+                    incorrect_list_zero = []
+                    incorrect_list_zero.append(idx)
+                    incorrect_list_zero.append(answer)
+                    st.session_state.incorrect_list.append(incorrect_list_zero)
+            st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+
+        if st.session_state.show_answers and kinds == "分数":
+            for idx, answer in enumerate(st.session_state.answers, 1):
+                list_idx = idx - 1
+                if int(answer_list[list_idx][0]) == int(answer[0]) and int(answer_list[list_idx][1]) == int(answer[1][0]) and int(answer_list[list_idx][2]) == int(answer[1][2]):
+                    st.session_state.num_correct += 1
+                else:
+                    incorrect_list_zero = []
+                    incorrect_list_zero.append(idx)
+                    incorrect_list_zero.append(answer)
+                    st.session_state.incorrect_list.append(incorrect_list_zero)
+            st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+
+        if st.button("間違えた問題の正解表示"):
+            if len(st.session_state.incorrect_list) < 1:
+                st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
+            else:
+                if kinds == "余り":
+                    for i in range(len(st.session_state.incorrect_list)):
+                        st.write(
+                            f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}){int(st.session_state.incorrect_list[i][1][0])} 余り{int(st.session_state.incorrect_list[i][1][1])}</p>',
+                            unsafe_allow_html=True,
+                        )
+                elif kinds == "分数":
+                    for i in range(len(st.session_state.incorrect_list)):
+                        st.write(
+                            f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}){int(st.session_state.incorrect_list[i][1][0])} {st.session_state.incorrect_list[i][1][1]}</p>',
+                            unsafe_allow_html=True,
+                        )
