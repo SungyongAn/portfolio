@@ -107,10 +107,17 @@ def multiply(num_range, identification_code):
 
     elif identification_code == 2: # 実数
         output_range = get_range_real_numbers(num_range)
-        question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
-        idenominator = 10 ** num_range
-        question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
-        answer = question_list_zero[0] * question_list_zero[1] / (idenominator * idenominator)
+
+        question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+
+        question_list_two = [Decimal(question_list_zero[i]) for i in range(len(question_list_zero))]
+
+        idenominator = [10 ** num_range[i] for i in range(len(num_range))]
+
+        question_list = [question_list_two[i] / idenominator[i] for i in range(len(num_range))]
+
+        answer = question_list[0] * question_list[1]
+
     return question_list, answer
 
 
@@ -128,9 +135,29 @@ def divide_residue(num_range):
 # 割り算)実数
 def divide(num_range):
     output_range = get_range_real_numbers(num_range)
-    question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
-    idenominator = 10 ** num_range
-    question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
-    answer_zero = str(question_list_zero[0] / question_list_zero[1])
-    answer = Decimal(str(answer_zero)).quantize(Decimal("0.001"), rounding=ROUND_HALF_UP)
+
+    question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    
+    question_list_two = [Decimal(question_list_zero[i]) for i in range(len(question_list_zero))]
+
+    idenominator = [10 ** num_range[i] for i in range(len(num_range))]
+
+    question_list = [question_list_two[i] / idenominator[i] for i in range(len(num_range))]
+
+    answer = question_list[0] / question_list[1]
+
+    num_decimal_places = math.floor(answer) #小数点以下の切り捨て
+    
+    digits = len(str(answer - num_decimal_places)) - 2 # 小数点以下の桁数の確認
+
+    if digits > max(num_range):
+        factor_zero = max(num_range)
+        if factor_zero == 1:
+            factor = "0.1"
+        elif factor_zero == 2:
+            factor = "0.01"
+        elif factor_zero == 3:
+            factor = "0.001"
+        
+        answer = Decimal(str(answer)).quantize(Decimal(factor), ROUND_HALF_UP)
     return question_list, answer
