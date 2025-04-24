@@ -1,52 +1,74 @@
 import random
+import math
 from decimal import ROUND_HALF_UP, Decimal
 
 
-# 整数）出題される数字の最小値、最大値を作成
-def get_output_range(num_range):
-    output_range = []
-    for i in range(2):
-        output_range_zero = []
-        if i == 0:
-            for j in range(num_range):
-                if j == 0:
-                    output_range_zero.append(1)
-                else:
-                    output_range_zero.append(0)
-        else:
-            for j in range(num_range):
-                output_range_zero.append(9)
-        str_list = map(str, output_range_zero)
-        output_range.append(int("".join(str_list)))
-    return output_range
-
-
+# 実数用)指定した桁数の最小値、最大値を作成
 def get_range_real_numbers(num_range):
     output_range = []
-    for i in range(2):
-        if i == 0:
-            output_range.append(1)
-        else:
-            output_range_zero = []
-            for j in range(num_range + 1):
-                if j == 0:
-                    output_range_zero.append(1)
-                else:
-                    output_range_zero.append(9)
-            str_list = map(str, output_range_zero)
-            output_range.append(int("".join(str_list)))
+    for i in range(len(num_range)):
+        if num_range[i] == 1:
+            output_range.append([1, 19])
+        elif num_range[i] == 2:
+            output_range.append([1, 199])
+        elif num_range[i] == 3:
+            output_range.append([1, 1999])
     return output_range
 
 
-def divide(num_range):
+def addition(num_range):
     output_range = get_range_real_numbers(num_range)
-    question_list_zero = [random.randint(output_range[0], output_range[1]) for _ in range(2)]
-    idenominator = 10 ** num_range
-    question_list = [question_list_zero[0] / idenominator, question_list_zero[1] / idenominator]
-    answer_zero = str(question_list_zero[0] / question_list_zero[1])
-    print(answer_zero) # noqa: T201
-    answer = Decimal(str(answer_zero)).quantize(Decimal('0.001'), rounding=ROUND_HALF_UP)
-    print(answer) # noqa: T201
+
+    question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    
+    question_list_two = [Decimal(question_list_zero[i]) for i in range(len(question_list_zero))]
+
+    idenominator = [10 ** num_range[i] for i in range(len(num_range))]
+
+    question_list = [question_list_two[i] / idenominator[i] for i in range(len(num_range))]
+
+    answer = question_list[0] / question_list[1]
+
+    num_decimal_places = math.floor(answer) #小数点以下の切り捨て
+    
+    digits = len(str(answer - num_decimal_places)) - 2 # 小数点以下の桁数の確認
+
+    if digits > max(num_range):
+        factor_zero = max(num_range)
+        if factor_zero == 1:
+            factor = "0.1"
+        elif factor_zero == 2:
+            factor = "0.01"
+        elif factor_zero == 3:
+            factor = "0.001"
+        
+        answer = Decimal(str(answer)).quantize(Decimal(factor), ROUND_HALF_UP)
+
+    # answer = 0
+    # for i in range(len(num_range)):
+    #     if len(str(question_list[i])) < num_range[i] + 2:
+    #         answer += question_list[i] * (num_range[i] + 2)
+    #     else:
+    #         answer += question_list[i]
+
+    # if len(str(answer)) > sum(num_range) + 1:
+    #     factor = 10 ** sum(num_range)
+    #     answer = math.floor(answer * factor) / factor
+
     return question_list, answer
 
-divide(2)
+
+# def truncate(number, digits):
+#     factor = 10 ** digits
+#     return math.floor(number * factor) / factor
+
+num_range = [2, 1]
+question_list, answer = addition(num_range)
+
+print(answer)
+
+print(question_list, answer)
+print(answer)
+
+# question_list, answer, residue = divide_residue(num_range)
+# print(question_list, answer, residue)

@@ -31,12 +31,12 @@ def get_range_real_numbers(num_range):
 
 # 足し算
 def addition(num_range, identification_code):
-    if identification_code == 1: # 整数
+    if identification_code == 1:  # 整数
         output_range = get_output_range(num_range)
         question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
         answer = sum(question_list)
 
-    elif identification_code == 2: # 実数
+    elif identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
@@ -60,7 +60,7 @@ def addition(num_range, identification_code):
 
 # 引き算
 def subtract(num_range, identification_code):
-    if identification_code == 1: # 整数
+    if identification_code == 1:  # 整数
         output_range = get_output_range(num_range)
         question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
         answer = 0
@@ -70,7 +70,7 @@ def subtract(num_range, identification_code):
             else:
                 answer -= question_list[i]
 
-    elif identification_code == 2: # 実数
+    elif identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
@@ -100,12 +100,12 @@ def subtract(num_range, identification_code):
 
 # 掛け算
 def multiply(num_range, identification_code):
-    if identification_code == 1: # 整数
+    if identification_code == 1:  # 整数
         output_range = get_output_range(num_range)
         question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
         answer = question_list[0] * question_list[1]
 
-    elif identification_code == 2: # 実数
+    elif identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
@@ -137,7 +137,7 @@ def divide(num_range):
     output_range = get_range_real_numbers(num_range)
 
     question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
-    
+
     question_list_two = [Decimal(question_list_zero[i]) for i in range(len(question_list_zero))]
 
     idenominator = [10 ** num_range[i] for i in range(len(num_range))]
@@ -146,9 +146,9 @@ def divide(num_range):
 
     answer = question_list[0] / question_list[1]
 
-    num_decimal_places = math.floor(answer) #小数点以下の切り捨て
-    
-    digits = len(str(answer - num_decimal_places)) - 2 # 小数点以下の桁数の確認
+    num_decimal_places = math.floor(answer)  # 小数点以下の切り捨て
+
+    digits = len(str(answer - num_decimal_places)) - 2  # 小数点以下の桁数の確認
 
     if digits > max(num_range):
         factor_zero = max(num_range)
@@ -158,6 +158,6 @@ def divide(num_range):
             factor = "0.01"
         elif factor_zero == 3:
             factor = "0.001"
-        
+
         answer = Decimal(str(answer)).quantize(Decimal(factor), ROUND_HALF_UP)
     return question_list, answer

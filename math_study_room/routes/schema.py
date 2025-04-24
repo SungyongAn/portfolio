@@ -2,12 +2,12 @@ from pydantic import BaseModel
 
 
 class CaluculationPayload(BaseModel):
-    num_range: int
+    num_range: list[int]
     identification_code : int
 
 
 class DividePayload(BaseModel):
-    num_range: int
+    num_range: list[int]
 
 
 class CaluculationResponse(BaseModel):
