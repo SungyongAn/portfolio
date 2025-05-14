@@ -192,7 +192,7 @@ if divide:
 if st.session_state.questions:
     st.session_state.incorrect_list = []
     st.session_state.num_correct = 0
-    
+
     # 割り算以外の出力
     if st.session_state.divide_flag == False:
         answer_list = []
