@@ -21,7 +21,7 @@ with st.sidebar:
     st.write("# 実数問題")
     st.write("問題数:１〜10問、桁数:１〜３桁から選択できます。")
     num_questions_zero = st.slider("問題数", min_value=1, max_value=10, value=1, step=1)
-    b = st.radio(
+    num_digits_zero = st.radio(
         "問題の桁数",
         ["1桁、1桁", "2桁、1桁", "2桁、2桁", "3桁、2桁", "3桁、3桁"],
     )
@@ -35,15 +35,15 @@ with st.sidebar:
 
 
 # 出題される数字の桁数をcalculation.pyに渡すデータに変換
-if b == "1桁、1桁":
+if num_digits_zero == "1桁、1桁":
     num_digits_list_zero = [1, 1]
-elif b == "2桁、1桁":
+elif num_digits_zero == "2桁、1桁":
     num_digits_list_zero = [2, 1]
-elif b == "2桁、2桁":
+elif num_digits_zero == "2桁、2桁":
     num_digits_list_zero = [2, 2]
-elif b == "3桁、2桁":
+elif num_digits_zero == "3桁、2桁":
     num_digits_list_zero = [3, 2]
-elif b == "3桁、3桁":
+elif num_digits_zero == "3桁、3桁":
     num_digits_list_zero = [3, 3]
 
 
@@ -166,15 +166,15 @@ if st.session_state.questions:
     st.session_state.num_correct = 0
     answer_list = []
     st.write("### 問題一覧")
-    if b == "1桁、1桁":
+    if num_digits_zero == "1桁、1桁":
         col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-    elif b == "2桁、1桁":
+    elif num_digits_zero == "2桁、1桁":
         col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-    elif b == "2桁、2桁":
+    elif num_digits_zero == "2桁、2桁":
         col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-    elif b == "3桁、2桁":
+    elif num_digits_zero == "3桁、2桁":
         col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-    elif b == "3桁、3桁":
+    elif num_digits_zero == "3桁、3桁":
         col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
 
     for idx, question in enumerate(st.session_state.questions, 1):
@@ -197,7 +197,7 @@ if st.session_state.questions:
                 incorrect_list_zero.append(idx)
                 incorrect_list_zero.append(answer)
                 st.session_state.incorrect_list.append(incorrect_list_zero)
-        st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+        st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
         if len(st.session_state.incorrect_list) < 1:
                 st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
         else:
