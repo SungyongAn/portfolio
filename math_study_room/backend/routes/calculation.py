@@ -6,12 +6,12 @@ from decimal import ROUND_HALF_UP, Decimal
 # 整数)出題される数字の最小値、最大値を作成
 def get_output_range(num_range):
     output_range = []
-    for i in range(len(num_range)):
-        if num_range[i] == 1:
+    for i in range(2):
+        if num_range == 1:
             output_range.append([1, 9])
-        elif num_range[i] == 2:
+        elif num_range == 2:
             output_range.append([10, 99])
-        elif num_range[i] == 3:
+        elif num_range == 3:
             output_range.append([100, 999])
     return output_range
 
@@ -29,14 +29,18 @@ def get_range_real_numbers(num_range):
     return output_range
 
 
-# 足し算
-def addition(num_range, identification_code):
-    if identification_code == 1:  # 整数
-        output_range = get_output_range(num_range)
-        question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
-        answer = sum(question_list)
+# 整数 足し算
+def addition_integer(num_range_integer):
+    output_range = get_output_range(num_range_integer)
+    question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    answer = sum(question_list)
 
-    elif identification_code == 2:  # 実数
+    return question_list, answer
+
+
+# 実数 足し算
+def addition(num_range, identification_code):
+    if identification_code == 2:  
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]

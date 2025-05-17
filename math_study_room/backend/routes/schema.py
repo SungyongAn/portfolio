@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 
 
+class Caluculation_integerPayload(BaseModel):
+    num_range_integer: int
+
+
 class CaluculationPayload(BaseModel):
     num_range: list[int]
     identification_code : int

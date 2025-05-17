@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-from routes.calculation import addition, divide, divide_residue, multiply, subtract
+from routes.calculation import addition_integer, addition, divide, divide_residue, multiply, subtract
 from routes.schema import (
+    Caluculation_integerPayload,
     CaluculationPayload,
     CaluculationResponse,
     DividePayload,
@@ -9,6 +10,13 @@ from routes.schema import (
 )
 
 router = APIRouter()
+
+@router.post("/page_addition_integer")
+async def page_addition(caluculation_integer_payload:Caluculation_integerPayload) -> CaluculationResponse:
+    question_list, answer = addition_integer(
+        caluculation_integer_payload.num_range_integer,
+        )
+    return CaluculationResponse(question_list=question_list, answer=answer)
 
 
 @router.post("/page_addition")
