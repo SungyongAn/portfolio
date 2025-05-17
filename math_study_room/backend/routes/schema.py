@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Caluculation_integerPayload(BaseModel):
-    num_range_integer: int
+    num_range: int
 
 
 class CaluculationPayload(BaseModel):

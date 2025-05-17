@@ -63,18 +63,21 @@ def addition(num_range, identification_code):
 
 
 # 引き算
-def subtract(num_range, identification_code):
-    if identification_code == 1:  # 整数
-        output_range = get_output_range(num_range)
-        question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
-        answer = 0
-        for i in range(2):
-            if i == 0:
-                answer = question_list[i]
-            else:
-                answer -= question_list[i]
+def subtract_integer(num_range):
+    output_range = get_output_range(num_range)
+    question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    answer = 0
+    for i in range(2):
+        if i == 0:
+            answer = question_list[i]
+        else:
+            answer -= question_list[i]
 
-    elif identification_code == 2:  # 実数
+    return question_list, answer
+
+
+def subtract(num_range, identification_code):
+    if identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
@@ -103,13 +106,15 @@ def subtract(num_range, identification_code):
 
 
 # 掛け算
-def multiply(num_range, identification_code):
-    if identification_code == 1:  # 整数
-        output_range = get_output_range(num_range)
-        question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
-        answer = question_list[0] * question_list[1]
+def multiply_integer(num_range):
+    output_range = get_output_range(num_range)
+    question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    answer = question_list[0] * question_list[1]
+    
+    return question_list, answer
 
-    elif identification_code == 2:  # 実数
+def multiply(num_range, identification_code):
+    if identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
