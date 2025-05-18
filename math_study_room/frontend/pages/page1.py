@@ -23,8 +23,8 @@ with st.sidebar:
     st.page_link("pages/page2.py", label="実数問題", icon="2️⃣")
     st.write("# 整数問題")
     st.write("問題数:１〜10問、桁数:１〜３桁から選択できます。")
-    a = st.slider("問題数", min_value=1, max_value=10, value=1, step=1)
-    b = st.slider("桁数", min_value=1, max_value=3, value=1, step=1)
+    num_questions_zero = st.slider("問題数", min_value=1, max_value=10, value=1, step=1)
+    num_digits_zero = st.slider("桁数", min_value=1, max_value=3, value=1, step=1)
     addition = st.button(" ＋ (足し算)")
     subtract = st.button(" ー (引き算)")
     multiply = st.button(" × (掛け算)")
@@ -39,8 +39,8 @@ with st.sidebar:
 if addition:
     st.session_state.divide_flag = False
     try:
-        num_questions = int(a)
-        num_digits = int(b)
+        num_questions = int(num_questions_zero)
+        num_digits = int(num_digits_zero)
     except ValueError:
         st.sidebar.error("問題数と桁数には整数を入力してください。")
     else:
@@ -49,8 +49,8 @@ if addition:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_addition"
-            response = requests.post(url, json={"num_range": num_digits, "identification_code": 1})
+            url = "http://127.0.0.1:8000/page_addition_integer"
+            response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -68,8 +68,8 @@ if addition:
 if subtract:
     st.session_state.divide_flag = False
     try:
-        num_questions = int(a)
-        num_digits = int(b)
+        num_questions = int(num_questions_zero)
+        num_digits = int(num_digits_zero)
     except ValueError:
         st.sidebar.error("問題数と桁数には整数を入力してください。")
     else:
@@ -78,8 +78,8 @@ if subtract:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_subtract"
-            response = requests.post(url, json={"num_range": num_digits, "identification_code": 1})
+            url = "http://127.0.0.1:8000/page_subtract_integer"
+            response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -98,8 +98,8 @@ if subtract:
 if multiply:
     st.session_state.divide_flag = False
     try:
-        num_questions = int(a)
-        num_digits = int(b)
+        num_questions = int(num_questions_zero)
+        num_digits = int(num_digits_zero)
     except ValueError:
         st.sidebar.error("問題数と桁数には整数を入力してください。")
     else:
@@ -108,8 +108,8 @@ if multiply:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_multiply"
-            response = requests.post(url, json={"num_range": num_digits, "identification_code": 1})
+            url = "http://127.0.0.1:8000/page_multiply_integer"
+            response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -128,8 +128,8 @@ if divide:
     st.session_state.divide_flag = True
     if kinds == "余り":
         try:
-            num_questions = int(a)
-            num_digits = int(b)
+            num_questions = int(num_questions_zero)
+            num_digits = int(num_digits_zero)
         except ValueError:
             st.sidebar.error("問題数と桁数には整数を入力してください。")
         else:
@@ -158,8 +158,8 @@ if divide:
 
     elif kinds == "分数":
         try:
-            num_questions = int(a)
-            num_digits = int(b)
+            num_questions = int(num_questions_zero)
+            num_digits = int(num_digits_zero)
         except ValueError:
             st.sidebar.error("問題数と桁数には整数を入力してください。")
         else:
@@ -197,11 +197,11 @@ if st.session_state.questions:
     if st.session_state.divide_flag == False:
         answer_list = []
         st.write("### 問題一覧")
-        if int(b) == 1:
+        if num_digits_zero == 1:
             col1, col2 = st.columns([1, 4.2])
-        elif int(b) == 2:
+        elif num_digits_zero == 2:
             col1, col2 = st.columns([1, 3.4])
-        elif int(b) == 3:
+        elif num_digits_zero == 3:
             col1, col2 = st.columns([1, 2.7])
 
         for idx, question in enumerate(st.session_state.questions, 1):
@@ -226,7 +226,7 @@ if st.session_state.questions:
                     incorrect_list_zero.append(idx)
                     incorrect_list_zero.append(answer)
                     st.session_state.incorrect_list.append(incorrect_list_zero)
-            st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+            st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
 
         if st.button("間違えた問題の正解表示"):
             if len(st.session_state.incorrect_list) < 1:
@@ -241,11 +241,11 @@ if st.session_state.questions:
         st.write("### 問題一覧")
 
         if kinds == "余り":
-            if int(b) == 1:
+            if num_digits_zero == 1:
                 col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-            elif int(b) == 2:
+            elif num_digits_zero == 2:
                 col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-            elif int(b) == 3:
+            elif num_digits_zero == 3:
                 col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
 
             for idx, question in enumerate(st.session_state.questions, 1):
@@ -305,7 +305,7 @@ if st.session_state.questions:
                     incorrect_list_zero.append(idx)
                     incorrect_list_zero.append(answer)
                     st.session_state.incorrect_list.append(incorrect_list_zero)
-            st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+            st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
 
         if st.session_state.show_answers and kinds == "分数":
             for idx, answer in enumerate(st.session_state.answers, 1):
@@ -317,7 +317,7 @@ if st.session_state.questions:
                     incorrect_list_zero.append(idx)
                     incorrect_list_zero.append(answer)
                     st.session_state.incorrect_list.append(incorrect_list_zero)
-            st.write(f'<p style="font-size: 20px;">{a}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+            st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
 
         if st.button("間違えた問題の正解表示"):
             if len(st.session_state.incorrect_list) < 1:
