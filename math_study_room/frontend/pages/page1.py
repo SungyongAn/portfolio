@@ -241,11 +241,11 @@ if st.session_state.questions:
         st.write("### 問題一覧")
 
         if kinds == "余り":
-            if num_digits == 1:
+            if num_digits_zero == 1:
                 col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-            elif num_digits == 2:
+            elif num_digits_zero == 2:
                 col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
-            elif num_digits == 3:
+            elif num_digits_zero == 3:
                 col1, col2, col3, col4 = st.columns([12, 14, 4, 14])
 
             for idx, question in enumerate(st.session_state.questions, 1):

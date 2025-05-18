@@ -5,6 +5,10 @@ class Caluculation_integerPayload(BaseModel):
     num_range: int
 
 
+class Divide_integerPayload(BaseModel):
+    num_range: int
+
+
 class CaluculationPayload(BaseModel):
     num_range: list[int]
     identification_code : int
