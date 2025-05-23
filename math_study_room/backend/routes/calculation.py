@@ -30,7 +30,7 @@ def get_range_real_numbers(num_range):
 
 
 # 整数 足し算
-def addition_integer(num_range_integer):
+def addition_int(num_range_integer):
     output_range = get_output_range(num_range_integer)
     question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
     answer = sum(question_list)
@@ -39,7 +39,7 @@ def addition_integer(num_range_integer):
 
 
 # 実数 足し算
-def addition(num_range, identification_code):
+def addition_float(num_range, identification_code):
     if identification_code == 2:  
         output_range = get_range_real_numbers(num_range)
 
@@ -63,7 +63,7 @@ def addition(num_range, identification_code):
 
 
 # 引き算
-def subtract_integer(num_range):
+def subtract_int(num_range):
     output_range = get_output_range(num_range)
     question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
     answer = 0
@@ -76,7 +76,7 @@ def subtract_integer(num_range):
     return question_list, answer
 
 
-def subtract(num_range, identification_code):
+def subtract_float(num_range, identification_code):
     if identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
@@ -106,14 +106,14 @@ def subtract(num_range, identification_code):
 
 
 # 掛け算
-def multiply_integer(num_range):
+def multiply_int(num_range):
     output_range = get_output_range(num_range)
     question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
     answer = question_list[0] * question_list[1]
     
     return question_list, answer
 
-def multiply(num_range, identification_code):
+def multiply_float(num_range, identification_code):
     if identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
@@ -131,7 +131,7 @@ def multiply(num_range, identification_code):
 
 
 # 割り算(余り、分数表記)
-def divide_residue(num_range):
+def divide_int(num_range):
     output_range = get_output_range(num_range)
     question_list = []
     for i in range(len(output_range)):
@@ -142,7 +142,7 @@ def divide_residue(num_range):
 
 
 # 割り算)実数
-def divide(num_range):
+def divide_float(num_range):
     output_range = get_range_real_numbers(num_range)
 
     question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]

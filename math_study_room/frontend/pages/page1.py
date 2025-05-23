@@ -49,7 +49,7 @@ if addition:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_addition_integer"
+            url = "http://127.0.0.1:8000/page_addition_int"
             response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
@@ -78,7 +78,7 @@ if subtract:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_subtract_integer"
+            url = "http://127.0.0.1:8000/page_subtract_int"
             response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
@@ -108,7 +108,7 @@ if multiply:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_multiply_integer"
+            url = "http://127.0.0.1:8000/page_multiply_int"
             response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
@@ -139,7 +139,7 @@ if divide:
             st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_divide_residue"
+            url = "http://127.0.0.1:8000/page_divide_int"
             response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()
@@ -168,7 +168,7 @@ if divide:
             st.session_state.residues = []
             st.session_state.show_answers = False
         for _ in range(num_questions):
-            url = "http://127.0.0.1:8000/page_divide_residue"
+            url = "http://127.0.0.1:8000/page_divide_int"
             response = requests.post(url, json={"num_range": num_digits})
             if response.status_code == 200:
                 data = response.json()

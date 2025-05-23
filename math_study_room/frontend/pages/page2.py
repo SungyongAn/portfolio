@@ -60,7 +60,7 @@ if addition:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_addition"
+            url = "http://127.0.0.1:8000/page_addition_float"
             response = requests.post(url, json={"num_range": num_digits_list_zero, "identification_code": 2})
             if response.status_code == 200:
                 data = response.json()
@@ -88,7 +88,7 @@ if subtract:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_subtract"
+            url = "http://127.0.0.1:8000/page_subtract_float"
             response = requests.post(url, json={"num_range": num_digits_list_zero, "identification_code": 2})
             if response.status_code == 200:
                 data = response.json()
@@ -116,7 +116,7 @@ if multiply:
         st.session_state.show_answers = False
 
         while len(st.session_state.questions) < num_questions:
-            url = "http://127.0.0.1:8000/page_multiply"
+            url = "http://127.0.0.1:8000/page_multiply_float"
             response = requests.post(url, json={"num_range": num_digits_list_zero, "identification_code": 2})
             if response.status_code == 200:
                 data = response.json()
@@ -144,7 +144,7 @@ if divide:
         st.session_state.show_answers = False
 
     while len(st.session_state.questions) < num_questions:
-        url = "http://127.0.0.1:8000/page_divide"
+        url = "http://127.0.0.1:8000/page_divide_float"
         response = requests.post(url, json={"num_range": num_digits_list_zero})
         if response.status_code == 200:
             data = response.json()
