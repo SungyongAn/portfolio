@@ -24,7 +24,7 @@ def addition(num_range):
     idenominator = [10 ** num_range[i] for i in range(len(num_range))]
 
     question_list_tow = [question_list_zero[i] / idenominator[i] for i in range(len(num_range))]
-    
+
     question_list = ["{:.num_range[i]f}".format for i in range(len(question_list_tow))]
 
     answer_zero = 0
@@ -39,25 +39,14 @@ def addition(num_range):
 
     return question_list, answer
 
-
-# def truncate(number, digits):
-#     factor = 10 ** digits
-#     return math.floor(number * factor) / factor
-
 num_range = [3, 3]
 question_list, answer = addition(num_range)
 
-print(question_list, answer)
-print(answer)
-a = format(question_list[0], f'.{num_range[0]}f')
-b = format(question_list[1], f'.{num_range[1]}f')
-print(a)
-print(b)
+print(question_list, answer) # noqa: T201
+print(answer) # noqa: T201
 
-# if len(str(question_list[0])) != num_range[0] + 2:
-#     question_list[0] = list(str(question_list[0])).extend["0"]
+a = format(question_list[0], f".{num_range[0]}f")
+b = format(question_list[1], f".{num_range[1]}f")
 
-# if len(str(question_list[1])) != num_range[1] + 2:
-#     question_list[1] = list(str(question_list[1])).extend["0"]
-# question_list, answer, residue = divide_residue(num_range)
-# print(question_list, answer, residue)
+print(a) # noqa: T201
+print(b) # noqa: T201

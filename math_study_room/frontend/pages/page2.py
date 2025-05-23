@@ -197,10 +197,16 @@ if st.session_state.questions:
                 incorrect_list_zero.append(idx)
                 incorrect_list_zero.append(answer)
                 st.session_state.incorrect_list.append(incorrect_list_zero)
-        st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+        st.write(
+            f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>',
+            unsafe_allow_html=True,
+        )
         if len(st.session_state.incorrect_list) < 1:
-                st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
+            st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
         else:
             st.write("不正解問題の正解")
             for i in range(len(st.session_state.incorrect_list)):
-                st.write(f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}） {st.session_state.incorrect_list[i][1]}</p>', unsafe_allow_html=True)
+                st.write(
+                    f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}） {st.session_state.incorrect_list[i][1]}</p>',
+                    unsafe_allow_html=True,
+                )

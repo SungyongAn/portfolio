@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class CaluculationIntegerPayload(BaseModel):
+class NonDivisionCalculatorIntegerPayload(BaseModel):
     num_range: int
 
 
@@ -9,21 +9,21 @@ class DivideIntegerPayload(BaseModel):
     num_range: int
 
 
-class CaluculationFloatPayload(BaseModel):
+class NonDivisionCalculatorFloatPayload(BaseModel):
     num_range: list[int]
-    identification_code : int
+    identification_code: int
 
 
 class DivideFloatPayload(BaseModel):
     num_range: list[int]
 
 
-class CaluculationResponse(BaseModel):
-    question_list : list[float]
+class NonDivisionCalculatorResponseGeneric(BaseModel):
+    question_list: list[float]
     answer: float
 
 
-class DivideResponse(BaseModel):
-    question_list : list[float]
+class DivideResponseGeneric(BaseModel):
+    question_list: list[float]
     answer: float
     residue: int

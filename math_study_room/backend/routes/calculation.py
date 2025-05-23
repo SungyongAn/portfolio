@@ -40,7 +40,7 @@ def addition_int(num_range_integer):
 
 # 実数 足し算
 def addition_float(num_range, identification_code):
-    if identification_code == 2:  
+    if identification_code == 2:
         output_range = get_range_real_numbers(num_range)
 
         question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
@@ -110,8 +110,9 @@ def multiply_int(num_range):
     output_range = get_output_range(num_range)
     question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
     answer = question_list[0] * question_list[1]
-    
+
     return question_list, answer
+
 
 def multiply_float(num_range, identification_code):
     if identification_code == 2:  # 実数

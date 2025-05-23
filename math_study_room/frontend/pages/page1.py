@@ -207,7 +207,8 @@ if st.session_state.questions:
         for idx, question in enumerate(st.session_state.questions, 1):
             with col1:
                 st.write(
-                    f'<p style="font-size: 25px; text-align: left;">問{idx})  {question} </p>', unsafe_allow_html=True,
+                    f'<p style="font-size: 25px; text-align: left;">問{idx})  {question} </p>',
+                    unsafe_allow_html=True,
                 )
             with col2:
                 p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
@@ -226,14 +227,20 @@ if st.session_state.questions:
                     incorrect_list_zero.append(idx)
                     incorrect_list_zero.append(answer)
                     st.session_state.incorrect_list.append(incorrect_list_zero)
-            st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+            st.write(
+                f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>',
+                unsafe_allow_html=True,
+            )
 
         if st.button("間違えた問題の正解表示"):
             if len(st.session_state.incorrect_list) < 1:
                 st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
             else:
                 for i in range(len(st.session_state.incorrect_list)):
-                    st.write(f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}） {st.session_state.incorrect_list[i][1]}</p>', unsafe_allow_html=True)
+                    st.write(
+                        f'<p style="font-size: 20px;">問{st.session_state.incorrect_list[i][0]}） {st.session_state.incorrect_list[i][1]}</p>',
+                        unsafe_allow_html=True,
+                    )
 
     # 割り算の出力
     elif st.session_state.divide_flag == True:
@@ -256,13 +263,19 @@ if st.session_state.questions:
                     )
                 with col2:
                     p_answer_1 = st.text_input(
-                        label="", value=0, autocomplete=f"整数{idx}", label_visibility="collapsed",
+                        label="",
+                        value=0,
+                        autocomplete=f"整数{idx}",
+                        label_visibility="collapsed",
                     )
                 with col3:
                     st.write('<p style="font-size: 25px; text-align: center;"> 余り </p>', unsafe_allow_html=True)
                 with col4:
                     p_answer_2 = st.text_input(
-                        label="", value=0, autocomplete=f"余り {idx}", label_visibility="collapsed",
+                        label="",
+                        value=0,
+                        autocomplete=f"余り {idx}",
+                        label_visibility="collapsed",
                     )
                 answer_zero = [p_answer_1, p_answer_2]
                 answer_list.append(answer_zero)
@@ -277,17 +290,26 @@ if st.session_state.questions:
                     )
                 with col2:
                     p_answer_1 = st.text_input(
-                        label="", value=0, autocomplete=f"整数 {idx}", label_visibility="collapsed",
+                        label="",
+                        value=0,
+                        autocomplete=f"整数 {idx}",
+                        label_visibility="collapsed",
                     )
                 with col3:
                     p_answer_2 = st.text_input(
-                        label="", value=0, autocomplete=f"分子 {idx}", label_visibility="collapsed",
+                        label="",
+                        value=0,
+                        autocomplete=f"分子 {idx}",
+                        label_visibility="collapsed",
                     )
                 with col4:
                     st.write('<p style="font-size: 25px; text-align: center;"> / </p>', unsafe_allow_html=True)
                 with col5:
                     p_answer_3 = st.text_input(
-                        label="", value=0, autocomplete=f"分母 {idx}", label_visibility="collapsed",
+                        label="",
+                        value=0,
+                        autocomplete=f"分母 {idx}",
+                        label_visibility="collapsed",
                     )
                 answer_zero = [p_answer_1, p_answer_2, p_answer_3]
                 answer_list.append(answer_zero)
@@ -305,19 +327,29 @@ if st.session_state.questions:
                     incorrect_list_zero.append(idx)
                     incorrect_list_zero.append(answer)
                     st.session_state.incorrect_list.append(incorrect_list_zero)
-            st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+            st.write(
+                f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>',
+                unsafe_allow_html=True,
+            )
 
         if st.session_state.show_answers and kinds == "分数":
             for idx, answer in enumerate(st.session_state.answers, 1):
                 list_idx = idx - 1
-                if int(answer_list[list_idx][0]) == int(answer[0]) and int(answer_list[list_idx][1]) == int(answer[1][0]) and int(answer_list[list_idx][2]) == int(answer[1][2]):
+                if (
+                    int(answer_list[list_idx][0]) == int(answer[0])
+                    and int(answer_list[list_idx][1]) == int(answer[1][0])
+                    and int(answer_list[list_idx][2]) == int(answer[1][2])
+                ):
                     st.session_state.num_correct += 1
                 else:
                     incorrect_list_zero = []
                     incorrect_list_zero.append(idx)
                     incorrect_list_zero.append(answer)
                     st.session_state.incorrect_list.append(incorrect_list_zero)
-            st.write(f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>', unsafe_allow_html=True)
+            st.write(
+                f'<p style="font-size: 20px;">{num_questions_zero}問中 {st.session_state.num_correct}問正解</P>',
+                unsafe_allow_html=True,
+            )
 
         if st.button("間違えた問題の正解表示"):
             if len(st.session_state.incorrect_list) < 1:
