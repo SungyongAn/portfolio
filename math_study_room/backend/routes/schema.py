@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 
 
-class Caluculation_integerPayload(BaseModel):
+class CaluculationIntegerPayload(BaseModel):
     num_range: int
 
 
-class Divide_integerPayload(BaseModel):
+class DivideIntegerPayload(BaseModel):
     num_range: int
 
 
