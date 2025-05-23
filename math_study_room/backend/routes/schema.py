@@ -9,12 +9,12 @@ class DivideIntegerPayload(BaseModel):
     num_range: int
 
 
-class CaluculationPayload(BaseModel):
+class CaluculationFloatPayload(BaseModel):
     num_range: list[int]
     identification_code : int
 
 
-class DividePayload(BaseModel):
+class DivideFloatPayload(BaseModel):
     num_range: list[int]
 
 
@@ -23,7 +23,7 @@ class CaluculationResponse(BaseModel):
     answer: float
 
 
-class DivideresidueResponse(BaseModel):
+class DivideResponse(BaseModel):
     question_list : list[float]
     answer: float
     residue: int

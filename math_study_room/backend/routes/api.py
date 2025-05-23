@@ -12,10 +12,10 @@ from routes.calculation import (
 )
 from routes.schema import (
     CaluculationIntegerPayload,
-    CaluculationPayload,
+    CaluculationFloatPayload,
     CaluculationResponse,
-    DividePayload,
-    DivideresidueResponse,
+    DivideFloatPayload,
+    DivideResponse,
     DivideIntegerPayload,
 )
 
@@ -46,13 +46,13 @@ async def page_multiply_int(caluculation_payload:CaluculationIntegerPayload) -> 
 
 
 @router.post("/page_divide_int")
-async def page_divide_int(divide_payload:DivideIntegerPayload) -> DivideresidueResponse:
+async def page_divide_int(divide_payload:DivideIntegerPayload) -> DivideResponse:
     question_list, answer, residue = divide_int(divide_payload.num_range)
-    return DivideresidueResponse(question_list=question_list, answer=answer, residue=residue)
+    return DivideResponse(question_list=question_list, answer=answer, residue=residue)
 
 
 @router.post("/page_addition_float")
-async def page_addition_float(caluculation_payload:CaluculationPayload) -> CaluculationResponse:
+async def page_addition_float(caluculation_payload:CaluculationFloatPayload) -> CaluculationResponse:
     question_list, answer = addition_float(
         caluculation_payload.num_range,
         caluculation_payload.identification_code,
@@ -61,7 +61,7 @@ async def page_addition_float(caluculation_payload:CaluculationPayload) -> Caluc
 
 
 @router.post("/page_subtract_float")
-async def page_subtract_float(caluculation_payload:CaluculationPayload) -> CaluculationResponse:
+async def page_subtract_float(caluculation_payload:CaluculationFloatPayload) -> CaluculationResponse:
     question_list, answer = subtract_float(
         caluculation_payload.num_range,
         caluculation_payload.identification_code,
@@ -70,19 +70,19 @@ async def page_subtract_float(caluculation_payload:CaluculationPayload) -> Caluc
 
 
 @router.post("/page_divide_float")
-async def page_divide_float(divide_payload:DividePayload) -> CaluculationResponse:
+async def page_divide_float(divide_payload:DivideFloatPayload) -> CaluculationResponse:
     question_list, answer = divide_float(divide_payload.num_range)
     return CaluculationResponse(question_list=question_list, answer=answer)
 
 
 @router.post("/page_divide_int")
-async def page_divide_int(divide_payload:DividePayload) -> DivideresidueResponse:
+async def page_divide_int(divide_payload:DivideFloatPayload) -> DivideResponse:
     question_list, answer, residue = divide_int(divide_payload.num_range)
-    return DivideresidueResponse(question_list=question_list, answer=answer, residue=residue)
+    return DivideResponse(question_list=question_list, answer=answer, residue=residue)
 
 
 @router.post("/page_multiply_float")
-async def page_multiply_float(caluculation_payload:CaluculationPayload) -> CaluculationResponse:
+async def page_multiply_float(caluculation_payload:CaluculationFloatPayload) -> CaluculationResponse:
     question_list, answer = multiply_float(
         caluculation_payload.num_range,
         caluculation_payload.identification_code,
