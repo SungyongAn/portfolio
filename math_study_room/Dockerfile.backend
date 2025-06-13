@@ -1,4 +1,21 @@
-FROM 
-COPY 
-RUN 
-CMD 
+# ベースイメージとしてPython 3.12を指定
+FROM python:3.12-slim
+
+# ワーキングディレクトリを設定
+WORKDIR /app
+
+# 必要なパッケージリストをコピー
+COPY requirements.backend.txt ./ 
+
+# 依存関係をインストール
+RUN pip install --no-cache-dir -r requirements.backend.txt
+
+# プロジェクト全体をコピー
+COPY backend/ .
+
+# ポートを開放（必要に応じて変更）
+EXPOSE 8000
+
+# アプリケーションを実行
+CMD ["uvicorn", "main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"]
+
