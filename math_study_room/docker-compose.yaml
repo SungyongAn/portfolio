@@ -15,6 +15,3 @@ services:
       - backend
     networks:
       - mynetwork
-
-networks:
-  mynetwork:
