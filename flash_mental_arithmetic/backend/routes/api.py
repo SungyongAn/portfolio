@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from routes.schema import (
+from flash_mental_arithmetic.backend.schema import (
     CaluculationPayload,
     CaluculationResponse,
     Divide_residueResponse,
