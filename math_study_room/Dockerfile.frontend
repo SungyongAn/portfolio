@@ -1,0 +1,18 @@
+# Pythonの公式イメージをベースにする
+FROM python:3.9-slim
+
+# 作業ディレクトリを作成
+WORKDIR /app
+
+# 必要なファイルをコンテナにコピー
+COPY frontend/ /app/
+COPY requirements.frontend.txt ./
+
+# 必要なライブラリをインストールするためのrequirements.txtを作成し、コピー
+RUN pip install --no-cache-dir -r requirements.frontend.txt
+
+# Flaskアプリケーションを実行するためのポートを開放
+EXPOSE 8501
+
+# アプリケーションを起動 
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
