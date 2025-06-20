@@ -1,12 +1,12 @@
 version: '3.8'
 services:
   backend: 
-    image: my_backend_image
+    image: fma_backend_image
     ports:
       - "8000:8000"
 
   frontend: 
-    image: my_frontend_image
+    image: fma_frontend_image
     ports:
       - "8501:8501"
     depends_on:

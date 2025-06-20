@@ -4,7 +4,7 @@ from routes.schema import (
     CaluculationResponse,
     Divide_residueResponse,
 )
-from routes.calculation import add, subtract, divide, divide_residue, multiply
+from routes.calculation import add
 
 router = APIRouter()
 

@@ -1,4 +1,3 @@
-from fractions import Fraction
 import requests
 import streamlit as st
 import time
@@ -32,7 +31,7 @@ if st.sidebar.button("フラッシュ暗算"):
         st.session_state.start = ""
         st.session_state.flash_show_answer = False
 
-    url = 'http://127.0.0.1:8000/page_add'
+    url = 'http://backend:8000/page_add'
     response = requests.post(url, json={"num_times": num_questions, "num_range": num_digits})
     if response.status_code == 200:
         data = response.json()
