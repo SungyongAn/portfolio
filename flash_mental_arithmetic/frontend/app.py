@@ -1,4 +1,3 @@
-from fractions import Fraction
 import requests
 import streamlit as st
 import time

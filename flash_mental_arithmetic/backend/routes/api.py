@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from flash_mental_arithmetic.backend.schema import (
+from routes.schema import (
     CaluculationPayload,
     CaluculationResponse,
     Divide_residueResponse,
 )
-from routes.calculation import add, subtract, divide, divide_residue, multiply
+from routes.calculation import add
 
 router = APIRouter()
 
