@@ -13,8 +13,7 @@ def get_output_range(num_range):
                 else:
                     output_range_zero.append(0)
         else:
-            for j in range(num_range):
-                output_range_zero.append(9)
+            output_range_zero = [9 for _ in range(num_range)]
         str_list = map(str, output_range_zero)
         output_range.append(int("".join(str_list)))
     return output_range

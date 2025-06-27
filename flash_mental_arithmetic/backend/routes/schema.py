@@ -9,7 +9,3 @@ class CaluculationPayload(BaseModel):
 class CaluculationResponse(BaseModel):
     question_list : list[int]
     answer: float
-
-class Divide_residueResponse(BaseModel):
-    question_list : list[int]
-    answer: float
