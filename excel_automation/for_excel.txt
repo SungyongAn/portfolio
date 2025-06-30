@@ -1,0 +1,10 @@
+・新しいworkbookを作る。wbは別の名称も可能だけど、基本的にはworkbookの略称を使用する。
+wb = px.Workbook() 
+
+・作成したworkbookをwsという変数として指定のworkbookの操作を行えるようにする。
+ws = wb.active
+
+・罫線のサイズ関連
+thin = Side(border_style="thin", color="000000")
+thick = Side(border_style="thick", color="000000")
+double = Side(border_style="double", color="000000")

@@ -2,9 +2,9 @@ import openpyxl as px
 import random
 
 #　excelのシートの中のA1,B1,C1,D1にDay,Product,Place,Feeと書き込む
-wb = px.Workbook()
-ws = wb.active
-sheet = wb.worksheets[0]
+wb = px.Workbook()  # 新しいworkbookを作る。wbは別の名称も可能だけど、基本的にはworkbookの略称を使用する。
+ws = wb.active  # 作成したworkbookの操作を可能にする。
+sheet = wb.worksheets[0]  # workbook内のシートの指定
 ws.title = 'sheet_1'
 ws['A1'] = '月日'
 ws['B1'] = '製品'
@@ -28,7 +28,6 @@ for n in range(2, 501):
 #ランダムに生成する月日の範囲を2020-1-1～2020―12-17と決める
 from datetime import timedelta 
 from datetime import date
-from random import randrange
 import random
 start_date = date(2025, 1, 1)
 end_date = date(2025, 6, 17)
