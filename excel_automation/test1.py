@@ -1,5 +1,8 @@
 import openpyxl as px
+from openpyxl.worksheet.table import Table, TableStyleInfo
 import random
+
+
 
 #　excelのシートの中のA1,B1,C1,D1にDay,Product,Place,Feeと書き込む
 wb = px.Workbook()  # 新しいworkbookを作る。wbは別の名称も可能だけど、基本的にはworkbookの略称を使用する。
@@ -50,6 +53,15 @@ for p in range(2, 500):
     ws['A'+ str(p)] = (random_date)
     #セルの大きさ調整
     sheet.column_dimensions['A'].width = 13
-    
-#変更内容を保存する   
+
+# テーブルを生成する
+table = Table(displayName='Table1', ref='A1:D500')
+
+# テーブルのスタイルを決めておく
+table_style = TableStyleInfo(name='TableStyleMedium8', showRowStripes=True)
+
+# テーブルのスタイルを設定
+table.tableStyleInfo = table_style
+
+# 変更内容を保存する
 wb.save('/Users/sungyongan/Desktop/sample1.xlsx')
