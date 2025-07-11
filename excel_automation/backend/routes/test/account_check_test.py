@@ -1,7 +1,6 @@
 from openpyxl import load_workbook
 
 
-# 調べるセルの範囲を確認と登録有無の確認用にユーザー名、メールアドレスのリスト化
 def check_num_target_cells(sheet, check_row_num, check_column_num):
 
     num_target_cells = 0
@@ -17,7 +16,6 @@ def check_num_target_cells(sheet, check_row_num, check_column_num):
     return num_target_cells, mail_address_list, user_name_list
 
 
-# メールアドレスとユーザー名の登録確認
 def check_account(sheet, mail_address, user_name, response_content_flag, response_content):
 
     check_row_num = 3
@@ -42,25 +40,17 @@ def check_account(sheet, mail_address, user_name, response_content_flag, respons
         return response_content_flag, response_content
 
 
-def write_to_excel(mail_address, user_name, time_worked, sheet_flag):
-
-    excel_path="sample.xlsx"
-
+if __name__ == "__main__":
+    excel_path = "sample.xlsx"
     wb = load_workbook(filename=excel_path, read_only=True)
-
     response_content_flag = False
     response_content = ""
 
-    # 
     sheet = wb.worksheets[1]
-    response_content_flag, response_content = check_account(sheet, mail_address, user_name, response_content_flag, wb)
+    response_content_flag, response_content = check_account(sheet, "1@1", "大谷", response_content_flag, response_content)
 
     if response_content_flag == True:
-        return response_content
+        print(response_content)
 
     else:
-        sheet = wb.worksheets[0]
-
-    wb.save("sample.xlsx")
-
-
+        print("成功", response_content)

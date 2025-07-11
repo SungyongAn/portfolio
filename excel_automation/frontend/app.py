@@ -1,5 +1,5 @@
 import streamlit as st
-from datetime import datetime
+import requests
 
 st.title("実務日報")
 
@@ -26,9 +26,6 @@ if open_input_field:
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
             time_worked_zero = st.text_input("作業時間（分）", value="半角数字で入力してください。")
-            if time_worked_zero:
-                
-
         with col2:
             st.empty()
         with col3:
@@ -57,18 +54,17 @@ if send_info:
     except ValueError:
         st.error("半角数字で入力してください。")
     else:
-        st.write("error")
         url = "http://127.0.0.1:8000/write_to_excel"
-        response = requests.post(url, json={"time_worked": time_worked, "sheet_flag": sheet_flag})
-        if response.status_code == 200:
-            data = response.json()
-            question_list = data["question_list"]
-            answer = data["answer"]
-            question = f"{int(question_list[0])} + {int(question_list[1])} = "
-            if question not in st.session_state.questions:
-                st.session_state.questions.append(question)
-                st.session_state.answers.append(int(answer))
-        else:
-            st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
-            st.json(response.json())
-            break
+        response = requests.post(url, json={"mail_address": mail_address, "user_name" = user_name, "time_worked": time_worked, "sheet_flag": sheet_flag})
+#         if response.status_code == 200:
+#             data = response.json()
+#             question_list = data["question_list"]
+#             answer = data["answer"]
+#             question = f"{int(question_list[0])} + {int(question_list[1])} = "
+#             if question not in st.session_state.questions:
+#                 st.session_state.questions.append(question)
+#                 st.session_state.answers.append(int(answer))
+#         else:
+#             st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+#             st.json(response.json())
+#             break
