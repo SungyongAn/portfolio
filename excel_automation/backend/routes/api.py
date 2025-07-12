@@ -1,9 +1,13 @@
 from fastapi import APIRouter
 
 from routes.write_to_excel import (
-    response_content
-)
+    check_account,
+    write_to_excel,
+    )
+
 from routes.schema import (
+    CheckAccountPayload,
+    CheckAccountResponseGeneric,
     WriteToExcelPayload,
     WriteToExcelResponseGeneric,
     )
@@ -11,13 +15,14 @@ from routes.schema import (
 router = APIRouter()
 
 
-@router.post("/write_to_excel")
-async def write_to_excel(write_to_payload: WriteToExcelPayload) -> WriteToExcelResponseGeneric:
-    response_content  = write_to_excel(
-        write_to_payload.mail_address,
-        write_to_payload.user_name,
-        write_to_payload.time_worked,
-        write_to_payload.sheet_flag,
-        )
-    return WriteToExcelResponseGeneric()
+@router.post("/page_check_account")
+async def page_check_account(check_account_payload: CheckAccountPayload) -> CheckAccountResponseGeneric:
+    response_content, mail_address, user_name  = check_account(check_account_payload.mail_address, check_account_payload.user_name, check_account_payload.work_flag)
+    return CheckAccountResponseGeneric(response_content=response_content, mail_address=mail_address, user_name=user_name)
+
+
+@router.post("/page_write_to_excel")
+async def page_write_to_excel(write_to_excel_payload: WriteToExcelPayload) -> WriteToExcelResponseGeneric:
+    response_content  = write_to_excel(write_to_excel_payload.mail_address, write_to_excel_payload.user_name)
+    return WriteToExcelResponseGeneric(response_content=response_content)
 
