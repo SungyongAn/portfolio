@@ -18,7 +18,7 @@ class CheckAccountResponseGeneric(BaseModel):
     response_content: str
     mail_address: str
     user_name: str
-    # work_flag: str
+    # previous_content: list[str]
 
 
 class WriteToExcelResponseGeneric(BaseModel):

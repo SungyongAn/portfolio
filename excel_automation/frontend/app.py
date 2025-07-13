@@ -65,7 +65,7 @@ if send_info:
             response_content = data["response_content"]
             mail_address_for_display = data["mail_address"]
             user_name_for_display = data["user_name"]
-            # work_flag_for_display = data["work_flag"]
+            # previous_content = data["previous_content"]
             detailed_input_flag = True
         else:
             st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
@@ -73,9 +73,17 @@ if send_info:
 
 if detailed_input_flag == True:
     st.write(f"{response_content}")
-    st.write("ユーザー情報")
+    st.write(f"{user_name_for_display}さん、お疲れ様です。前回の作業履歴は以下の内容になります。")
+    st.write()
     col1, col2 = st.columns([1, 1])
     with col1:
         st.write(f"{mail_address_for_display}")
     with col2:
         st.write(f"{user_name_for_display}")
+    if work_flag == "A":
+        st.radio("作業詳細", ["A1", "A2", "A3", "A4", "A5"], horizontal=True)
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.text_input("作業時間")
+        with col2:
+            st.write("分")
