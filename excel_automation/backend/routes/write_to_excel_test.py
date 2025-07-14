@@ -25,10 +25,8 @@ def write_to_excel(today_date, user_name, work_type, time_worked):
     # 正常に入力されているかどうかの確認用リスト、入力前のセルの中身を記録する。
     for_check_list_before = ""
 
-    # 作業対象シート
     sheet = wb.worksheets[0]
 
-    # 作業内容に応じたセルの行位置
     work_type_dict = {"A": 1, "B": 9, "C": 21}
 
     # ユーザー名から情報を記載する行の確認
@@ -80,3 +78,14 @@ def write_to_excel(today_date, user_name, work_type, time_worked):
     response_content = "お疲れ様でした。"
 
     return response_content
+
+
+if __name__ == "__main__":
+    today_date = "2025/07/14"
+    user_name = "桑田"
+    work_type = "A1"
+    time_worked = 60
+
+    response_content = write_to_excel(today_date, user_name, work_type, time_worked)
+
+    print(response_content)

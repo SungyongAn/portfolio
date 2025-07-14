@@ -20,6 +20,6 @@ async def page_check_account(check_account_payload: CheckAccountPayload) -> Chec
 
 @router.post("/page_write_to_excel")
 async def page_write_to_excel(write_to_excel_payload: WriteToExcelPayload) -> WriteToExcelResponseGeneric:
-    response_content  = write_to_excel(write_to_excel_payload.mail_address, write_to_excel_payload.user_name)
+    response_content  = write_to_excel(write_to_excel_payload.today_date, write_to_excel_payload.user_name, write_to_excel_payload.work_type, write_to_excel_payload.time_worked)
     return WriteToExcelResponseGeneric(response_content=response_content)
 
