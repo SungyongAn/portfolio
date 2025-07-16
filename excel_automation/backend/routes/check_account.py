@@ -41,3 +41,6 @@ def check_account(mail_address, user_name, work_flag):
     else:
         response_content = "入力したユーザー名、もしくはメールアドレスに誤りがあります。"
         return response_content, mail_address, user_name
+
+
+

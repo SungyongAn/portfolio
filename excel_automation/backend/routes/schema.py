@@ -23,5 +23,6 @@ class WriteToExcelPayload(BaseModel):
     time_worked: int
 
 
+# Excelファイルへの書込み結果の返信
 class WriteToExcelResponseGeneric(BaseModel):
     response_content: str
