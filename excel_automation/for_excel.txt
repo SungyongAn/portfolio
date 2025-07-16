@@ -1,0 +1,56 @@
+・新しいworkbookを作る。wbは別の名称も可能だけど、基本的にはworkbookの略称を使用する。
+wb = px.Workbook() 
+
+・作成したworkbookをwsという変数として指定のworkbookの操作を行えるようにする。
+ws = wb.active
+
+□罫線関連
+・枠線作成例
+```
+ thin_border = Border(
+     left=Side(style='thin'),
+     right=Side(style='thin'),
+     top=Side(style='thin'),
+     bottom=Side(style='thin'),
+     )
+```
+
+・罫線の位置を指定
+```
+left,right,top,bottom
+```
+
+・罫線の種類(2025/7/2現在)
+```
+'thin', 'medium', 'thick',
+'double', 'hair', 'dashed',
+'dashDot', 'dashDotDot',
+'dotted', 'mediumDashed',
+'mediumDashDot', 'mediumDashDotDot',
+`'slantDashDot'`
+```
+
+罫線の色は標準値では黒となるので、変えたい場合は以下のような記載をする。
+```
+border = Border(left=Side(style='thin', color='FF0000'))
+```
+"color="の後ろに指定したい色のhexコードを入力する。
+
+※"openpyxl.styles.colors"を利用する場合、以下の記載となる。
+例）
+```
+from openpyxl.styles import Color
+
+border = Border(left=Side(style='thin', lcoor=colors.RED))
+```
+対応する色(2025/7/2現在)
+BLACK, BLUE, BROWN, CYAN,
+DARKBLUE, DARKCYAN, DARKGREEN, DARKBROWN,
+DARKGRAY, DARKORANGE, DARKRED, DARKYELLOW,
+GOLD, GRAY, GREEN,
+LIGHTBLUE, LIGHTCYAN, LIGHTGREEN, LIGHTGRAY,
+LIGHTORANGE, LIGHTORANGE, LIGHTYELLOW,
+LIME, MAGENTA, MAROON, NAVY, OLIVE,
+ORANGE, PINK, PURPLE, RED, SILVER,
+TEAL, VIOLET, WHITE, YELLOW
+
