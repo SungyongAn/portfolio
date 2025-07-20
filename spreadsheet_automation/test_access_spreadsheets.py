@@ -2,7 +2,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 # サービスアカウントキーファイル
-KEY_FILE = ''
+KEY_FILE = 'json'
 
 # 認証
 credentials = Credentials.from_service_account_file(KEY_FILE)
