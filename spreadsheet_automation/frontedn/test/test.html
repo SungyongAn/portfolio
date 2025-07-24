@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>データ入力</title>
+<meta charset="utf-8">
+<!-- PyScript関連のファイルを読み込み -->
+<link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+<script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+<style>
+body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: bold; }
+input, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+button:hover { background-color: #0056b3; }
+.result { background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin-top: 20px; display: none; }
+.error { background-color: #f8d7da; color: #721c24; }
+.success { background-color: #d1edff; color: #0c5460; }
+.json-preview { background-color: #f8f9fa; border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>データ入力フォーム</h1>
+
+<!-- フォームを通常のsubmitから変更してPyScriptで処理 -->
+<form id="dataForm">
+<div class="form-group">
+<label for="name">名前:</label>
+<input type="text" id="name" name="name" required>
+</div>
+<div class="form-group">
+<label for="email">メールアドレス:</label>
+<input type="email" id="email" name="email" required>
+</div>
+<button type="submit">データを送信</button>
+</form>
+
+<!-- 結果表示用のdiv -->
+<div id="result" class="result"></div>
+
+<!-- PyScriptコード -->
+<py-script>
+import json
+from pyweb import pydom
+from pyodide.http import pyfetch
+from pyodide.ffi import create_proxy
+import js
+
+async def submit_form_as_json_file(event):
+    """フォーム送信処理（FastAPI構成に合わせて）"""
+    event.preventDefault()  # デフォルトのフォーム送信を防ぐ
+    
+    # フォームデータを取得
+    name = pydom["#name"][0].value
+    email = pydom["#email"][0].value
+    
+    # バリデーション
+    if not name.strip() or not email.strip():
+        show_result("名前とメールアドレスを入力してください。", "error")
+        return
+    
+    # ReceiveUserDataPayloadスキーマに合わせてJSONデータを作成
+    payload_data = {
+        "user_name": name.strip(),  # schema.pyのuser_nameに合わせる
+        "email": email.strip()
+    }
+    
+    # JSONを整形して表示用
+    json_content = json.dumps(payload_data, indent=2, ensure_ascii=False)
+    
+    try:
+        # FastAPIのエンドポイントにPOSTリクエストを送信
+        response = await pyfetch(
+            url="/page_backend_test",  # api.pyで定義されたエンドポイント
+            method="POST",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body=json.dumps(payload_data)
+        )
+        
+        if response.ok:
+            result_data = await response.json()
+            # RelayGenericレスポンスから内容を取得
+            response_content = result_data.get('response_content', 'レスポンス内容なし')
+            
+            success_message = f"""
+データが正常に送信されました！
+
+送信されたデータ:
+{json_content}
+
+バックエンドからのレスポンス:
+{response_content}
+            """
+            show_result(success_message, "success")
+            # フォームをリセット
+            pydom["#dataForm"][0].reset()
+        else:
+            error_text = await response.text()
+            error_message = f"""
+送信エラー: {response.status}
+エラー詳細: {error_text}
+
+送信しようとしたデータ:
+{json_content}
+            """
+            show_result(error_message, "error")
+            
+    except Exception as e:
+        # エラー時でもJSONプレビューを表示
+        error_message = f"""
+送信中にエラーが発生しました: {str(e)}
+
+送信しようとしたデータ:
+{json_content}
+        """
+        show_result(error_message, "error")
+
+def show_result(message, result_type):
+    """結果メッセージを表示"""
+    result_div = pydom["#result"][0]
+    result_div.innerHTML = f'<pre>{message}</pre>'
+    result_div.className = f"result {result_type}"
+    result_div.style.display = "block"
+
+# 追加機能：ローカルダウンロードボタンを動的に追加
+def add_download_button():
+    """JSONファイルをローカルダウンロードするボタンを追加"""
+    download_btn = js.document.createElement("button")
+    download_btn.textContent = "JSONファイルをダウンロード"
+    download_btn.type = "button"  # submitを防ぐ
+    download_btn.style.marginLeft = "10px"
+    download_btn.style.backgroundColor = "#28a745"
+    download_btn.onclick = download_json_file
+    
+    # より簡単な方法：body要素に直接追加
+    js.document.body.appendChild(download_btn)
+
+def download_json_file(event):
+    """JSONファイルをローカルにダウンロード（FastAPI構成対応）"""
+    # フォームデータを取得
+    name = pydom["#name"][0].value
+    email = pydom["#email"][0].value
+    
+    if not name.strip() or not email.strip():
+        js.alert("名前とメールアドレスを入力してください。")
+        return
+    
+    # ReceiveUserDataPayloadスキーマに合わせてJSONデータを作成
+    form_data = {
+        "user_name": name.strip(),  # schema.pyのuser_nameに合わせる
+        "email": email.strip(),
+    }
+    
+    # JSONファイルをダウンロード
+    json_content = json.dumps(form_data, indent=2, ensure_ascii=False)
+    blob = js.Blob.new([json_content], js.Object.fromEntries([["type", "application/json"]]))
+    url = js.URL.createObjectURL(blob)
+    
+    # ダウンロードリンクを作成
+    a = js.document.createElement("a")
+    a.href = url
+    a.click()
+    
+    # URLを解放
+    js.URL.revokeObjectURL(url)
+
+# PyScriptでイベントリスナーを正しく登録
+def setup_event_listeners():
+    """イベントリスナーを設定"""
+    # フォーム要素を取得
+    form_element = pydom["#dataForm"][0]
+    
+    # PyScriptの正しい方法でイベントリスナーを追加
+    form_element.onsubmit = submit_form_as_json_file
+
+# ページ読み込み時にイベントリスナーとダウンロードボタンを設定
+setup_event_listeners()
+add_download_button()
+</py-script>
+
+</body>
+</html>

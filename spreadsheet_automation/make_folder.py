@@ -1,9 +1,10 @@
 import gspread
 from googleapiclient.discovery import build
+from pathlib import Path
 
 # gspread での認証
 gc = gspread.oauth(
-    credentials_filename="OAuth.json",
+    credentials_filename= Path.home() / "Desktop" / "hale-safeguard-431900-e2-50938872b873.json",
 )
 
 # gspreadの認証情報を使ってGoogle Drive APIサービスを構築
@@ -44,7 +45,7 @@ def create_drive_folder(folder_name, parent_folder_id=None):
 
 if __name__ == "__main__":
     # 新しいフォルダを作成
-    new_folder_id = create_drive_folder("Python作成フォルダ")
+    new_folder_id = create_drive_folder("Python")
     
     # サブフォルダも作成する場合（上で作成したフォルダの中に）
     # if new_folder_id:

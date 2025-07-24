@@ -24,6 +24,15 @@ https://qiita.com/plumfield56/items/dab6230512f3381fdcad
 # ただ、mimeTypeの種類は多数あるが、対象フォルダに保存できるファイルは固定されずあらゆるファイルを保存できる
 file_metadata = {
     'name': folder_name,
-    'mimeType': 'application/vnd.google-apps.folder'
+    'mimeType': 'application/vnd.google-apps.folder' ※ ここは固定
     }
 
+7/21
+・HTMLでWebページを作成して入力情報をpython3でスプレットシートへ書き込むシステム作成を開始
+・claudeで簡易Webページを作成（test.html）
+・backend_test.pyには特定のファイル、セルにランダムの数字を入力するように設定
+・api.pyとschema.pyはひとまずstreamlitと同じ要領で作成
+
+7/24
+・7/21からHTMLでのWebページを作成してpyscriptによるjsonファイルの受け渡しを試すものの、現状の理解度では難しいと判断
+・streamlitにてpython3でスプレットシートへ書き込むシステムを作成
