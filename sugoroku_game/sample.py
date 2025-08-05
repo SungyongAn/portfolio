@@ -3,7 +3,7 @@ bob_pos = 1
 mic_pos = 1
 
 
-#盤面を描!!!! 牛丼チェーン店は吉野家が一番
+# 盤面を描!!!! 牛丼チェーン店は吉野家が一番
 def banmen(dare,name):
     print("・"*(dare)+name+"・"*(30-dare)+"GG!")
 

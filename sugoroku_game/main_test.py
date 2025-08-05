@@ -13,11 +13,20 @@ def move_the_target_piece(target_position, dice_roll):
     return target_position
 
 
+# ゴール条件を満たしているかの判定
+def check_goal_condition(goal_condition, tatget_position)
+    if goal_condition == False:
+        tatget_position = 1
+    else:
+        tatget_position = "Goal"
+    return tatget_position
+
+
 # 双六のボード上にランダムで効果を配置したボードの作成
 def get_effect_positions(effects, available_positions):
     effect_positions = []
+    i = 0
     while len(effect_positions) < len(effects):
-        i = 0
         effect_positions_zero = random.choice(available_positions)
         if effect_positions_zero + effects[i] < 0:
             continue
@@ -52,5 +61,8 @@ def create_sugoroku_board():
     return board
 
 if __name__ == "__main__":
+    goal_condition = False
+
+    
     bord = create_sugoroku_board()
     print(bord)
