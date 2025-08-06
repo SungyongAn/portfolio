@@ -1,12 +1,5 @@
 import random
 
-
-# ダイスを振る
-def roll_the_dice():
-    dice_roll = random.randint(1, 6)
-    return dice_roll
-
-
 # 対象のコマを動かす
 def move_the_target_piece(target_position, dice_roll):
     target_position += dice_roll
@@ -14,7 +7,7 @@ def move_the_target_piece(target_position, dice_roll):
 
 
 # ゴール条件を満たしているかの判定
-def check_goal_condition(goal_condition, tatget_position)
+def check_goal_condition(goal_condition, tatget_position):
     if goal_condition == False:
         tatget_position = 1
     else:
@@ -22,47 +15,37 @@ def check_goal_condition(goal_condition, tatget_position)
     return tatget_position
 
 
-# 双六のボード上にランダムで効果を配置したボードの作成
-def get_effect_positions(effects, available_positions):
-    effect_positions = []
-    i = 0
-    while len(effect_positions) < len(effects):
-        effect_positions_zero = random.choice(available_positions)
-        if effect_positions_zero + effects[i] < 0:
-            continue
-        elif effect_positions_zero + effects[i] > 10:
-            continue
-        else:
-            effect_positions.append(effect_positions_zero)
-            # 同じ数字が重複されないようにリストから削除
-            available_positions.remove(effect_positions_zero)
-            i += 1
-    return effect_positions
-
-
 def create_sugoroku_board():
-    # 10マスの盤面を初期化（すべて効果なし=0）
-    board = [0] * 10
+    math_dict = {4: ["A", "B"], 5: ["A", "B"], 6: ["A", "B"]}
+    board= [1, 2, 3, math_dict, 7, 8, 9, 10]
+    
+    
+    
+    road_to_pass = []
+    j = 0
+    for i in range(10):
+        if 2 < i < 6:
+            road_to_pass.append(str(list(math_dict)[j]) + direct_select)
+            j += 1
+        elif 6 <= i:
+            indx = i - (len(math_dict) - 1)
+            print(i, indx)
+            road_to_pass.append(board[indx])
+        else:
+            road_to_pass.append(board[i])
+            
+    return board, road_to_pass
 
-    # 効果リスト
-    effects = [-1, +1, -2, +2]
-
-    # マス2-9（インデックス1-8）からランダムに4つ選んで効果を配置
-    available_positions = list(range(2, 9)) 
-    print(available_positions)
-
-    # 効果がスタートとゴールを超えないようにランダムで配置
-    effect_positions = get_effect_positions(effects, available_positions)
-    print(effect_positions)
-
-    for i, pos in enumerate(effect_positions):
-        board[pos] = effects[i]
-
-    return board
 
 if __name__ == "__main__":
-    goal_condition = False
-
+    target_position = 0
+    bord, road_to_pass = create_sugoroku_board()
     
-    bord = create_sugoroku_board()
-    print(bord)
+    while target_position < bord[-1]:
+        input("Enterを押すとダイスを振ります")
+        # ダイスを振る
+        dice_roll = random.randint(1, 6)
+        target_position += dice_roll
+        if target_position > 3:
+            # ルート選択の入力
+            direct_select = input("A or B")

@@ -2,7 +2,7 @@ import random
 
 
 # 双六のボード上にランダムで効果を配置したボードの作成
-def get_effect_positions(effects, available_positions):
+def randomly_place_effects(effects, available_positions):
     effect_positions = []
     i = 0
 
