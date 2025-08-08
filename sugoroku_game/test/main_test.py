@@ -1,17 +1,30 @@
 import random
 
+# 全10マスで3マス目で必ず止まりルート選択、選択したルートを通って7マス目から合流してゴールを目指す。
+
+# 選択可能ルートの一覧
 math_dict = {4: ["A", "B"], 5: ["A", "B"], 6: ["A", "B"]}
+# すごろくの全体図
 board = [1, 2, 3, math_dict, 7, 8, 9, 10]
+
+# プレイヤーの位置
 target_position = 0
+# 分岐ルート選択判定
 branch_flag = False
-road_to_pass = []
+# 選択したルート情報の保管
 direct_select = ""
+# プレイヤーが止まったマスの情報
+road_to_pass = []
+
+# すごろくの全体動作
 while target_position < board[-1]:
     input("Enterを押すとダイスを振ります")
     # ダイスを振る
     dice_roll = random.randint(1, 2)
     print("ダイスの目は" + str(dice_roll) + "です。")
+    # ダイスを振った後のプレイヤーの位置情報
     target_position += dice_roll
+    # 3マス目
     if 3 <= target_position and branch_flag == False:
         target_position = 3
         # ルート選択の入力
