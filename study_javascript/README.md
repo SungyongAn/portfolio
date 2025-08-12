@@ -40,3 +40,5 @@ charset -- 文字コードの種類を示すための属性や宣言 Webペー�
 8/12
 ・index.html、index.jsの複数箇所に動作内容の説明文を追加
 ・TODOにリセットボタンを設置
+・Pretter、ESLintをインストール
+・ESLintの設定用に.eslintrc.jsを作成。中身は未着手。
