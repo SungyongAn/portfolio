@@ -42,3 +42,12 @@ charset -- 文字コードの種類を示すための属性や宣言 Webペー�
 ・TODOにリセットボタンを設置
 ・Pretter、ESLintをインストール
 ・ESLintの設定用に.eslintrc.jsを作成。中身は未着手。
+
+8/13
+■Vue.jsの学習を開始（書籍を参考）
+・Node.jsをインストール
+・nvmをインストール
+・ltsをインストール
+・ToDo_vueディレクトリを作成、配下にindex.htmlを作成してconsole上でのvue.versionの正常表示を確認（16P参照）
+・Vue.js devtoolsをGoogle Chromeの機能に追加（「ファイルの URL へのアクセスを許可する」を有効に変更）
+・参考書34Pまで実施
