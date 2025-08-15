@@ -1,7 +1,13 @@
 Vue.createApp({
     data: function() {
         return {
-            message: "ToDoアプリケーション",
+            todoTitle: "",
+            todoDescription: "",
+            todoCategories: [],
+            selectCategoly: "",
+            hideDoneToDo: false,
+            searchWord: "",
+            order: "desc",
         }
     },
 }).mount("#app")
