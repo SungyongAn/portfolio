@@ -10,6 +10,7 @@
         <div class="container mt-4">
             <h1>ToDoアプリ</h1>
             <div id="app">
+                <!--大枠のborder-->
                 <div class="border p-3">
                     <div class="new-todo">
                         <div class="new-todo-item row mb-3">
@@ -37,8 +38,36 @@
                                 ></textarea>
                             </div>
                         </div>
+                        <!--内側の枠-->
+                        <div class="border p-3 bg-light">
+                            <div class="new-todo-category">
+                                <label for="new-todo-category" class="form-label">カテゴリ</label>
+                                <form @submit.prevent="createCategory" class="d-flex">
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <input 
+                                            v-model.trim="categoryName"
+                                            type="text"
+                                            id="new-todo-category"
+                                            class="form-control me-2"
+                                            >
+                                        </div>
+                                        <p></p>
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-secondary">作成</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div> <!--内側の枠のborderはここまで-->
+                        <p>
+                        <div class="new-todoaction text-center mb-3">
+                            <form id="form-todo" @submit.prevent="createTodo" class="form-label">
+                                <button type="submit" class="btn btn-secondary">作成</button>
+                            </form>
+                        </div>
                     </div>
-                </div> <!--border対象はここまで-->
+                </div> <!--大枠はのborder対象はここまで-->
                 <p></p>
                 <div class="todo-search">
                     <div class="row">
@@ -70,7 +99,7 @@
                         <div class="col-auto">
                             <label for="todo-search-keyword" class="form-label">キーワードで検索</label>
                         </div>
-                        <div class="col">
+                        <div class="col-auto">
                             <input v-model="searchWord" type="text" id="todo-search-keyword" class="form-control">
                         </div>
                     </div>
