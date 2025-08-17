@@ -15,7 +15,7 @@
                     <div class="new-todo">
                         <div class="new-todo-item row mb-3">
                             <div class="col-auto">
-                                <label for="new-todo-item" class="form-label">タイトル</label>
+                                <label for="new-todo-title" class="form-label">タイトル</label>
                             </div>
                             <div class="col">
                                 <input
@@ -62,6 +62,8 @@
                         </div> <!--内側の枠のborderはここまで-->
                         <p>
                         <div class="new-todoaction text-center mb-3">
+                            <!--@submitはv-on:submitの省略形-->
+                            <!--.preventはevent.preventDefault()を自動的に実行-->
                             <form id="form-todo" @submit.prevent="createTodo" class="form-label">
                                 <button type="submit" class="btn btn-secondary">作成</button>
                             </form>
