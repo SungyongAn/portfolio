@@ -46,7 +46,7 @@
                                     <li v-for="category in categories" :key="category">
                                         <label :for="'category-' + category">
                                             <input v-model="todoCategories" type="checkbox" :id="'category-' + category" 
-                                        :value="category" form="form-todo">
+                                        :value="category" form="form-todo">{{ category }}
                                         </label>
                                     </li>
                                 </ul>
@@ -62,18 +62,18 @@
                                         </div>
                                         <p></p>
                                         <div class="col">
-                                            <button type="submit" :disable="!canCreateCategory" class="btn btn-secondary">作成</button>
+                                            <button type="submit" :disabled="!canCreateCategory" class="btn btn-secondary">作成</button>
                                         </div>
                                     </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div> <!--内側の枠のborderはここまで-->
                         <p>
                         <div class="new-todoaction text-center mb-3">
                             <!--@submitはv-on:submitの省略形-->
                             <!--.preventはevent.preventDefault()を自動的に実行-->
                             <form id="form-todo" @submit.prevent="createTodo" class="form-label">
-                                <button type="submit" :disable="!canCreateTodo" class="btn btn-secondary">作成</button>
+                                <button type="submit" :disabled="!canCreateTodo" class="btn btn-secondary">作成</button>
                             </form>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                             <div class="todo-search-item">
                                 <label for="todo-search-done">終了したものを非表示にする
                                 <input 
-                                v-model="hideDoneToDo"
+                                v-model="hideDoneTodo"
                                 type="checkbox"
                                 id="todo-search-done"
                                 ></label>
@@ -120,15 +120,15 @@
                         </div>
                     </div>
                 </div>
-                <ul v-if="hasToDo" class="todo-list">
-                    <li v-for="(todo, index) in resultTodos" :key="todo-id" class="todo-item">
+                <ul v-if="hasTodos" class="todo-list">
+                    <li v-for="(todo, index) in resultTodos" :key="todo.id" class="todo-item">
                         <div class="todo-item-done">
                             <input v-model="todo.done" type="checkbox">
                         </div>
                         <div class="todo-item-content">
                             <div class="todo-item-date">{{ new Date(todo.dateTime).toString() }}</div>
                             <h3 class="todo-item-title">{{ todo.title }}</h3>
-                            <div v-if="todo.description" class="todo-item-discription">{{ todo.discription}}</div>
+                            <div v-if="todo.description" class="todo-item-description">{{ todo.description}}</div>
                             <ul class="todo-item-categories" v-if="todo.categories.length > 0">
                                 <li v-for="category in todo.categories" :key="category" class="todo-item-category">
                                     {{ category }}
