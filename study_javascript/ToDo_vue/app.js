@@ -4,7 +4,7 @@ Vue.createApp({
             todoTitle: "",
             todoDescription: "",
             todoCategories: [],
-            selectCategory: "",
+            selectedCategory: "",
             todos: [],
             categories: [],
             hideDoneToDo: false,
@@ -27,7 +27,41 @@ Vue.createApp({
             // ) !== -1 は見つけた場合はTrue、見つからない場合はFalseを返す。
             // 下記の内容だと categories に categoryName が存在するか確認
             return this.categories.indexOf(categoryName) !== -1
-        }
+        },
+        hasToDos: function() {
+            return this.todos.length > 0
+        },
+    },
+
+    resultTodos: function() {
+        const selectedCategory = this.selectedCategory
+        const hideDoneToDo = this.hideDoneToDo
+        const order = this.order
+        const searchWord = this.searchWord
+        return this.todos
+        .filter(function(todo) {
+            return (
+                selectedCategory === "" || todo.categories.indexOf(selectedCategory) !== -1
+            )
+        })
+        .filter(function(todo) {
+            if(hideDoneToDo) {
+                return !todo.done
+            }
+            return true
+        })
+        .filter(function(todo) {
+            return (
+                todo.title.indexOf(searchWord) !== -1 || 
+                todo.description.indexOf(searchWord) !== -1
+            )
+        })
+        .sort(function(a, b) {
+            if (order === "asc") {
+                return a.dateTime - b.dateTime
+            }
+            return b.dateTime - a.dateTime
+        })
     },
 
     watch: {
