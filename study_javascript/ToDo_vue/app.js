@@ -1,6 +1,8 @@
 Vue.createApp({
-    return {
-        todoTitle: "",
-        todoDescription: "",
-    }
+    data: function() {
+        return {
+            todoTitle: "",
+            todoDescription: "",
+        }
+    },
 }).mount("#app")
