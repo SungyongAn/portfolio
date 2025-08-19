@@ -25,6 +25,8 @@ Vue.createApp({
 
         existsCategory: function() {
             const categoryName = this.categoryName
+            // ) !== -1 は見つけた場合はTrue、見つからない場合はFalseを返す。
+            // 下記の内容だと categories に categoryName が存在するか確認
             return this.categories.indexOf(categoryName) !== -1
         },
 
@@ -37,42 +39,45 @@ Vue.createApp({
             const hideDoneTodo = this.hideDoneTodo
             const order = this.order
             const searchWord = this.searchWord
-            
+
             return this.todos
                 .filter(function(todo) {
                     return (
-                        selectedCategory === "" || 
-                        (Array.isArray(todo.categories) && todo.categories.indexOf(selectedCategory) !== -1)
+                        // 条件１ selectedCategory が空の場合
+                        selectedCategory === "" 
+                        // || = or
+                        || 
+                        // 条件２ categories の中に selectedCategory が存在する場合
+                        todo.categories.indexOf(selectedCategory) !== -1
                     )
                 })
+
+                // 完了済みタスクの切り替え
                 .filter(function(todo) {
                     if(hideDoneTodo) {
                         return !todo.done
                     }
                     return true
                 })
+
                 .filter(function(todo) {
-                    // 安全なnullチェックを追加
-                    if (!searchWord) return true;
-                    
-                    const title = todo.title || "";
-                    const description = todo.description || "";
-                    
                     return (
-                        title.indexOf(searchWord) !== -1 || 
-                        description.indexOf(searchWord) !== -1
+                        // タイトルに検索ワードが存在する場合
+                        todo.title.indexOf(searchWord) !== -1 || 
+                        // 説明に検索ワードが存在する場合
+                        todo.description.indexOf(searchWord) !== -1
                     )
                 })
+
                 .sort(function(a, b) {
                     if (order === "asc") {
                         return a.dateTime - b.dateTime
                     }
                     return b.dateTime - a.dateTime
                 })
+            },
         },
-    },
 
-    
     watch: {
         todos: {
             handler: function(next) {
@@ -93,18 +98,16 @@ Vue.createApp({
             if (!this.canCreateTodo) {
                 return
             }
-            
-            // データの整合性を保証
             this.todos.push({
                 id: "todo-" + Date.now(),
-                title: this.todoTitle || "", // 空文字列を保証
-                description: this.todoDescription || "", // 空文字列を保証
-                categories: Array.isArray(this.todoCategories) ? [...this.todoCategories] : [], // 配列を保証
+                title: this.todoTitle,
+                description: this.todoDescription,
+                categories: this.todoCategories,
                 dateTime: Date.now(),
                 done: false,
             })
 
-            // フォームリセット
+            // トゥドゥタスクを追加する処理
             this.todoTitle = ""
             this.todoDescription = ""
             this.todoCategories = []
@@ -112,49 +115,25 @@ Vue.createApp({
 
         createCategory: function() {
             if (!this.canCreateCategory) {
-                return
-            }
+                    return
+                }
 
-            this.categories.push(this.categoryName)
-            this.categoryName = ""
+                this.categories.push(this.categoryName)
+
+                this.categoryName = ""
         },
-
-        // データの正規化メソッドを追加
-        normalizeTodoData: function(todo) {
-            return {
-                ...todo,
-                title: todo.title || "",
-                description: todo.description || "",
-                categories: Array.isArray(todo.categories) ? todo.categories : [],
-                done: Boolean(todo.done),
-                dateTime: todo.dateTime || Date.now(),
-                id: todo.id || "todo-" + Date.now()
-            }
-        }
     },
 
     created: function() {
-        try {
-            const todos = window.localStorage.getItem("todos")
-            const categories = window.localStorage.getItem("categories")
+        const todos = window.localStorage.getItem("todos")
+        const categories = window.localStorage.getItem("categories")
 
-            if (todos) {
-                const parsedTodos = JSON.parse(todos)
-                // データを正規化して安全性を確保
-                this.todos = parsedTodos.map(todo => this.normalizeTodoData(todo))
-            }
+        if (todos) {
+            this.todos = JSON.parse(todos)
+        }
 
-            if (categories) {
-                const parsedCategories = JSON.parse(categories)
-                this.categories = Array.isArray(parsedCategories) ? parsedCategories : []
-            }
-            
-            console.log("データ読み込み完了:", { todos: this.todos.length, categories: this.categories.length })
-        } catch (error) {
-            console.error("LocalStorage読み込みエラー:", error)
-            // エラー時は空の配列で初期化
-            this.todos = []
-            this.categories = []
+        if (categories) {
+            this.categories = JSON.parse(categories)
         }
     },
 }).mount("#app")
