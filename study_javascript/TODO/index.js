@@ -6,7 +6,7 @@ const ul = document.getElementById("ul");
 const reset = document.getElementById("reset");
 
 // 画面を更新した時、local strageにtodosが存在する時に画面上に表示する機能１
-// local strageに保存された情報の固定？
+// local strageに保存された情報を取得
 const todos = JSON.parse(localStorage.getItem("todos"));
 
 // 画面を更新した時、local strageにtodosが存在する時に画面上に表示する機能２
