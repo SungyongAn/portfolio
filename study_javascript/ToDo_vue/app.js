@@ -1,8 +1,8 @@
 Vue.createApp({
     data: function() {
         return {
-            // todoTitle: "",
-            // todoDescription: "",
+            todoTitle: "",
+            todoDescription: "",
             todoCategories: [],
             categories: [],
             categoryName: "",
@@ -18,15 +18,6 @@ Vue.createApp({
             const categoryName = this.categoryName
             // カテゴリリスト内に入力したカテゴリがあるか確認
             return this.categories.indexOf(categoryName) !== -1
-        },
-    },
-
-    watch: {
-        categories: {
-            handler: function(next) {
-                window.localStorage.setItem("categories", JSON.stringify(next))
-            },
-            deep: true,
         },
     },
 
@@ -52,9 +43,9 @@ Vue.createApp({
                 this.categories = Array.isArray(parsedCategories) ? parsedCategories : []
             }
             
+        // エラー時は空の配列で初期化
         } catch (error) {
-            console.error("LocalStorage読み込みエラー:", error)
-            // エラー時は空の配列で初期化
+            // console.error("LocalStorage読み込みエラー:", error)
             this.categories = []
         }
     },
