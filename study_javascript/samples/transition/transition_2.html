@@ -1,19 +1,28 @@
+<!-- JavaScriptフック JavaScriptでトランジションの制御を行う-->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <link rel="stylesheet" href="sample_transition.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <title>Document</title>
 </head>
 <body>
     <div id="app">
         <button @click="showAndFade()">Toggleボタン</button>
-        <transition>
+        <transition 
+        @bedore-enter="budoreEnter" 
+        @enter="enter" 
+        @afoter-enter="afterEnter" 
+        @enter-cancelled="enterCancelld"
+        @before-leave="beforeLeave"
+        @leave="leave"
+        @after-leave="afterLeave"
+        @leave-cancelled="leaveCancelled"
+        :css="false">
             <div v-show="isShow">トランジション</div>
         </transition>
     </div>
-    <script src="sample_transition.js"></script>
+    <script src="transition_2.js"></script>
 </body>
 </html>
