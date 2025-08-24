@@ -156,3 +156,9 @@ charset -- 文字コードの種類を示すための属性や宣言 Webペー�
 ・<transition>を用いたアニメーション(~145P)※ToDoアプリへの反映未実施
 ・145PまででToDoアプリを用いた学習を終了
 ・自分の考えるToDoアプリの作成は中断継続中
+
+8/24
+■以前、streamlitで作成した算数の勉強部屋をhtmlで作り直す作業を開始
+・以下サイトよりbootstrapを利用したサイドバーのサンプルを取得、折り畳み式を仕様することに。
+https://bootstrap-guide.com/sample/sidebars
+・アコーディオン機能はひとまずbootstrapの機能を採用して、Vue.jsは後日学習した上で別途作成してみることに。

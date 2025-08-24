@@ -1,0 +1,4 @@
+Vue.createApp({
+    data: function(){
+    }
+})
