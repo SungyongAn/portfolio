@@ -8,119 +8,147 @@
     <!-- CSSの設定ファイル -->
     <link rel="stylesheet" href="sidebars.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 
 <body>
-    <main class="d-flex flex-nowrap">
-        <div class="flex-shrink-0 p-3" style="width: 280px;">
-            <a class="d-flex align-items-center pb-3 mb-3 text-decoration-none border-bottom">
-                <svg class="bi me-2" width="30" height="24" aria-hidden="true"></svg>
-                <span class="fs-5 fw-semibold">詳細設定</span>
-            </a>
-            <ul class="list-unstyled ps-0" id="question_types_accordion">
-                <h1>問題の種類</h1>
-                <li class="mb-1">
-                    <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#integer_question_informations" 
-                    aria-expanded="false">整数
-                    </button>
-                    <div class="collapse" id="integer_question_informations" data-bs-parent="#question_types_accordion">
-                        <label for="types-arithmetic-operations" class="form-label">問題の種類（四則演算）</label> 
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <div class="row">
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-addition">
-                                    <label class="form-check-label" for="chk-overview">足し算</label>
-                                </li>
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-subtraction">
-                                    <label class="form-check-label" for="chk-update">引き算</label>
-                                </li>
-                            </div>
-                            <div class="row">
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-multiplication">
-                                    <label class="form-check-label" for="chk-report">掛け算</label>
-                                </li>
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-division">
-                                    <label class="form-check-label" for="chk-report">割り算</label>
-                                </li>
-                            </div>
-                        </ul>
-                        <label for="num-digits-problem" class="form-label">数字の桁数</label> 
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li class="form-check">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-one-digit">
-                                    <label class="form-check-label" for="chk-report">１桁</label>
-                                </li>
-                                <li class="form-check">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-two-digits">
-                                    <label class="form-check-label" for="chk-report">２桁</label>
-                                </li>
-                                <li class="form-check">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-three-digits">
-                                    <label class="form-check-label" for="chk-report">３桁</label>
-                                </li>
+    <div id="app">
+        <main class="d-flex flex-nowrap">
+            <div class="flex-shrink-0 p-3" style="width: 280px;">
+                <a class="d-flex align-items-center pb-3 mb-3 text-decoration-none border-bottom">
+                    <svg class="bi me-2" width="30" height="24" aria-hidden="true"></svg>
+                    <span class="fs-5 fw-semibold">詳細設定</span>
+                </a>
+                <ul class="list-unstyled ps-0" id="question_types_accordion">
+                    <h1>問題の種類</h1>
+                    <li class="mb-1">
+                        <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        name="types_num" 
+                        value="integer" 
+                        v-model="selectedNumberType"
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#integer_question_informations">
+                        <label class="form-check-label" for="chk-overview">整数</label>
+
+                        <div class="collapse" id="integer_question_informations" data-bs-parent="#question_types_accordion">
+                            <label for="types-arithmetic-operations" class="form-label">問題の種類（四則演算）</label> 
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <div class="row">
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="addition" v-model="selectedIntegerArithmetic">
+                                        <label class="form-check-label" for="chk-overview">足し算</label>
+                                    </li>
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="subtraction" v-model="selectedIntegerArithmetic">
+                                        <label class="form-check-label" for="chk-update">引き算</label>
+                                    </li>
+                                </div>
+                                <div class="row">
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="multiplication" v-model="selectedIntegerArithmetic">
+                                        <label class="form-check-label" for="chk-report">掛け算</label>
+                                    </li>
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="division" v-model="selectedIntegerArithmetic">
+                                        <label class="form-check-label" for="chk-report">割り算</label>
+                                    </li>
+                                </div>
                             </ul>
-                        <label for="num-questions" class="form-label">出題数</label> 
-                        <input type="text" class="form-control" min="1" max="10" id="num-questions">
-                    </div>
-                </li>
-                <li class="mb-1">
-                    <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" 
-                    data-bs-toggle="collapse" 
-                    data-bs-target="#real_num_question_informations" 
-                    aria-expanded="false">
-                        実数
-                    </button>
-                    <div class="collapse" id="real_num_question_informations" data-bs-parent="#question_types_accordion">
-                        <label for="types-arithmetic-operations" class="form-label">問題の種類（四則演算）</label> 
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <div class="row">
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-addition">
-                                    <label class="form-check-label" for="chk-overview">足し算</label>
-                                </li>
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-subtraction">
-                                    <label class="form-check-label" for="chk-update">引き算</label>
-                                </li>
-                            </div>
-                            <div class="row">
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-multiplication">
-                                    <label class="form-check-label" for="chk-report">掛け算</label>
-                                </li>
-                                <li class="form-check col-auto">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-division">
-                                    <label class="form-check-label" for="chk-report">割り算</label>
-                                </li>
-                            </div>
-                        </ul>
-                        <label for="num-digits-problem" class="form-label">数字の桁数</label> 
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li class="form-check">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-one-digit">
-                                    <label class="form-check-label" for="chk-report">１桁</label>
-                                </li>
-                                <li class="form-check">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-two-digits">
-                                    <label class="form-check-label" for="chk-report">２桁</label>
-                                </li>
-                                <li class="form-check">
-                                    <input class="form-check-input" type="radio" name="arithmetic" id="chk-three-digits">
-                                    <label class="form-check-label" for="chk-report">３桁</label>
-                                </li>
+                            <label for="num-digits-problem" class="form-label">数字の桁数</label> 
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                    <li class="form-check">
+                                        <input class="form-check-input" type="radio" name="digits" value="1" v-model="selectedIntegerDigits">
+                                        <label class="form-check-label" for="chk-report">１桁</label>
+                                    </li>
+                                    <li class="form-check">
+                                        <input class="form-check-input" type="radio" name="digits" value="2" v-model="selectedIntegerDigits">
+                                        <label class="form-check-label" for="chk-report">２桁</label>
+                                    </li>
+                                    <li class="form-check">
+                                        <input class="form-check-input" type="radio" name="digits" value="3" v-model="selectedIntegerDigits">
+                                        <label class="form-check-label" for="chk-report">３桁</label>
+                                    </li>
+                                </ul>
+                            <label for="num-questions" class="form-label">出題数</label> 
+                            <input 
+                            v-model.number="numQuestions" 
+                            type="number" 
+                            class="form-control" 
+                            min="1" max="10">
+                        </div>
+                    </li>
+                    <li class="mb-1">
+                        <input 
+                        class="form-check-input" 
+                        type="radio" 
+                        name="types_num" 
+                        value="real" 
+                        v-model="selectedNumberType"
+                        data-bs-toggle="collapse" 
+                        data-bs-target="#real_num_question_informations">
+                        <label class="form-check-label" for="chk-overview">実数</label>
+    
+                        <div class="collapse" id="real_num_question_informations" data-bs-parent="#question_types_accordion">
+                            <label for="types-arithmetic-operations" class="form-label">問題の種類（四則演算）</label> 
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                <div class="row">
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="addition" v-model="selectedRealArithmetic">
+                                        <label class="form-check-label" for="chk-overview">足し算</label>
+                                    </li>
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="subtraction" v-model="selectedRealArithmetic">
+                                        <label class="form-check-label" for="chk-update">引き算</label>
+                                    </li>
+                                </div>
+                                <div class="row">
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="multiplication" v-model="selectedRealArithmetic">
+                                        <label class="form-check-label" for="chk-report">掛け算</label>
+                                    </li>
+                                    <li class="form-check col-auto">
+                                        <input class="form-check-input" type="radio" name="arithmetic" value="division" v-model="selectedRealArithmetic">
+                                        <label class="form-check-label" for="chk-report">割り算</label>
+                                    </li>
+                                </div>
                             </ul>
-                        <label for="num-questions" class="form-label">出題数</label> 
-                        <input type="text" class="form-control" min="1" max="10" id="num-questions">
-                    </div>
-                </li>
-            </ul>
-        </div>
+                            <label for="num-digits-problem" class="form-label">数字の桁数</label> 
+                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                    <li class="form-check">
+                                        <input class="form-check-input" type="radio" name="digits" value="1" v-model="selectedRealDigits">
+                                        <label class="form-check-label" for="chk-report">１桁</label>
+                                    </li>
+                                    <li class="form-check">
+                                        <input class="form-check-input" type="radio" name="digits" value="2" v-model="selectedRealDigits">
+                                        <label class="form-check-label" for="chk-report">２桁</label>
+                                    </li>
+                                    <li class="form-check">
+                                        <input class="form-check-input" type="radio" name="digits" value="3" v-model="selectedRealDigits">
+                                        <label class="form-check-label" for="chk-report">３桁</label>
+                                    </li>
+                                </ul>
+                            <label for="num-questions" class="form-label">出題数</label> 
+                            <input 
+                            v-model.number="numQuestions"
+                            type="number" 
+                            class="form-control" min="1" max="10" >
+                        </div>
+                    </li>
+                </ul>
+                <div class="mt-4 pt-3 border-top">
+                    <form @submit.prevent="createQuestions">
+                        <!-- <button type="submit" :disabled="!canCreateQuestions" :class="buttonClass" class="btn w-100">
+                            問題を作成
+                        </button> -->
+                        <button 
+                        type="submit" 
+                        :disabled="!((selectedNumberType === 'integer' && selectedIntegerArithmetic && selectedIntegerDigits && numQuestions) || 
+                        (selectedNumberType === 'real' && selectedRealArithmetic && selectedRealDigits && numQuestions))">問題を作成</button>
+                    </form>
+                </div>
+            </div>
 
         <!-- メインコンテンツエリア -->
         <div class="flex-grow-1 p-4">
@@ -129,9 +157,9 @@
                 <!-- ここに算数の勉強コンテンツが入ります -->
             </div>
         </div>
-    
-    <!-- /リストグループのサイドバー -->
-    </main>
+        <!-- /リストグループのサイドバー -->
+        </main>
+    </div>
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script> -->
     <script src="math_study_room.js"></script>
 </body>
