@@ -11,3 +11,9 @@ https://bootstrap-guide.com/sample/sidebars
 ・実数、整数の入力情報を実数、整数と切り替えた場合にリセットされる仕様を設定
 ・「問題を作成」ボタンを設置 選択している実数、整数の入力欄を全て埋めないと機能しないように設定
 
+8/26
+・calculation.pyを現場に合わせて変更を開始
+
+8/27
+・FastAPIによるVue.jsとPython間の通信を正常に行う環境作成をコンソールログで確認
+・割り算に関するresponseについて思案中のため、後日calculation.pyの修正を行う予定。

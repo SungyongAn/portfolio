@@ -31,7 +31,7 @@ def get_num_real(digits):
 
 def create_questions(type, arithmetic, digits, numquestions):
     questions = []
-    answers = []
+    answer = []
 
     for _ in range(numquestions):
 
@@ -45,26 +45,40 @@ def create_questions(type, arithmetic, digits, numquestions):
 
         # 四則演算
         if arithmetic == "addition":
-            questions.append(f"{num_one} + {num_two} =")
-            answers.append(num_one + num_two)
+            question = f"{num_one} + {num_two} ="
+            answer.append(num_one + num_two)
 
         elif arithmetic == "subtraction":
-            questions.append(f"{num_one} - {num_two} = ")
-            answers.append(num_one - num_two)
+            question = f"{num_one} - {num_two} = "
+            answer.append(num_one - num_two)
 
         elif arithmetic == "multiplication":
-            questions.append(f"{num_one} × {num_two} = ")
-            answers.append(num_one * num_two)
+            question = f"{num_one} × {num_two} = "
+            answer.append(num_one * num_two)
 
         elif arithmetic == "division":
-            questions.append(f"{num_one} ÷ {num_two} = ")
+            question = f"{num_one} ÷ {num_two} = "
 
             if num_one % num_two == 0:
-                answers.append(num_one // num_two)
+                answer.append(num_one // num_two)
 
-            # elif num_one % num_two != 0:
-                # answer.append(num_one // num_two)
-                # answer.append(num_one % num_two)
-                # print(answer)
+            elif num_one % num_two != 0:
+                answer = []
+                answer.append(num_one // num_two)
+                answer.append(num_one % num_two)
+                print(answer)
 
-    return questions, answers
+        questions.append({"question": question, "answer": answer})
+
+    return questions
+
+
+if __name__ == "__main__":
+    type = "real"
+    arithmetic = "division"
+    digits = 2
+    numquestions = 2
+
+    questions = create_questions(type, arithmetic, digits, numquestions)
+    print(questions)
+

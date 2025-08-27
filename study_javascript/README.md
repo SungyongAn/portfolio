@@ -165,3 +165,5 @@ https://bootstrap-guide.com/sample/sidebars
 
 8/25
 ・算数の勉強部屋のhtmlでの作成を専用ディレクトリを作成してその中で行うことに。以降の算数の勉強部屋に関することは専用ディレクトリ内のREADME.mdへ記載
+
+
