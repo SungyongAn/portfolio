@@ -7,9 +7,20 @@ Vue.createApp({
             selectedRealArithmetic: '',      
             selectedRealDigits: '',
             numQuestions: '',
-            questions: [], // backendから問題を受ける用
+            userAnswers: [],
+            checkAnswersResults: [],
+            // 以下はbackendから問題を受ける用
+            questions: [], 
             answers: [],
         }
+    },
+    computed: {
+        hasQuestions: function() {
+            return this.questions.length > 0
+        },
+        hasCheckAnswersResults: function(){
+            return this.checkAnswersResults.length > 0
+        },
     },
     methods: {
         async createQuestions() {
@@ -36,12 +47,13 @@ Vue.createApp({
                 this.questions = requestData.questions;
                 this.answers = requestData.answers;
 
-                console.log("受け取った問題:", this.questions);
-                console.log("受け取った問題:", this.answers);
             } catch (err) {
                 console.error("問題の取得に失敗:", err);
             }
-        }
+        },
+        checkAnswers(){
+            this.checkAnswersResults = this.userAnswers.map((item, i) => item === this.answers[i] ? "正解" : "不正解");
+        },
     },
     watch: {
         // メインの選択（整数/実数）が変わった時

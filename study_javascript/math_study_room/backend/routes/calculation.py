@@ -33,7 +33,8 @@ def create_questions(type, arithmetic, digits, numquestions):
     questions = []
     answers = []
 
-    for _ in range(numquestions):
+    for i in range(numquestions):
+        question_num = i + 1
 
         # 整数問題の値をランダム作成
         if type == "integer":
@@ -45,19 +46,19 @@ def create_questions(type, arithmetic, digits, numquestions):
 
         # 四則演算
         if arithmetic == "addition":
-            questions.append(f"{num_one} + {num_two} =")
+            questions.append(f"問{question_num} {num_one} + {num_two} =")
             answers.append(num_one + num_two)
 
         elif arithmetic == "subtraction":
-            questions.append(f"{num_one} - {num_two} = ")
+            questions.append(f"問{question_num} {num_one} - {num_two} = ")
             answers.append(num_one - num_two)
 
         elif arithmetic == "multiplication":
-            questions.append(f"{num_one} × {num_two} = ")
+            questions.append(f"問{question_num} {num_one} × {num_two} = ")
             answers.append(num_one * num_two)
 
         elif arithmetic == "division":
-            questions.append(f"{num_one} ÷ {num_two} = ")
+            questions.append(f"問{question_num} {num_one} ÷ {num_two} = ")
 
             if num_one % num_two == 0:
                 answers.append(num_one // num_two)

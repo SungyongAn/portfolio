@@ -19,6 +19,7 @@
                     <svg class="bi me-2" width="30" height="24" aria-hidden="true"></svg>
                     <span class="fs-5 fw-semibold">詳細設定</span>
                 </a>
+
                 <ul class="list-unstyled ps-0" id="question_types_accordion">
                     <h1>問題の種類</h1>
                     <li class="mb-1">
@@ -56,6 +57,7 @@
                                     </li>
                                 </div>
                             </ul>
+
                             <label for="num-digits-problem" class="form-label">数字の桁数</label> 
                             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                                     <li class="form-check">
@@ -79,6 +81,7 @@
                             min="1" max="10">
                         </div>
                     </li>
+
                     <li class="mb-1">
                         <input 
                         class="form-check-input" 
@@ -114,7 +117,8 @@
                                     </li>
                                 </div>
                             </ul>
-                            <label for="num-digits-problem" class="form-label">数字の桁数</label> 
+
+                            <label for="num-digits-problem" class="form-label">数値の桁数</label> 
                             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                                     <li class="form-check">
                                         <input class="form-check-input" type="radio" name="digits" value="1" v-model="selectedRealDigits">
@@ -139,9 +143,7 @@
                 </ul>
                 <div class="mt-4 pt-3 border-top">
                     <form @submit.prevent="createQuestions">
-                        <!-- <button type="submit" :disabled="!canCreateQuestions" :class="buttonClass" class="btn w-100">
-                            問題を作成
-                        </button> -->
+                        <!-- v-bind:disabled で整数、実数のどちらかの選択肢が全て埋まっていないと[問題の作成]ボタンを反応しないように設定-->
                         <button 
                         type="submit" 
                         :disabled="!((selectedNumberType === 'integer' && selectedIntegerArithmetic && selectedIntegerDigits && numQuestions) || 
@@ -153,13 +155,27 @@
         <!-- メインコンテンツエリア -->
         <div class="flex-grow-1 p-4">
             <h1 class="fs-2 fw-bold text-primary mb-0">算数の勉強部屋</h1>
-            <div class="content-area">
-                <!-- ここに算数の勉強コンテンツが入ります -->
+            <div class="questions-area">
+                <ul v-for="(question, index) in questions" :key="question" class="index">
+                    <li>
+                        {{question}}
+                        <input type="text" v-model.number="userAnswers[index]" class="form-control w-auto">
+                    </li>
+                </ul>
             </div>
+            <form v-if="hasQuestions" @submit.prevent="checkAnswers">
+                <button type="submit">採点</button>
+            </form>
+            <ul v-if="hasCheckAnswersResults" class="answer_check_list">
+                <ul v-for="resultCheck in checkAnswersResults" :key="resultCheck" class="index">
+                    <li>
+                        {{ resultCheck }}
+                    </li>
+                </ul>
+            </ul>
         </div>
         </main>
     </div>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script> -->
     <script src="app.js"></script>
 </body>
 
