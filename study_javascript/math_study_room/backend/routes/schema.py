@@ -10,4 +10,4 @@ class QuestionRequestPayload(BaseModel):
 
 class QuestionResponseGeneric(BaseModel):
     questions: list[str]
-    answers: list[int]
+    answers: list[float]

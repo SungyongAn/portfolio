@@ -24,6 +24,13 @@ Vue.createApp({
     },
     methods: {
         async createQuestions() {
+
+            // 問題作成時に解答欄などをリセット
+            this.userAnswers = [];
+            this.checkAnswersResults = [];
+            this.questions = [];
+            this.answers = [];
+
             // 条件をまとめる
             const payload = {
                 type: this.selectedNumberType,
@@ -68,6 +75,6 @@ Vue.createApp({
                 // 出題数もリセット
                 this.numQuestions = '';
             }
-        }
+        },
     }
 }).mount("#app")
