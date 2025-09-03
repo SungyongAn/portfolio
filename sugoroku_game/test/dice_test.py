@@ -5,7 +5,7 @@ import random
 
 def load_dice_image(number):
     # サイコロ画像のパスを構築
-    dice_img = f"ImageMaterial/saikoro-illust{number}.png"
+    dice_img = f"image_material/saikoro-illust{number}.png"
     return dice_img
 
 
@@ -59,10 +59,3 @@ if st.button("🎲 サイコロを振る", disabled=st.session_state.is_rolling)
         status_placeholder.success(f"🎉 サイコロの結果は {final_result} です！")
     
     st.session_state.is_rolling = False
-
-# 結果の履歴表示
-# if st.session_state.dice_result is not None and not st.session_state.is_rolling:
-#     st.write("**前回の結果:**")
-#     result_img = load_dice_image(st.session_state.dice_result)
-#     if result_img is not None:
-#         st.image(result_img, width=150, caption=f"前回の結果: {st.session_state.dice_result}")

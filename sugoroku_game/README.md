@@ -22,3 +22,6 @@
 8/8
 ・サイコロのアニメーション用の画像をImageMaterialディレクトリにまとめて、testディレクトリとfrontendディレクトリ配下に保存
 ・testディレクトリ配下にdice_test.pyを作成(streamlitでサイコロのアニメーションのテストコード)
+・マップとプレイヤー画像の重複動作確認のためmap_test.pyを作成
+・プレイヤー画像などをマップにオーバーレイする時に透過できるようにopencv-python-headlessをインストール
+
