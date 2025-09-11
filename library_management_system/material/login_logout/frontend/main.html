@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="data:,">
+    <title>図書館管理システム</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        /* サイドメニューとメインコンテンツの境界線 */
+        .sidebar {
+            border-right: 2px solid #e0e0e0;
+            background-color: #f8f9fa;
+            height: 100%; /* サイドバーを親要素の100%の高さに */
+            min-height: 100vh; /* 最小高さを画面全体に */
+        }
+        
+        /* ホバー効果のある境界線（オプション） */
+        .sidebar:hover {
+            border-right-color: #007bff;
+            transition: border-right-color 0.3s ease;
+        }
+        
+        /* より細い境界線が良い場合 */
+        /* .sidebar { border-right: 1px solid #dee2e6; } */
+        
+        /* より太い境界線が良い場合 */
+        /* .sidebar { border-right: 3px solid #007bff; } */
+    </style>
+</head>
+<body>
+    <div id="app">
+        <main class="d-flex flex-nowrap">
+            <div class="flex-shrink-0 p-3 sidebar" style="width: 280px;">
+                <h1>
+                    メニュー
+                </h1>
+                <div class="login_posi">
+                    <button @click="showLoginForm">ログイン</button>
+                </div>
+                <p></p>
+                <div class="lonout_posi">
+                    <button @click="logout">ログアウト</button>
+                </div>
+            </div>
+            <div class="main">
+                <div v-if="currentView === 'home'">
+                    <h2>図書館管理システムへようこそ</h2>
+                    <p>左側のメニューから操作を選択してください。</p>
+                </div>
+                <!-- ログイン画面 --> 
+                <div v-if="currentView === 'login'">
+                    <h2>ログイン</h2>
+                    <div>
+                        <input type="text" v-model="loginForm.userId" placeholder="ユーザーID"> 
+                    </div>
+                    <p></p>
+                    <div>
+                        <input type="password" v-model="loginForm.password" placeholder="パスワード"> 
+                    </div>
+                    <p></p>
+                    <div>
+                        <button @click="login">ログイン</button> 
+                    </div>
+                    <p></p>
+                    <!-- <div>
+                        <button @click="passwordReset">パスワードの再設定</button>
+                    </div>
+                    <p></p> -->
+                    <div>
+                        <button @click="showFirstLoginForm">初回ログイン</button>
+                    </div>
+                    <p></p>
+                </div>
+                <!-- 初回ログイン画面 -->
+                <div v-if="currentView === 'first-login'">
+                    <h2>初回ログイン</h2>
+                    <input type="text" v-model="firstLoginForm.userId" placeholder="ユーザーID">
+                    <input type="email" v-model="firstLoginForm.email" placeholder="メールアドレス">
+                    <button @click="firstLogin">
+                        送信
+                    </button>            
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
