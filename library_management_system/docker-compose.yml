@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: accounts
+      MYSQL_DATABASE: library_system
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
     ports:
