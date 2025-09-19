@@ -27,6 +27,7 @@ docker exec -i mysql mysql -u root -prootpass --default-character-set=utf8mb4 ac
 9/17
 ・pip install aiosmtplib apscheduler sqlalchemy pymysql 実施
 
+----------------
 9/18
 ・issue完成
 ・コードの作成を開始
@@ -51,3 +52,31 @@ docker exec -i mysql mysql -u root -prootpass --default-character-set=utf8mb4 ac
 
 ■作業時間
 1時間40分＋日報10分
+
+----------------
+9/19
+■やったこと
+・昨日実施した docker exec -i コンテナ名 mysql -u root -p[パスワード] < 対象ファイル名 でのテーブル：accounts変更を試みたものの、
+　mysql: [Warning] Using a password on the command line interface can be insecure.
+　上記の内容が表示され実行できず。
+　docker exec -i コンテナ名 mysql -u root -p < 対象ファイル名　でパスワードを手入力で対処を行おうとするものの、入力の表示なしで
+　Enter password: ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)　となるため、
+　echo "パスワード" | docker exec -i コンテナ名 mysql -u root -p < 対象ファイル名 で対処を試みるが、
+　Enter password: %  と正常にパスワードが反映されず
+　他にも色々と試すものの都度エラーと思われる表示が行われる。
+　最終的に念の為、テーブルが実際に作られていないか確認したところ作成されていたことを確認
+　一度accountsを削除して再作成を試みた何処かのタイミングで作成されていたものの今回は特定できず
+　※作業時間：1時間半
+
+・権限のユーザー、図書委員、司書、管理者それぞれでテストアカウント作成、学校名はA校で統一、ユーザーのみパスワードは未設定
+　→テストアカウントの登録時に mysql: [Warning] Using a password on the command line interface can be insecure. と表示されても
+　 対象ファイルの実行は正常に行われていることを確認
+　 ※次回からエラー表記と思われる内容が出ても実際に実行されているか結果を確認すること！
+
+・サイドメニューにログインを設置、ログインを選択するとログイン画面を表示するようにapp.jsと合わせて作成
+
+■次回やること
+・
+■問題点や課題、困っていることなど
+・
+■作業時間

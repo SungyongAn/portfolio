@@ -1,17 +1,30 @@
--- init_library_system.sql
-CREATE DATABASE IF NOT EXISTS library_system
-DEFAULT CHARACTER SET utf8mb4
-COLLATE utf8mb4_general_ci;
 
 USE library_system;
 
-CREATE TABLE accounts (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '利用者ID',
-    username VARCHAR(100) NOT NULL COMMENT 'ユーザー名',
-    email VARCHAR(255) NOT NULL UNIQUE COMMENT 'メールアドレス',
-    enrollment_year YEAR NOT NULL COMMENT '入学年(西暦)',
-    graduation_year YEAR NOT NULL COMMENT '卒業予定年(西暦)',
-    password_hash VARCHAR(255) NOT NULL COMMENT 'パスワード(ハッシュ化推奨)',
-    school_name VARCHAR(255) NOT NULL COMMENT '所属(学校名)',
-    role ENUM('student','staff','admin') DEFAULT 'student' COMMENT '権限'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- CREATE TABLE accounts (
+--     user_id        VARCHAR(50) PRIMARY KEY COMMENT '利用者ID',
+--     username       VARCHAR(100) NOT NULL COMMENT 'ユーザー名',
+--     email          VARCHAR(255) UNIQUE NOT NULL COMMENT 'メールアドレス',
+--     admission_year YEAR NOT NULL COMMENT '入学年(西暦)',
+--     graduation_year YEAR NOT NULL COMMENT '卒業予定年(西暦)',
+--     password       VARCHAR(255) NOT NULL COMMENT 'パスワード(ハッシュ化推奨)',
+--     affiliation    VARCHAR(255) NOT NULL COMMENT '所属(学校名)',
+--     role ENUM('ユーザー', '図書委員', '司書', '管理者') NOT NULL DEFAULT 'ユーザー' COMMENT '権限',
+--     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+INSERT INTO accounts (user_id, username, email, admission_year, graduation_year, password, affiliation, role) VALUES
+-- ユーザー（一般利用者）- パスワード未登録
+('user001', '田中太郎', 'user001@a-school.ac.jp', 2023, 2027, '', 'A校', 'ユーザー'),
+
+-- 図書委員
+('committee001', '佐藤花子', 'committee001@a-school.ac.jp', 2022, 2026, 'testcommit', 'A校', '図書委員'),
+
+-- 司書
+('librarian001', '山田次郎', 'librarian001@a-school.ac.jp', 2020, 2024, 'testlibrarian', 'A校', '司書'),
+
+-- 管理者
+('admin001', '鈴木三郎', 'admin001@a-school.ac.jp', 2019, 2023, 'testadmin', 'A校', '管理者');
