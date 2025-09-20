@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class LoginRequestPayload(BaseModel):
@@ -7,4 +8,7 @@ class LoginRequestPayload(BaseModel):
 
 
 class LoginResponseGeneric(BaseModel):
-    authority: str
+    success: bool
+    authority: Optional[str] = None  # 認証成功時のみ返す
+    username: Optional[str] = None  # 認証成功時のみ返す
+    message: Optional[str] = None    # 認証失敗時のエラーメッセージ

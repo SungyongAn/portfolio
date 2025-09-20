@@ -9,10 +9,38 @@ Vue.createApp({
             isLoading: false,
             loginError: '',
             loginSuccess: '',
-            showPassword: false,  // ← 追加
+            showPassword: false,
+            currentUser: null, 
+            isLoggedIn: false, // ログイン状態の管理
         };
     },
+
 methods: {
+    // ページ切り替え時にログイン画面をリセット
+    setCurrentPage(page) {
+        if (page === 'login') {
+            this.resetLoginForm();
+        }
+        this.currentPage = page;
+    },
+    // ログイン画面のリセット
+    resetLoginForm() {
+        this.loginForm.userId = '';
+        this.loginForm.password = '';
+        this.loginError = '';
+        this.loginSuccess = '';
+        this.showPassword = false;
+        this.isLoading = false;
+    },
+
+    // ログアウト処理
+    logout() {
+        this.currentUser = null;
+        this.isLoggedIn = false;
+        this.currentPage = 'top';
+        this.resetLoginForm();
+    },
+
     // ログイン処理
     async handleLogin() {
         this.isLoading = true;
@@ -38,12 +66,17 @@ methods: {
             }
 
             const result = await response.json();
+
+            console.log("実際のレスポンス:", result);
+            console.log("success:", result.success);
+            console.log("authority:", result.authority); 
+            console.log("username:", result.username);
             
             // APIレスポンス形式: {"authority": "管理者"}
             if (result.authority) {
-                this.loginSuccess = `ログイン成功！権限: ${result.authority}`;
                 this.currentUser = {
                     userId: this.loginForm.userId,
+                    username: result.username,
                     role: result.authority
                 };
                 this.isLoggedIn = true;

@@ -4,12 +4,21 @@ from routes.models import Account
 
 
 def authenticate(db: Session, user_id: str, password: str):
-    # 認証成功時に権限のみを返す
-    user = db.query(Account).filter(Account.user_id == user_id).first()
-    
-    print(user_id)
 
-    if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-        return user.role  # 権限のみを返す
+    user = db.query(Account).filter(Account.user_id == user_id.strip()).first()
 
-    return None  # 認証失敗
+    if not user:
+        return {"success": False, "reason": "user_not_found"}
+    if not user.password:
+        return {"success": False, "reason": "password_not_set"}
+
+    hashed = user.password.encode('utf-8') if isinstance(user.password, str) else user.password
+
+    if not bcrypt.checkpw(password.encode('utf-8'), hashed):
+        return {"success": False, "reason": "password_incorrect"}
+
+    return {
+        "success": True,
+        "role": user.role,
+        "username": user.username,
+        }

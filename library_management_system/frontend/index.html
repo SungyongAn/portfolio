@@ -8,9 +8,9 @@
 </head>
 <body>
     <div id="app">
-        <main class="d-flex flex-nowrap">
+        <main class="d-flex flex-nowrap min-vh-100">
             <!-- サイドメニュー -->
-            <div class="flex-shrink-0 p-3 bg-light" style="width: 280px;">
+            <div class="flex-shrink-0 p-3 bg-light border-end" style="width: 280px;">
                 <div class="d-flex align-items-center pb-3 mb-3 border-bottom">
                     メニュー
                 </div>
@@ -25,11 +25,18 @@
                         </div>
                     </li>
                     <li class="mb-2">
-                        <div class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"
+                        <!-- ログイン状態に応じて表示を変更 フラグ（v-if="!isLoggedIn"）-->
+                        <div v-if="!isLoggedIn" 
+                        class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"
                         :class="{ 'bg-primary text-white': currentPage === 'login', 'text-dark': currentPage !== 'login' }"
-                        @click="currentPage = 'login'"
+                        @click="setCurrentPage('login')"
                         style="cursor: pointer;">
                         ログイン
+                        </div>
+                        <!-- ログイン後はユーザー名を表示 -->
+                        <div v-else class="menu-item d-flex align-items-center justify-content-between p-2 text-decoration-none rounded bg-success text-white">
+                            <span>{{ currentUser.username }}</span>
+                            <button @click="logout" class="btn btn-sm btn-outline-light">ログアウト</button>
                         </div>
                     </li>
                 </ul>
@@ -40,6 +47,10 @@
                 <!--TOPページ-->
                 <div v-if="currentPage === 'top'">
                     <h1 class="fs-2 fw-bold text-center mb-0">図書館へようこそ</h1>
+                    <!-- ログイン状態を表示 -->
+                    <div v-if="isLoggedIn" class="text-center mt-4">
+                        <p class="text-muted">{{ currentUser.username }}さん、こんにちは！</p>
+                    </div>
                 </div>
                 
                 <!--ログイン画面-->
@@ -49,6 +60,11 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h2 class="card-title text-center mb-4">ログイン</h2>
+
+                                    <!-- エラー・成功メッセージ -->
+                                    <div v-if="loginError" class="alert alert-danger">{{ loginError }}</div>
+                                    <div v-if="loginSuccess" class="alert alert-success">{{ loginSuccess }}</div>
+                                    
                                     <!--@submit.prevent="handleLogin"でログインボタンのPUSHの有無を管理-->
                                     <form @submit.prevent="handleLogin">
                                         <div class="mb-3">
@@ -83,6 +99,7 @@
                                             <label class="form-check-label" for="showPassword">
                                                 パスワードを表示
                                             </label>
+                                        </div>
                                         <!--:disabled=~~でボタン使用可否を管理-->
                                         <button 
                                         type="submit" 
