@@ -2,16 +2,25 @@ Vue.createApp({
     data() {
         return {
             currentPage: 'top', // 最初の画面はTOP
+            // ログイン画面の入力情報管理
             loginForm: {
                 userId: '',
                 password: ''
             },
-            isLoading: false,
+            // ユーザー認証の情報管理
+            makePassForm: { userId: '', email: '', emailConfirm: '' },
+            // パスワード入力画面の情報管理
+            passwordForm: { password: '', confirmPassword: '' },
+            verifiedUser: null, // 初回ログイン時のパス設定前の認証済みユーザー名
+            isLoading: false, // ログイン状態のフラグ
             loginError: '',
             loginSuccess: '',
-            showPassword: false,
+            showPassword: false, // ログイン時のパスワード入力内容の表示フラグ
+            showNewPassword: false, // 新しいパスワード表示フラグ
+            showConfirmPassword: false, // 確認用パスワード表示フラグ
             currentUser: null, 
             isLoggedIn: false, // ログイン状態の管理
+
         };
     },
 
@@ -21,8 +30,17 @@ methods: {
         if (page === 'login') {
             this.resetLoginForm();
         }
+        if (page === 'makePassword') {
+            this.makePassForm = { userId: '', email: '', emailConfirm: '' };
+        }
+        if (page === 'setPassword') {
+            this.passwordForm = { password: '', confirmPassword: '' };
+            this.showNewPassword = false;
+            this.showConfirmPassword = false;
+        }
         this.currentPage = page;
     },
+
     // ログイン画面のリセット
     resetLoginForm() {
         this.loginForm.userId = '';
@@ -66,11 +84,6 @@ methods: {
             }
 
             const result = await response.json();
-
-            console.log("実際のレスポンス:", result);
-            console.log("success:", result.success);
-            console.log("authority:", result.authority); 
-            console.log("username:", result.username);
             
             // APIレスポンス形式: {"authority": "管理者"}
             if (result.authority) {
@@ -92,6 +105,109 @@ methods: {
         } finally {
             this.isLoading = false;
         }
-    }
+    },
+
+    // パスワード設定処理
+    async handleMakePassword() {
+        // メールアドレスの一致確認
+        if (this.makePassForm.email !== this.makePassForm.emailConfirm) {
+            alert('メールアドレスが一致しません');
+            return;
+        }
+
+        // 必須項目チェック
+        if (!this.makePassForm.userId || !this.makePassForm.email) {
+            alert('すべての項目を入力してください');
+            return;
+        }
+
+        try {
+            // APIへの送信処理
+            const response = await fetch("http://127.0.0.1:8000/auth/make-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    userId: this.makePassForm.userId,
+                    email: this.makePassForm.email
+                })
+                
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTPエラー: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                // ユーザー情報を保存して、パスワード入力画面に遷移
+                this.verifiedUser = {
+                    userId: this.makePassForm.userId,
+                    username: result.username
+                };
+                // パスワード入力画面に遷移
+                this.setCurrentPage('setPassword');
+            } else {
+                alert(result.message || 'ユーザー情報の認証に失敗しました');
+            }
+        } catch (error) {
+            console.error('パスワード設定エラー:', error);
+            alert('エラーが発生しました: ' + error.message);
+        }
+    },
+
+    // パスワード登録処理
+    async handleSetPassword() {
+        // パスワードの一致確認
+        if (this.passwordForm.password !== this.passwordForm.confirmPassword) {
+            alert('パスワードが一致しません');
+            return;
+        }
+
+        // パスワード長チェック
+        if (this.passwordForm.password.length < 8) {
+            alert('パスワードは8文字以上で入力してください');
+            return;
+        }
+
+        try {
+            // APIへの送信処理
+            const response = await fetch("http://127.0.0.1:8000/auth/set-password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    userId: this.verifiedUser.userId,
+                    password: this.passwordForm.password
+                })
+            });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTPエラー: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('パスワードの登録が完了しました。ログイン画面からログインしてください。');
+                    // 全てのフォームをクリア
+                    this.makePassForm = { userId: '', email: '', emailConfirm: '' };
+                    this.passwordForm = { password: '', confirmPassword: '' };
+                    this.verifiedUser = null;
+                    // ログイン画面に戻る
+                    this.setCurrentPage('login');
+                } else {
+                    alert(result.message || 'パスワードの登録に失敗しました');
+                }
+            } catch (error) {
+                console.error('パスワード登録エラー:', error);
+                alert('エラーが発生しました: ' + error.message);
+            }
+    },
 }
 }).mount("#app")

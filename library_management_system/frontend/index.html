@@ -108,6 +108,163 @@
                                         ログイン
                                         </button>
                                     </form>
+                                    <!-- 追加ボタン -->
+                                    <div class="mt-3 d-grid gap-2">
+                                        <div class="mb-3">
+                                            初めての方はこちら
+                                            <button class="btn btn-outline-warning w-100" @click="setCurrentPage('makePassword')">
+                                                パスワードの設定
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 新規パスワード設定前のユーザー認証 -->
+                <div v-if="currentPage === 'makePassword'" class="make-password-container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title text-center mb-4">ユーザー情報の認証</h2>
+                                    <form @submit.prevent="handleMakePassword">
+                                        <!-- ユーザーID -->
+                                        <div class="mb-3">
+                                            <label for="makePassUserId" class="form-label">ユーザーID</label>
+                                            <input 
+                                            type="text" 
+                                            id="makePassUserId" 
+                                            v-model="makePassForm.userId" 
+                                            class="form-control" 
+                                            required>
+                                        </div>
+
+                                        <!-- メールアドレス -->
+                                        <div class="mb-3">
+                                            <label for="makePassEmail" class="form-label">メールアドレス</label>
+                                            <input 
+                                            type="email" 
+                                            id="makePassEmail" 
+                                            v-model="makePassForm.email" 
+                                            class="form-control" 
+                                            required>
+                                        </div>
+
+                                        <!-- 確認用メールアドレス -->
+                                        <div class="mb-3">
+                                            <label for="makePassEmailConfirm" class="form-label">メールアドレス（確認用）</label>
+                                            <input 
+                                            type="email" 
+                                            id="makePassEmailConfirm" 
+                                            v-model="makePassForm.emailConfirm" 
+                                            class="form-control" 
+                                            required>
+                                        </div>
+
+                                        <!-- ボタン -->
+                                        <button 
+                                        type="submit" 
+                                        class="btn btn-warning w-100"
+                                        :disabled="makePassForm.email !== makePassForm.emailConfirm || !makePassForm.email">
+                                        ユーザー情報の認証
+                                        </button>
+                                        <button class="btn btn-link mt-2 w-100" @click="setCurrentPage('login')">
+                                        ← ログイン画面へ戻る
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- パスワード入力画面 -->
+                <div v-if="currentPage === 'setPassword'" class="set-password-container">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h2 class="card-title text-center mb-4">パスワードの登録</h2>
+                                    
+                                    <!-- ユーザー名表示 -->
+                                    <div class="alert alert-info text-center mb-4">
+                                        <strong>{{ verifiedUser.username }}</strong> さんのパスワードを設定してください
+                                    </div>
+
+                                    <form @submit.prevent="handleSetPassword">
+                                        <!-- パスワード -->
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label">新しいパスワード</label>
+                                            <input 
+                                            :type="showNewPassword ? 'text' : 'password'" 
+                                            id="newPassword" 
+                                            v-model="passwordForm.password" 
+                                            class="form-control"
+                                            placeholder="パスワードを入力"
+                                            minlength="8"
+                                            required>
+                                        </div>
+
+                                        <!-- 確認用パスワード -->
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">パスワード（確認用）</label>
+                                            <input 
+                                            :type="showConfirmPassword ? 'text' : 'password'" 
+                                            id="confirmPassword" 
+                                            v-model="passwordForm.confirmPassword" 
+                                            class="form-control"
+                                            placeholder="パスワードを再入力"
+                                            minlength="8"
+                                            required>
+                                            <div v-if="passwordForm.password && passwordForm.confirmPassword && passwordForm.password !== passwordForm.confirmPassword" 
+                                                class="form-text text-danger">
+                                                パスワードが一致しません
+                                            </div>
+                                        </div>
+
+                                        <!-- パスワード表示チェックボックス -->
+                                        <div class="form-check mb-2">
+                                            <input 
+                                            class="form-check-input" 
+                                            type="checkbox" 
+                                            id="showNewPassword" 
+                                            v-model="showNewPassword">
+                                            <label class="form-check-label" for="showNewPassword">
+                                                新しいパスワードを表示
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input 
+                                            class="form-check-input" 
+                                            type="checkbox" 
+                                            id="showConfirmPassword" 
+                                            v-model="showConfirmPassword">
+                                            <label class="form-check-label" for="showConfirmPassword">
+                                                確認用パスワードを表示
+                                            </label>
+                                        </div>
+
+                                        <!-- パスワード要件 -->
+                                        <div class="alert alert-secondary small mb-3">
+                                            <strong>パスワード要件：</strong>
+                                            <ul class="mb-0 mt-1">
+                                                <li>8文字以上</li>
+                                                <li>英数字を含む</li>
+                                            </ul>
+                                        </div>
+
+                                        <!-- ボタン -->
+                                        <button 
+                                        type="submit" 
+                                        class="btn btn-success w-100"
+                                        :disabled="passwordForm.password !== passwordForm.confirmPassword || !passwordForm.password || passwordForm.password.length < 8">
+                                        パスワードを登録
+                                        </button>
+                                        <button type="button" class="btn btn-link mt-2 w-100" @click="setCurrentPage('login')">
+                                        ← ログイン画面へ戻る
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
