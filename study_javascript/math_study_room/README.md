@@ -1,4 +1,4 @@
-2025/8/24
+2025/8/24<br>
 ■以前、streamlitで作成した算数の勉強部屋をhtmlで作り直す作業を開始
 ・以下サイトよりbootstrapを利用したサイドバーのサンプルを取得、折り畳み式を仕様することに。
 https://bootstrap-guide.com/sample/sidebars
