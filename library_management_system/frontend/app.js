@@ -8,7 +8,7 @@ Vue.createApp({
                 password: ''
             },
             // ユーザー認証の情報管理
-            makePassForm: { userId: '', email: '', emailConfirm: '' },
+            firstAuthForm: { userId: '', email: '', emailConfirm: '' },
             // パスワード入力画面の情報管理
             passwordForm: { password: '', confirmPassword: '' },
             verifiedUser: null, // 初回ログイン時のパス設定前の認証済みユーザー名
@@ -20,8 +20,15 @@ Vue.createApp({
             showConfirmPassword: false, // 確認用パスワード表示フラグ
             currentUser: null, 
             isLoggedIn: false, // ログイン状態の管理
-
         };
+    },
+
+components: {
+    SideMenu,
+    TopPage,
+    LoginForm,
+    FirstAuthForm,
+    SetPasswordForm
     },
 
 methods: {
@@ -30,8 +37,8 @@ methods: {
         if (page === 'login') {
             this.resetLoginForm();
         }
-        if (page === 'makePassword') {
-            this.makePassForm = { userId: '', email: '', emailConfirm: '' };
+        if (page === 'firstAuth') {
+            this.firstAuthForm = { userId: '', email: '', emailConfirm: '' };
         }
         if (page === 'setPassword') {
             this.passwordForm = { password: '', confirmPassword: '' };
@@ -108,29 +115,29 @@ methods: {
     },
 
     // パスワード設定処理
-    async handleMakePassword() {
+    async handleFirstAuth() {
         // メールアドレスの一致確認
-        if (this.makePassForm.email !== this.makePassForm.emailConfirm) {
+        if (this.firstAuthForm.email !== this.firstAuthForm.emailConfirm) {
             alert('メールアドレスが一致しません');
             return;
         }
 
         // 必須項目チェック
-        if (!this.makePassForm.userId || !this.makePassForm.email) {
+        if (!this.firstAuthForm.userId || !this.firstAuthForm.email) {
             alert('すべての項目を入力してください');
             return;
         }
 
         try {
             // APIへの送信処理
-            const response = await fetch("http://127.0.0.1:8000/auth/make-password", {
+            const response = await fetch("http://127.0.0.1:8000/auth/first-auth", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    userId: this.makePassForm.userId,
-                    email: this.makePassForm.email
+                    userId: this.firstAuthForm.userId,
+                    email: this.firstAuthForm.email
                 })
                 
             });
@@ -145,7 +152,7 @@ methods: {
             if (result.success) {
                 // ユーザー情報を保存して、パスワード入力画面に遷移
                 this.verifiedUser = {
-                    userId: this.makePassForm.userId,
+                    userId: this.firstAuthForm.userId,
                     username: result.username
                 };
                 // パスワード入力画面に遷移
@@ -196,7 +203,7 @@ methods: {
                 if (result.success) {
                     alert('パスワードの登録が完了しました。ログイン画面からログインしてください。');
                     // 全てのフォームをクリア
-                    this.makePassForm = { userId: '', email: '', emailConfirm: '' };
+                    this.firstAuthForm = { userId: '', email: '', emailConfirm: '' };
                     this.passwordForm = { password: '', confirmPassword: '' };
                     this.verifiedUser = null;
                     // ログイン画面に戻る

@@ -132,3 +132,12 @@ docker exec -i mysql mysql -u root -prootpass --default-character-set=utf8mb4 ac
 
 ■作業時間
 ・3時間（計13時間半）
+
+
+9/21
+■やったこと
+・メイン画面表示のコンポーネント化 compenentsディレクトリ配下に各内容のjsファイルを作成
+・index.html,app.jsをcompenentsディレクトリに合わせて修正
+・初回ログイン時の認証時にパスワード入力済みの場合「このユーザーIDはすでにパスワードが設定されています」と表示されるように修正
+ここまで1時間
+

@@ -44,7 +44,7 @@ def login(request: LoginRequestPayload, db: Session = Depends(get_db)):
 
 
 # 初回パスワード設定前の認証
-@router.post("/make-password", response_model=FirstAuthResponseGeneric)
+@router.post("/first-auth", response_model=FirstAuthResponseGeneric)
 def make_password(request: FirstAuthRequestPayload, db: Session = Depends(get_db)):
     try:
         # 認証処理
@@ -60,7 +60,7 @@ def make_password(request: FirstAuthRequestPayload, db: Session = Depends(get_db
                 username=result["username"],
                 )
         else:
-            return FirstAuthResponseGeneric(success=False, message="ユーザーIDまたはメールアドレスが違います")
+            return FirstAuthResponseGeneric(success=False, message=result["message"])
 
     except HTTPException:
         raise

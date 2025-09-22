@@ -23,7 +23,7 @@ class FirstAuthRequestPayload(BaseModel):
 class FirstAuthResponseGeneric(BaseModel):
     success: bool
     username: Optional[str] = None
-    message: Optional[str] = None  # エラーメッセージ用
+    message: Optional[str] = None
 
 
 # パスワード登録
