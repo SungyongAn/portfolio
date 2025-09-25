@@ -16,4 +16,5 @@ def authenticate(db: Session, user_id: str, password: str):
         "success": True,
         "role": user.role,
         "username": user.username,
+        "affiliation": user.affiliation
         }

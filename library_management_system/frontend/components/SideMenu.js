@@ -25,9 +25,20 @@ const SideMenu = {
                         style="cursor: pointer;">
                         ログイン
                     </div>
-                    <div v-else class="menu-item d-flex align-items-center justify-content-between p-2 text-decoration-none rounded bg-success text-white">
-                        <span>{{ currentUser.username }}</span>
-                        <button @click="$emit('logout')" class="btn btn-sm btn-outline-light">ログアウト</button>
+                    <div v-else class="menu-item d-flex flex-column align-items-start p-2 text-decoration-none rounded bg-success text-white">
+                        <div>{{ currentUser.username }}</div>
+                        <div class="small">{{ currentUser.affiliation }}</div>
+                        <button @click="$emit('logout')" class="btn btn-sm btn-outline-light align-self-end mt-2">ログアウト</button>
+                    </div>
+
+                </li>
+                <!-- 管理者権限でのみ表示されるメニュー -->
+                <li v-if="isLoggedIn && currentUser && currentUser.role === '管理者'" class="mb-2">
+                    <div class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"
+                        :class="{ 'bg-primary text-white': currentPage === 'user-management', 'text-dark': currentPage !== 'user-management' }"
+                        @click="$emit('page-change', 'user-management')"
+                        style="cursor: pointer;">
+                        ユーザー登録と削除
                     </div>
                 </li>
             </ul>

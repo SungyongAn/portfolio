@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Enum, DateTime, text
+from sqlalchemy import Column, String, Integer, Enum, DateTime
 from sqlalchemy.sql import func
 from routes.db import Base
 

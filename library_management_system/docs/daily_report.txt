@@ -139,5 +139,44 @@ docker exec -i mysql mysql -u root -prootpass --default-character-set=utf8mb4 ac
 ・メイン画面表示のコンポーネント化 compenentsディレクトリ配下に各内容のjsファイルを作成
 ・index.html,app.jsをcompenentsディレクトリに合わせて修正
 ・初回ログイン時の認証時にパスワード入力済みの場合「このユーザーIDはすでにパスワードが設定されています」と表示されるように修正
-ここまで1時間
 
+■次回やること
+・ログアウトボタンの設置場所の変更と動作確認
+
+■問題点や課題、困っていることなど
+・特になし
+
+■作業時間
+・1時間（計14時間半）
+
+9/24
+■やったこと
+・管理者ID（管理者権限）でログイン時にサイドメニューに「ユーザー登録と削除」を表示
+・管理者IDと他IDで正常動作を確認
+・新規アカウント登録が画面を作成（AccountRegistration.js）
+ここまで1時間半（計16時間）
+※体調不良のためここまで
+
+9/25
+■やったこと
+・管理者権限での新規アカウント登録選択後の登録画面の表示を確認
+・新規登録画面で任意の人数のユーザー情報を登録できるように設定
+
+【作成物】
+・account_registration.py内に新規ユーザー登録用の関数（users_register）を作成
+・schema.py内に UsersRegisterPayload(BaseModel),class UserInfo(BaseModel),UsersRegisterGeneric(BaseModel)を作成
+・api.py内に@router.post("/users-register", response_model=UsersRegisterGeneric)を作成
+・AccountRegistration.jsをバックエンドへのjson送受信、受信した新規ユーザー情報の画面表示機能を作成
+
+【後回し】
+・関数users_registerでユーザーID、パスワードのどちらでエラーが出ているか明確に出力させる。
+
+■次回やること
+・
+
+■問題点や課題、困っていることなど
+・特になし
+
+
+■作業時間
+午前：3時間 

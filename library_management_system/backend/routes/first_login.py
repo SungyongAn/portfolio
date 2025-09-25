@@ -7,8 +7,8 @@ from routes.models import Account
 def first_authenticate(db: Session, user_id: str, e_mail: str):
 
     user = db.query(Account).filter(
-        Account.user_id == user_id.strip(),
-        Account.email == e_mail.strip(),
+        Account.user_id == user_id,
+        Account.email == e_mail,
         ).first()
 
     # ユーザーID、パスワードが一致しない場合
