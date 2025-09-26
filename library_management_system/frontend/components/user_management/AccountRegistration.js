@@ -161,7 +161,7 @@ const AccountRegistration = {
                 affiliation: this.forms.map(f => f.schoolName)
             };
 
-            const response = await axios.post('http://127.0.0.1:8000/auth/users-register', payload);
+            const response = await axios.post('http://127.0.0.1:8000/account-management/users-register', payload);
 
             console.log('登録結果:', response.data);
             return response.data;

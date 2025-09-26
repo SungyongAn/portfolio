@@ -168,15 +168,36 @@ docker exec -i mysql mysql -u root -prootpass --default-character-set=utf8mb4 ac
 ・api.py内に@router.post("/users-register", response_model=UsersRegisterGeneric)を作成
 ・AccountRegistration.jsをバックエンドへのjson送受信、受信した新規ユーザー情報の画面表示機能を作成
 
-【後回し】
-・関数users_registerでユーザーID、パスワードのどちらでエラーが出ているか明確に出力させる。
-
 ■次回やること
-・
+・アカウントの削除機能の作成から
 
 ■問題点や課題、困っていることなど
 ・特になし
 
+■作業時間
+・6時間（計22時間）
+
+
+9/26
+■やったこと
+・関数users_registerのデバック動作を削除
+・api,schema,authディレクトリを作成して認証関連（auth）, アカウント管理関連（account_management）で内容別にファイルを分離管理
+・関数ファイルもauth,account_managementディレクトリを作成して分離管理
+・アカウントの削除機能の作成、動作確認実施
+・.vueファイル用にVolarをインストール, settings.jsonに加筆
+・AccountDeletion.jsを検索機能と削除機能で分けることを試みるが.vueを理解するのに時間がかかりそうなため、.jsファイルで分離
+・AccountDeletion.jsを親としてSerchAccounts.js, UderDelete.jsに機能を分割
+・prettierの実装
+・アカウント情報の変更で最初の画面にSerchAccounts.jsの検索機能を表示させることに成功
+
+【後回し】
+・users_register → 現状だと重複を確認した時点で動作が停止するため、複数登録でも最後まで動作できるように変更が必要
+
+■次回やること
+・アカウント情報の変更時のアカウント検索の再思案から
+
+■問題点や課題、困っていることなど
+・気になる点でschemaのユーザーIDをuserIdとuser_idの２種類表記して使っていること。統一しておけば共通のschemaを利用できることもあるので用修正
 
 ■作業時間
-午前：3時間 
+・5時間半（計27時間半）

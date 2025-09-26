@@ -76,6 +76,18 @@
                     @back-to-management="setCurrentPage('user-management')">
                 </account-registration>
 
+                <!-- アカウントの削除 -->
+                <account-deletion
+                    v-if="currentPage === 'account-deletion'"
+                    @back-to-management="setCurrentPage('user-management')">
+                </account-deletion>
+
+                <!-- アカウント情報の変更-->
+                <account-modification
+                    v-if="currentPage === 'account-modification'"
+                    @back-to-management="setCurrentPage('user-management')">
+                </account-modification>
+
             </div>
         </main>
     </div>
@@ -91,6 +103,9 @@
     <!-- サイドメニューユーザー登録と削除関連 ここから -->
     <script src="components/user_management/UserManagement.js"></script> 
     <script src="components/user_management/AccountRegistration.js"></script>
+    <script src="components/user_management/AccountDeletion.js"></script>
+    <script src="components/user_management/SearchAccounts.js"></script>
+    <script src="components/user_management/AccountModification.js"></script>
     <!-- サイドメニューユーザー登録と削除関連 ここまで -->
 
     <!-- ※※コンポーネントファイルの読み込み ここまで※※ -->

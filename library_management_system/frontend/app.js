@@ -22,6 +22,7 @@ Vue.createApp({
             isLoggedIn: false // ログイン状態の管理
         };
     },
+
 components: {
     SideMenu,
     TopPage,
@@ -29,8 +30,11 @@ components: {
     FirstAuthForm,
     SetPasswordForm,
     UserManagement,
-    AccountRegistration
+    AccountRegistration,
+    AccountDeletion,
+    AccountModification
 },
+
 methods: {
     // ページ切り替え時にログイン画面をリセット
     setCurrentPage(page) {

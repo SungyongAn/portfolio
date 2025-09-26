@@ -29,7 +29,8 @@ components: {
     FirstAuthForm,
     SetPasswordForm,
     UserManagement,
-    AccountRegistration
+    // AccountRegistration,
+    SearchAccounts
 },
 methods: {
     // ページ切り替え時にログイン画面をリセット

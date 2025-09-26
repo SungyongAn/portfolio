@@ -1,9 +1,14 @@
 from fastapi import FastAPI
-from routes import api
+from routes.api import account_management, auth
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-app.include_router(api.router, prefix="/auth")
+
+# 認証
+app.include_router(auth.router, prefix="/auth")
+
+# アカウント管理
+app.include_router(account_management.router, prefix="/account-management")
 
 app.add_middleware(
     CORSMiddleware,
