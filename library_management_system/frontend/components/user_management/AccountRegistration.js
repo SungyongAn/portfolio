@@ -1,3 +1,4 @@
+// 新規アカウント登録
 const AccountRegistration = {
     props: ['login-user-school'],
     emits: ['back-to-management'],

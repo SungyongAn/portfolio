@@ -1,3 +1,4 @@
+// アカウント情報の検索
 const SearchAccounts = {
     emits: ['search-completed'],
     data() {
@@ -11,6 +12,7 @@ const SearchAccounts = {
                 { value: 'email', label: 'メールアドレス' },
                 { value: 'affiliation', label: '所属校' }
             ],
+            schools: ['A校', 'B校', 'C校', 'D校', 'E校'],
             error: '',
             isLoading: false
         };
@@ -58,6 +60,9 @@ const SearchAccounts = {
         getInputPlaceholder(searchType) {
             const opt = this.searchOptions.find(o => o.value === searchType);
             return opt ? `${opt.label}を入力` : '';
+        },
+        isSelectInput(searchType) {
+            return searchType === 'affiliation'; // 所属校の場合は選択式
         }
     },
     template: `
@@ -73,8 +78,20 @@ const SearchAccounts = {
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">検索値</label>
-                            <input :type="getInputType(searchCondition.searchType)" class="form-control" 
-                                v-model="searchCondition.searchValue" :placeholder="getInputPlaceholder(searchCondition.searchType)">
+                            <!-- 所属校の場合は選択式 -->
+                            <select v-if="isSelectInput(searchCondition.searchType)" 
+                                v-model="searchCondition.searchValue" 
+                                class="form-select">
+                                <option value="">所属校を選択してください</option>
+                                <option v-for="school in schools" :key="school" :value="school">{{ school }}</option>
+                            </select>
+                            
+                            <!-- その他の条件はテキスト入力 -->
+                            <input v-else
+                                :type="getInputType(searchCondition.searchType)" 
+                                class="form-control" 
+                                v-model="searchCondition.searchValue" 
+                                :placeholder="getInputPlaceholder(searchCondition.searchType)">
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary me-2" :disabled="isLoading">

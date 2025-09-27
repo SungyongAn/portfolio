@@ -38,7 +38,7 @@ const SideMenu = {
                         :class="{ 'bg-primary text-white': currentPage === 'user-management', 'text-dark': currentPage !== 'user-management' }"
                         @click="$emit('page-change', 'user-management')"
                         style="cursor: pointer;">
-                        ユーザー登録と削除
+                        ユーザー管理
                     </div>
                 </li>
             </ul>

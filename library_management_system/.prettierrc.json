@@ -1,13 +1,13 @@
 {
-  "printWidth": 100,                // 1行あたりの文字数の上限
-  "tabWidth": 2,                     // タブ幅
-  "useTabs": false,                  // タブではなくスペースを使用
-  "semi": true,                      // 文末にセミコロンを付ける
-  "singleQuote": true,               // 文字列はシングルクオート
-  "quoteProps": "as-needed",         // オブジェクトのプロパティは必要に応じてクオート
-  "trailingComma": "es5",            // 配列やオブジェクトの末尾カンマ
-  "bracketSpacing": true,            // オブジェクトの波括弧内にスペース
-  "arrowParens": "always",           // アロー関数の引数に常に括弧を付ける
-  "endOfLine": "lf",                 // 改行コードはLF
-  "vueIndentScriptAndStyle": true    // Vue の <script> と <style> 内もインデント
+  "printWidth": 100,              
+  "tabWidth": 2,                  
+  "useTabs": false,             
+  "semi": true,                      
+  "singleQuote": true,              
+  "quoteProps": "as-needed",         
+  "trailingComma": "es5",            
+  "bracketSpacing": true,           
+  "arrowParens": "always",           
+  "endOfLine": "lf",                 
+  "vueIndentScriptAndStyle": true    
 }

@@ -13,3 +13,33 @@ services:
       - "3306:3306"
     volumes:
       - ./mysql_data:/var/lib/mysql
+
+  # backend:
+  #   build: ./backend
+  #   container_name: backend
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ./backend:/app
+  #   environment:
+  #     - DATABASE_URL=mysql+pymysql://appuser:apppass@host.docker.internal:3306/library_system
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: frontend
+  #   ports:
+  #     - "5173:5173"
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - CHOKIDAR_USEPOLLING=true
+  #   command: npm run dev -- --host 0.0.0.0
+  #   depends_on:
+  #     - backend
+
+  # auto-open-browser:
+  #   image: alpine:latest
+  #   depends_on:
+  #     - frontend
+  #   entrypoint: ["sh", "-c", "sleep 5 && open http://localhost:5173 && tail -f /dev/null"]

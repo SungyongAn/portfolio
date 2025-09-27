@@ -201,3 +201,25 @@ docker exec -i mysql mysql -u root -prootpass --default-character-set=utf8mb4 ac
 
 ■作業時間
 ・5時間半（計27時間半）
+
+
+9/27
+■やったこと
+・docker-compose up --buildでのフロントエンド、バックエンドの一括起動を試すものの、index.htmlを自動で開く方法の理解に時間を要するため一時断煙
+・AccountDeletion.jsがSerchAccounts.js, UderDelete.jsを認識していなかったため修正
+・AccountModification.js内にアカウント情報の変更画面の表示機能を作成
+・SerchAccounts.jsの所属校の入力を選択方式に変更
+
+【後回し】
+・users_register → 現状だと重複を確認した時点で動作が停止するため、複数登録でも最後まで動作できるように変更が必要
+・dockerによるフロントエンド、バックエンドなどの一括起動
+
+■次回やること
+・バックエンドのアカウント情報変更機能の作成
+
+■問題点や課題、困っていることなど
+・気になる点でschemaのユーザーIDをuserIdとuser_idの２種類表記して使っていること。統一しておけば共通のschemaを利用できることもあるので用修正
+・dockerでindex.htmlを自動で開く、FastAPIの起動など手動で行なっている作業を一括で起動できるようにするためのdocker-compose.yml,Dockerfile,requirements.txtの書き方について確認中
+
+■作業時間
+・3時間（計30時間半）

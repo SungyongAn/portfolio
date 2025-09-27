@@ -1,9 +1,14 @@
+// アカウントの削除
 const AccountDeletion = {
     emits: ['back-to-management'],
     data() {
         return {
             searchResults: []
         };
+    },
+    components: {
+        'search-accounts': SearchAccounts,
+        'user-delete': UserDelete
     },
     methods: {
         handleSearchCompleted(results) {
@@ -23,3 +28,4 @@ const AccountDeletion = {
         </div>
     `
 };
+
