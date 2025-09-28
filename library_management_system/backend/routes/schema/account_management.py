@@ -28,7 +28,7 @@ class UsersRegisterResponseGeneric(BaseModel):
     users: Optional[list[UserInfo]] = None
 
 
-# ユーザー情報の抽出（ユーザー検索用）
+# ユーザー情報の抽出（ユーザー検索、ユーザー情報変更）
 class SearchConditions(BaseModel):
     userId: Optional[str] = None
     username: Optional[str] = None
@@ -66,3 +66,16 @@ class DeleteUsersPayload(BaseModel):
 class DeleteUsersResponseGeneric(BaseModel):
     success: bool
     message: str
+
+
+# ユーザー情報変更
+class AccountUpdatePayload(BaseModel):
+    user_id: str
+    updates: dict[str, Optional[str]]  # updates は項目名と値の辞書
+
+
+# 更新後のレスポンス用
+class AccountUpdateResponseGeneric(BaseModel):
+    success: bool
+    updated_fields: list[str]
+    user: SerchUserInfo

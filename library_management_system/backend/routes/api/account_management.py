@@ -9,11 +9,14 @@ from routes.schema.account_management import (
     SearchAccountsResponseGeneric,
     DeleteUsersPayload,
     DeleteUsersResponseGeneric,
+    AccountUpdatePayload,
+    AccountUpdateResponseGeneric,
 )
 
 router = APIRouter()
 
 
+# ユーザー情報の登録
 @router.post("/users-register", response_model=UsersRegisterResponseGeneric)
 def users_register(request: UsersRegisterPayload, db: Session = Depends(get_db)):
     try:
@@ -91,3 +94,30 @@ def delete_users_endpoint(payload: DeleteUsersPayload, db: Session = Depends(get
     if not result["success"]:
         raise HTTPException(status_code=400, detail=result["message"])
     return result
+
+
+@router.post("/update-account", response_model=AccountUpdateResponseGeneric)
+def update_account(payload: AccountUpdatePayload, db: Session = Depends(get_db)):
+    """
+    フロントから送られたチェックされた項目だけ更新するエンドポイント
+    payload.updates に含まれる項目のみを変更
+    """
+    try:
+        # ユーザー情報更新（チェックされた項目だけ）
+        user = account_registration.update_account_info(
+            db, 
+            payload.user_id, 
+            payload.updates
+        )
+
+        # 成功レスポンス
+        return {
+            "success": True,
+            "updated_fields": list(payload.updates.keys()),
+            "user": user.to_dict()  
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"アカウント更新中にエラーが発生しました: {str(e)}")

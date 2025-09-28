@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from routes.models import Account
-from typing import List
+from typing import Any
 
 
 # 新規ユーザー登録
-def users_register(db: Session, users: List[dict]):
+def users_register(db: Session, users: list[dict]):
 
     registered_users = []
 
@@ -59,7 +59,7 @@ def users_register(db: Session, users: List[dict]):
 
 
 # ユーザー情報の抽出（単独条件のみ）
-def search_accounts(db: Session, filters: List[dict]):
+def search_accounts(db: Session, filters: list[dict]):
     query = db.query(Account)
     or_conditions = []
 
@@ -105,3 +105,18 @@ def delete_users(db: Session, user_ids: list[str]) -> dict:
 
 
 # ユーザー情報の変更
+def update_account_info(db: Session, user_id: str, updates: dict[str, Any]) -> Account:
+    # ユーザー取得
+    user = db.query(Account).filter(Account.user_id == user_id).first()
+
+    # updates にある項目だけ更新
+    for field, value in updates.items():
+        if hasattr(user, field):
+            # 整数型フィールドの変換
+            if field in ["admission_year", "graduation_year"] and value is not None:
+                value = int(value)
+            setattr(user, field, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
