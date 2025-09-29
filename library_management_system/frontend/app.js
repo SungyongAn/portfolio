@@ -32,7 +32,9 @@ components: {
     UserManagement,
     AccountRegistration,
     AccountDeletion,
-    AccountModification
+    AccountModification,
+    MaterialManagement,
+    MaterialRegistration
 },
 
 methods: {

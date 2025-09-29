@@ -30,8 +30,8 @@ const SideMenu = {
                         <div class="small">{{ currentUser.affiliation }}</div>
                         <button @click="$emit('logout')" class="btn btn-sm btn-outline-light align-self-end mt-2">ログアウト</button>
                     </div>
-
                 </li>
+
                 <!-- 管理者権限でのみ表示されるメニュー -->
                 <li v-if="isLoggedIn && currentUser && currentUser.role === '管理者'" class="mb-2">
                     <div class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"
@@ -39,6 +39,12 @@ const SideMenu = {
                         @click="$emit('page-change', 'user-management')"
                         style="cursor: pointer;">
                         ユーザー管理
+                    </div>
+                    <div class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"
+                        :class="{ 'bg-primary text-white': currentPage === 'material-management', 'text-dark': currentPage !== 'material-management' }"
+                        @click="$emit('page-change', 'material-management')"
+                        style="cursor: pointer;">
+                        資料管理
                     </div>
                 </li>
             </ul>

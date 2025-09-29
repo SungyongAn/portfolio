@@ -88,6 +88,19 @@
                     @back-to-management="setCurrentPage('user-management')">
                 </account-modification>
 
+                <!-- 資料管理-->
+                <material-management
+                    v-if="currentPage === 'material-management'"
+                    :current-page="currentPage"
+                    @page-change="setCurrentPage">
+                </material-management>
+
+                <!-- 資料の追加 -->
+                <material-registration
+                v-if="currentPage === 'material-registration'"
+                @back-to-material-management="setCurrentPage('material-management')">
+                </material-registration>
+
             </div>
         </main>
     </div>
@@ -100,14 +113,19 @@
     <script src="components/FirstAuth.js"></script>
     <script src="components/SetPasswordForm.js"></script>
     <!-- サイドメニュー ログイン関連 ここまで -->
-    <!-- サイドメニューユーザー登録と削除関連 ここから -->
+    <!-- サイドメニュー アカウント管理 ここから -->
     <script src="components/user_management/UserManagement.js"></script> 
     <script src="components/user_management/AccountRegistration.js"></script>
     <script src="components/user_management/SearchAccounts.js"></script>
     <script src="components/user_management/UserDelete.js"></script>
     <script src="components/user_management/AccountDeletion.js"></script>
     <script src="components/user_management/AccountModification.js"></script>
-    <!-- サイドメニューユーザー登録と削除関連 ここまで -->
+    <!-- サイドメニュー アカウント管理 ここまで -->
+
+    <!-- サイドメニュー 資料管理 ここから-->
+    <script src="components/material_management/material_registration.js"></script>
+    <script src="components/material_management/MaterialManagement.js"></script>
+    <!-- サイドメニュー 資料管理 ここまで-->
 
     <!-- ※※コンポーネントファイルの読み込み ここまで※※ -->
 

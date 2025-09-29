@@ -1,14 +1,14 @@
 import bcrypt
 from sqlalchemy.orm import Session
-from routes.models import Account
+from routes.models import account
 
 
 # 初回ユーザー認証
 def first_authenticate(db: Session, user_id: str, e_mail: str):
 
-    user = db.query(Account).filter(
-        Account.user_id == user_id,
-        Account.email == e_mail,
+    user = db.query(account.Account).filter(
+        account.Account.user_id == user_id,
+        account.Account.email == e_mail,
         ).first()
 
     # ユーザーID、パスワードが一致しない場合

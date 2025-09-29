@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from routes.models import Account
+from routes.models.account import Account
 from typing import Any
 
 

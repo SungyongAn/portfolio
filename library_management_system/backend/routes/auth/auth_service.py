@@ -1,11 +1,11 @@
 import bcrypt
 from sqlalchemy.orm import Session
-from routes.models import Account
+from routes.models import account
 
 
 def authenticate(db: Session, user_id: str, password: str):
 
-    user = db.query(Account).filter(Account.user_id == user_id.strip()).first()
+    user = db.query(account.Account).filter(account.Account.user_id == user_id.strip()).first()
 
     hashed = user.password.encode('utf-8') if isinstance(user.password, str) else user.password
 
