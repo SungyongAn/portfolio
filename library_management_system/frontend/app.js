@@ -34,7 +34,9 @@ components: {
     AccountDeletion,
     AccountModification,
     MaterialManagement,
-    MaterialRegistration
+    MaterialRegistration,
+    MaterialRegistrationStep1,
+    MaterialRegistrationStep2
 },
 
 methods: {

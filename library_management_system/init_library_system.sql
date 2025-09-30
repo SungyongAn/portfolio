@@ -1,6 +1,19 @@
 
 USE library_system;
 
+INSERT IGNORE INTO NDC (ndc_code, ndc_name) VALUES
+('000', '総記'),
+('100', '哲学'),
+('200', '歴史'),
+('300', '社会科学'),
+('400', '自然科学'),
+('500', '技術・工学'),
+('600', '産業'),
+('700', '芸術'),
+('800', '言語'),
+('900', '文学'),
+('999', '未分類');
+
 -- INSERT INTO NDC (ndc_code, ndc_name) VALUES
 -- ('000', '総記'),
 -- ('100', '哲学'),
@@ -11,22 +24,25 @@ USE library_system;
 -- ('600', '産業'),
 -- ('700', '芸術'),
 -- ('800', '言語'),
--- ('900', '文学');
+-- ('900', '文学'),
+-- ('999', '未分類'); -- 追加
 
-INSERT INTO Materials
-(barcode, title, author, publisher, ndc_code, type_id, affiliation, shelf, loan_status, registration_date)
-VALUES
-('BC0001', 'はじめてのPython', '山田太郎', '出版社A', '000', 1, 'A校', 'A1', 'AVAILABLE', '2025-09-29'),
-('BC0002', '世界の歴史', '佐藤花子', '出版社B', '200', 1, 'B校', 'B1', 'ON_LOAN', '2025-09-28'),
-('BC0003', '哲学入門', '田中一郎', '出版社C', '100', 2, 'C校', 'C1', 'AVAILABLE', '2025-09-27');
-
-
-
--- -- NDC分類テーブル
+-- NDC分類テーブル
 -- CREATE TABLE NDC (
 --     ndc_code VARCHAR(10) PRIMARY KEY,
 --     ndc_name VARCHAR(100) NOT NULL
 -- );
+
+-- INSERT INTO Materials
+-- (barcode, title, author, publisher, ndc_code, type_id, affiliation, shelf, loan_status, registration_date)
+-- VALUES
+-- ('BC0001', 'はじめてのPython', '山田太郎', '出版社A', '000', 1, 'A校', 'A1', 'AVAILABLE', '2025-09-29'),
+-- ('BC0002', '世界の歴史', '佐藤花子', '出版社B', '200', 1, 'B校', 'B1', 'ON_LOAN', '2025-09-28'),
+-- ('BC0003', '哲学入門', '田中一郎', '出版社C', '100', 2, 'C校', 'C1', 'AVAILABLE', '2025-09-27');
+
+
+
+
 
 -- -- 資料種別テーブル
 -- CREATE TABLE MaterialType (
@@ -53,7 +69,7 @@ VALUES
 -- DROP TABLE IF EXISTS Materials_Loans;
 -- DROP TABLE IF EXISTS Materials;
 
--- -- Materials テーブル
+-- Materials テーブル
 -- CREATE TABLE Materials (
 --     material_id INT AUTO_INCREMENT PRIMARY KEY,
 --     barcode VARCHAR(50) NOT NULL UNIQUE COMMENT '一元バーコード番号',

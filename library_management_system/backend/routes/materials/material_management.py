@@ -8,7 +8,6 @@ def check_barcode(db: Session, barcode: str):
     existing_material = db.query(materials.Material).filter(
         materials.Material.barcode == barcode,
         ).first()
-    print(existing_material)
 
     # ユーザーID、パスワードが一致しない場合
     if existing_material:
