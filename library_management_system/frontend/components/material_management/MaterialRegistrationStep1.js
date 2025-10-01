@@ -22,6 +22,7 @@ const MaterialRegistrationStep1 = {
                     this.errorMessage = 'このバーコードは既に登録されています。';
                 } else {
                     // 親へイベント発火 → Step2へ遷移
+                    console.log("成功")
                     this.$emit('barcode-checked', this.barcode);
                 }
             } catch (error) {
