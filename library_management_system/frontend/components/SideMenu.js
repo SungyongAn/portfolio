@@ -1,4 +1,3 @@
-
 const SideMenu = {
     props: ['currentPage', 'isLoggedIn', 'currentUser'],
     emits: ['page-change', 'logout'],
@@ -17,6 +16,17 @@ const SideMenu = {
                         TOPページ
                     </div>
                 </li>
+
+                <!-- 追加: 資料検索 -->
+                <li class="mb-2">
+                    <div class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"
+                        :class="{ 'bg-primary text-white': currentPage === 'material-search', 'text-dark': currentPage !== 'material-search' }"
+                        @click="$emit('page-change', 'material-search')"
+                        style="cursor: pointer;">
+                        資料検索
+                    </div>
+                </li>
+
                 <li class="mb-2">
                     <div v-if="!isLoggedIn" 
                         class="menu-item d-flex align-items-center p-2 text-decoration-none rounded"

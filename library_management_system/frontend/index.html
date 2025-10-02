@@ -101,6 +101,12 @@
                 @back-to-material-management="setCurrentPage('material-management')">
                 </material-registration>
 
+                <!-- 資料検索-->
+                <material-search
+                v-if="currentPage === 'material-search'"
+                :search-results="searchResults"
+                @search="handleSearch">
+                </material-search>
             </div>
         </main>
     </div>
@@ -126,6 +132,7 @@
     <script src="components/material_management/MaterialRegistrationStep1.js"></script>
     <script src="components/material_management/MaterialRegistrationStep2.js"></script>
     <script src="components/material_management/material_registration.js"></script>
+    <script src="components/material_management/MaterialSearch.js"></script>
     <script src="components/material_management/MaterialManagement.js"></script>
     <!-- サイドメニュー 資料管理 ここまで-->
 

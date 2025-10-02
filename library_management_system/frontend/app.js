@@ -36,7 +36,8 @@ components: {
     MaterialManagement,
     MaterialRegistration,
     MaterialRegistrationStep1,
-    MaterialRegistrationStep2
+    MaterialRegistrationStep2,
+    MaterialSearch
 },
 
 methods: {

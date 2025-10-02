@@ -25,7 +25,6 @@ const MaterialManagement = {
                                 2. 資料の削除
                             </div>
                         </li>
-                        
                     </ul>
                 </div>
             </div>

@@ -22,7 +22,7 @@ class MaterialRepository:
     # 資料の新規登録
     def create(self, material: Material) -> Material:
         self.db.add(material)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(material)
         return material
 

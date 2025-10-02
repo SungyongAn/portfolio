@@ -4,13 +4,15 @@ const MaterialRegistrationStep1 = {
         return {
             barcode: '',
             isLoading: false,
-            errorMessage: ''
+            errorMessage: '',
+            successMessage: ''  // 成功メッセージ用
         };
     },
     methods: {
         async checkBarcode() {
             this.isLoading = true;
             this.errorMessage = '';
+            this.successMessage = '';
 
             try {
                 const response = await axios.post(
@@ -18,12 +20,12 @@ const MaterialRegistrationStep1 = {
                     { barcode: this.barcode }
                 );
 
-                if (response.data.exists) {
-                    this.errorMessage = 'このバーコードは既に登録されています。';
-                } else {
-                    // 親へイベント発火 → Step2へ遷移
-                    console.log("成功")
+                if (response.data.success) {
+                    this.successMessage = response.data.message;  // バックエンドの成功メッセージを取得
+                    console.log("成功:", this.successMessage);
                     this.$emit('barcode-checked', this.barcode);
+                } else {
+                    this.errorMessage = response.data.message;    // バックエンドのエラーメッセージを取得
                 }
             } catch (error) {
                 this.errorMessage = 'バーコード確認でエラーが発生しました。';
@@ -44,6 +46,7 @@ const MaterialRegistrationStep1 = {
                 </div>
 
                 <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+                <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
 
                 <button class="btn btn-primary" @click="checkBarcode" :disabled="isLoading || !barcode.trim()">
                     <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>

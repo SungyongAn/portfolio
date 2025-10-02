@@ -1,18 +1,41 @@
 
 USE library_system;
 
-INSERT IGNORE INTO NDC (ndc_code, ndc_name) VALUES
-('000', '総記'),
-('100', '哲学'),
-('200', '歴史'),
-('300', '社会科学'),
-('400', '自然科学'),
-('500', '技術・工学'),
-('600', '産業'),
-('700', '芸術'),
-('800', '言語'),
-('900', '文学'),
-('999', '未分類');
+-- UPDATE MaterialType SET type_name='図書' WHERE type_id=1;
+-- UPDATE MaterialType SET type_name='雑誌' WHERE type_id=2;
+-- UPDATE MaterialType SET type_name='新聞' WHERE type_id=3;
+-- UPDATE MaterialType SET type_name='視聴覚資料' WHERE type_id=4;
+-- UPDATE MaterialType SET type_name='電子資料' WHERE type_id=5;
+
+-- UPDATE LoanStatus SET status_name='在庫あり' WHERE status_code='AVAILABLE';
+-- UPDATE LoanStatus SET status_name='移動中' WHERE status_code='MOVING';
+-- UPDATE LoanStatus SET status_name='貸出中' WHERE status_code='ON_LOAN';
+-- UPDATE LoanStatus SET status_name='予約中' WHERE status_code='RESERVED';
+
+-- UPDATE NDC SET ndc_name='総記' WHERE ndc_code='000';
+-- UPDATE NDC SET ndc_name='哲学' WHERE ndc_code='100';
+-- UPDATE NDC SET ndc_name='歴史' WHERE ndc_code='200';
+-- UPDATE NDC SET ndc_name='社会科学' WHERE ndc_code='300';
+-- UPDATE NDC SET ndc_name='自然科学' WHERE ndc_code='400';
+-- UPDATE NDC SET ndc_name='技術・工学' WHERE ndc_code='500';
+-- UPDATE NDC SET ndc_name='農業' WHERE ndc_code='600';
+-- UPDATE NDC SET ndc_name='工業' WHERE ndc_code='700';
+-- UPDATE NDC SET ndc_name='言語' WHERE ndc_code='800';
+-- UPDATE NDC SET ndc_name='文学' WHERE ndc_code='900';
+-- UPDATE NDC SET ndc_name='未分類' WHERE ndc_code='999';
+
+-- INSERT IGNORE INTO NDC (ndc_code, ndc_name) VALUES
+-- ('000', '総記'),
+-- ('100', '哲学'),
+-- ('200', '歴史'),
+-- ('300', '社会科学'),
+-- ('400', '自然科学'),
+-- ('500', '技術・工学'),
+-- ('600', '産業'),
+-- ('700', '芸術'),
+-- ('800', '言語'),
+-- ('900', '文学'),
+-- ('999', '未分類');
 
 
 -- INSERT INTO Materials
@@ -21,10 +44,6 @@ INSERT IGNORE INTO NDC (ndc_code, ndc_name) VALUES
 -- ('BC0001', 'はじめてのPython', '山田太郎', '出版社A', '000', 1, 'A校', 'A1', 'AVAILABLE', '2025-09-29'),
 -- ('BC0002', '世界の歴史', '佐藤花子', '出版社B', '200', 1, 'B校', 'B1', 'ON_LOAN', '2025-09-28'),
 -- ('BC0003', '哲学入門', '田中一郎', '出版社C', '100', 2, 'C校', 'C1', 'AVAILABLE', '2025-09-27');
-
-
-
-
 
 INSERT INTO NDC (ndc_code, ndc_name) VALUES
 ('000', '総記'),
@@ -55,7 +74,7 @@ CREATE TABLE MaterialType (
 );
 
 
-INSERT INTO LoanStatus (status_code, status_name) VALUES
+-- INSERT INTO LoanStatus (status_code, status_name) VALUES
 ('AVAILABLE', '在庫あり'),
 ('ON_LOAN', '貸出中'),
 ('RESERVED', '予約中'),
@@ -116,19 +135,19 @@ CREATE TABLE Materials_Reservations (
 
 
 
--- アカウントテーブル
--- CREATE TABLE accounts (
---     user_id VARCHAR(50) NOT NULL COMMENT 'ユーザーID',
---     username       VARCHAR(100) NOT NULL COMMENT 'ユーザー名',
---     email          VARCHAR(255) UNIQUE NOT NULL COMMENT 'メールアドレス',
---     admission_year YEAR NOT NULL COMMENT '入学年(西暦)',
---     graduation_year YEAR NOT NULL COMMENT '卒業予定年(西暦)',
---     password       VARCHAR(255) NOT NULL COMMENT 'パスワード(ハッシュ化推奨)',
---     affiliation    VARCHAR(255) NOT NULL COMMENT '所属(学校名)',
---     role ENUM('ユーザー', '図書委員', '司書', '管理者') NOT NULL DEFAULT 'ユーザー' COMMENT '権限',
---     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
--- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+アカウントテーブル
+CREATE TABLE accounts (
+    user_id VARCHAR(50) NOT NULL COMMENT 'ユーザーID',
+    username       VARCHAR(100) NOT NULL COMMENT 'ユーザー名',
+    email          VARCHAR(255) UNIQUE NOT NULL COMMENT 'メールアドレス',
+    admission_year YEAR NOT NULL COMMENT '入学年(西暦)',
+    graduation_year YEAR NOT NULL COMMENT '卒業予定年(西暦)',
+    password       VARCHAR(255) NOT NULL COMMENT 'パスワード(ハッシュ化推奨)',
+    affiliation    VARCHAR(255) NOT NULL COMMENT '所属(学校名)',
+    role ENUM('ユーザー', '図書委員', '司書', '管理者') NOT NULL DEFAULT 'ユーザー' COMMENT '権限',
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 

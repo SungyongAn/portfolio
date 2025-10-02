@@ -18,3 +18,7 @@ class MaterialTypeRepository:
         return self.db.query(MaterialType).filter(
             MaterialType.type_id == type_id
         ).first()
+
+    # 全件取得（追加）
+    def find_all(self) -> list[MaterialType]:
+        return self.db.query(MaterialType).order_by(MaterialType.type_id).all()

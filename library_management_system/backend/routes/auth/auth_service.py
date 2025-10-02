@@ -11,6 +11,8 @@ def authenticate(db: Session, user_id: str, password: str):
 
     if not bcrypt.checkpw(password.encode('utf-8'), hashed):
         return {"success": False, "reason": "password_incorrect"}
+    
+
 
     return {
         "success": True,
