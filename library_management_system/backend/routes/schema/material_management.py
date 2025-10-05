@@ -52,7 +52,16 @@ class MaterialRegisterResponseGeneric(BaseModel):
 
 # 資料検索
 class MaterialSearchPayload(BaseModel):
-    materialId: Optional[str] = None
+    material_id: Optional[int] = None
     title: Optional[str] = None
     author: Optional[str] = None
     publisher: Optional[str] = None
+
+
+class MaterialSearchResponseGeneric(BaseModel):
+    success: bool
+    message: Optional[str] = None
+    materials: list[Union[MaterialInfo, Dict[str, Any]]] = []  # 複数形
+    
+    class Config:
+        arbitrary_types_allowed = True  # 任意の型を許可

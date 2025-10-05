@@ -8,6 +8,8 @@ from routes.schema.material_management import (
     MaterialRegisterPayload,
     MaterialRegisterResponseGeneric,
     MaterialInfo,
+    MaterialSearchPayload,
+    MaterialSearchResponseGeneric,
 )
 
 router = APIRouter()
@@ -20,8 +22,7 @@ def check_barcode(request: CheckBarcodePayload, db: Session = Depends(get_db)):
         result = service.check_barcode_available(barcode=request.barcode)
 
         return CheckBarcodeResponseGeneric(
-            success=result["success"],
-            message=result["message"]
+            success=result["success"], message=result["message"]
         )
 
     except HTTPException:
@@ -30,7 +31,7 @@ def check_barcode(request: CheckBarcodePayload, db: Session = Depends(get_db)):
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="認証処理中にエラーが発生しました"
+            detail="認証処理中にエラーが発生しました",
         )
 
 
@@ -51,7 +52,7 @@ def material_register(request: MaterialRegisterPayload, db: Session = Depends(ge
 
         if result["success"]:
             material_data = result.get("material")
-            
+
             # MaterialInfo オブジェクトを作成（辞書をアンパック）
             material_info = MaterialInfo(
                 material_id=material_data["material_id"],
@@ -63,28 +64,51 @@ def material_register(request: MaterialRegisterPayload, db: Session = Depends(ge
                 type_name=material_data["type_name"],
                 affiliation=material_data["affiliation"],
                 shelf=material_data.get("shelf"),
-                registration_date=material_data["registration_date"]
+                registration_date=material_data["registration_date"],
             )
 
             response = MaterialRegisterResponseGeneric(
-                success=True,
-                material=material_info
+                success=True, material=material_info
             )
             return response
         else:
             return MaterialRegisterResponseGeneric(
-                success=False,
-                message=result.get("message", "登録に失敗しました")
+                success=False, message=result.get("message", "登録に失敗しました")
             )
 
     except HTTPException:
         raise
 
-    except Exception as e:
-        print(f"ルーターエラー: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
+    except Exception:
         raise HTTPException(
-            status_code=500,
-            detail=f"資料登録処理中にエラーが発生しました: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="資料登録処理でエラーが発生しました。",
         )
+
+
+@router.post("/search", response_model=MaterialSearchResponseGeneric)
+def search_material(request: MaterialSearchPayload, db: Session = Depends(get_db)):
+    try:
+        service = MaterialService(db)
+        result = service.search_material(
+            material_id=request.material_id,
+            title=request.title,
+            author=request.author,
+            publisher=request.publisher,
+        )
+
+        if result["success"]:
+            # 検索成功時のレスポンス
+            return {
+                "success": True,
+                "message": result["message"],
+                "materials": result["materials"],
+            }
+        else:
+            return {"success": False, "message": result["message"], "materials": []}
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"検索処理でエラーが発生しました: {str(e)}",
+            "materials": [],
+        }

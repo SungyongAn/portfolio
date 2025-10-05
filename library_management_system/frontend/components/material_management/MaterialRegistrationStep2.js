@@ -54,13 +54,17 @@ const MaterialRegistrationStep2 = {
                 );
 
                 if (response.data.success) {
+                    console.log('Response data:', response.data);
+                    console.log('Material:', response.data.material);
                     // データを登録
                     this.registeredMaterial = response.data.material;
 
+                    console.log('registeredMaterial set to:', this.registeredMaterial);
                     // DOM 更新を待ってからメッセージ表示
                     this.$nextTick(() => {
-                        this.successMessage = '資料が正常に登録されました。';
-                        this.$emit('material-registered', this.registeredMaterial);
+                      console.log('nextTick executed');
+                      this.successMessage = '資料が正常に登録されました。';
+                      this.$emit('material-registered', this.registeredMaterial);
                     });
                 } else {
                     this.errorMessage = response.data.message || '登録に失敗しました。';

@@ -2,7 +2,7 @@ const MaterialSearch = {
     data() {
         return {
             form: {
-                materialId: '',
+                material_id: '',
                 title: '',
                 author: '',
                 publisher: ''
@@ -14,12 +14,19 @@ const MaterialSearch = {
     methods: {
         async handleSearch() {
             try {
-                const response = await fetch("http://127.0.0.1:8000/material/search", {
+                const payload = {
+                    material_id: this.form.material_id ? parseInt(this.form.material_id) : null,
+                    title: this.form.title || null,
+                    author: this.form.author || null,
+                    publisher: this.form.publisher || null
+                };
+
+                const response = await fetch("http://127.0.0.1:8000/material-management/search", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ ...this.form })
+                    body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
@@ -30,10 +37,8 @@ const MaterialSearch = {
                 const result = await response.json();
 
                 // result に検索結果が入っている想定
-                if (Array.isArray(result)) {
-                    this.searchResults = result;
-                } else if (result.success && Array.isArray(result.data)) {
-                    this.searchResults = result.data;
+                if (result.success && Array.isArray(result.materials)) {
+                    this.searchResults = result.materials;
                 } else {
                     this.searchResults = [];
                     alert(result.message || "検索結果が取得できませんでした");
@@ -51,7 +56,7 @@ const MaterialSearch = {
             <form @submit.prevent="handleSearch">
                 <div class="mb-3">
                     <label class="form-label">資料ID</label>
-                    <input v-model="form.materialId" type="text" class="form-control">
+                    <input v-model="form.material_id" type="text" class="form-control">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">タイトル</label>
@@ -68,7 +73,7 @@ const MaterialSearch = {
                 <button 
                     type="submit"
                     class="btn btn-primary"
-                    :disabled="!form.materialId && !form.title && !form.author && !form.publisher">
+                    :disabled="!form.material_id && !form.title && !form.author && !form.publisher">
                     検索
                 </button>
             </form>
@@ -85,8 +90,8 @@ const MaterialSearch = {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in searchResults" :key="item.materialId">
-                            <td>{{ item.materialId }}</td>
+                        <tr v-for="item in searchResults" :key="item.material_id">
+                            <td>{{ item.material_id }}</td>
                             <td>{{ item.title }}</td>
                             <td>{{ item.author }}</td>
                             <td>{{ item.publisher }}</td>

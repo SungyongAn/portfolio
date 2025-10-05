@@ -74,7 +74,7 @@ CREATE TABLE MaterialType (
 );
 
 
--- INSERT INTO LoanStatus (status_code, status_name) VALUES
+INSERT INTO LoanStatus (status_code, status_name) VALUES
 ('AVAILABLE', '在庫あり'),
 ('ON_LOAN', '貸出中'),
 ('RESERVED', '予約中'),

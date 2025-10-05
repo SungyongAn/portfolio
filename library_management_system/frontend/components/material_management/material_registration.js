@@ -23,8 +23,7 @@ const MaterialRegistration = {
         <div>
             <step1 v-if="currentStep === 'step1'" @barcode-checked="handleBarcodeChecked"></step1>
             <step2 v-if="currentStep === 'step2'" :barcode="barcode" 
-                  @back-to-step1="resetToStep1"
-                  @material-registered="resetToStep1"></step2>
+                @back-to-step1="resetToStep1"></step2>
         </div>
     `
 };
