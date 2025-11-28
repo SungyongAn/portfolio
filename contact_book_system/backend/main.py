@@ -65,7 +65,7 @@ async def startup_event():
     
     # データベース接続テスト
     try:
-        from routes.db.database import engine
+        from routes.db.db import engine
         with engine.connect() as conn:
             print("✓ Database connection successful!")
     except Exception as e:
