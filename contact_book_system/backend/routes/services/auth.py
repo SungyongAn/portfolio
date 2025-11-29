@@ -8,7 +8,7 @@ from typing import Optional
 
 from routes.models.accounts_model import Account, TeacherRole, Subject
 from routes.schemas.auth_schema import LoginRequest, LoginResponse
-from routes.db.db import get_db
+from contact_book_system.backend.routes.db.database import get_db
 
 # パスワードハッシュ化の設定
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
