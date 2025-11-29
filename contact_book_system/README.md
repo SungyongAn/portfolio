@@ -72,7 +72,7 @@ docker compose up -d
 
 ### 3. アクセス
 
-*   **フロントエンド**: http://localhost:8080
+*   **フロントエンド**: http://localhost:5173
 *   **バックエンドAPI**: http://localhost:8000
 *   **APIドキュメント (Swagger UI)**: http://localhost:8000/docs
 
