@@ -2,15 +2,51 @@ version: "3.9"
 
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: renrakucho_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: renrakucho_db
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: apppass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - ./mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: renrakucho_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./init.sql:/app/init.sql
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${MYSQL_USER}
+      - DATABASE_PASSWORD=${MYSQL_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+    depends_on:
+      - mysql
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: renrakucho_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
