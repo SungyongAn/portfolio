@@ -56,6 +56,8 @@ async def startup_event():
     else:
         print("✗ DATABASE_URL not configured!")
     
+    print("DATABASE_URL from environment:", os.getenv("DATABASE_URL"))
+
     # データベース接続テスト
     try:
         from routes.db.database import engine
