@@ -1,14 +1,6 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.api import (
-    auth,
-    account_management,
-    renrakucho_management,
-    chat,
-    archive_management
-)
-from routes.websocket import notifications
 
 app = FastAPI(
     title="Contact Book System API",
@@ -22,15 +14,16 @@ app.add_middleware(
     allow_origins=[
         "https://contact-book-system.pages.dev",
         "http://localhost:3000",
-        "*"  # 開発中は全て許可
+        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ルートエンドポイント（重要！）
+# ルートエンドポイント（GET と HEAD の両方に対応）
 @app.get("/")
+@app.head("/")  # ← これを追加
 async def root():
     return {
         "message": "Contact Book System API",
@@ -43,8 +36,9 @@ async def root():
         }
     }
 
-# ヘルスチェック
+# ヘルスチェック（GET と HEAD の両方に対応）
 @app.get("/health")
+@app.head("/health")  # ← これを追加
 async def health_check():
     return {"status": "healthy"}
 
@@ -57,7 +51,6 @@ async def startup_event():
     # 環境変数確認
     db_url = os.getenv("DATABASE_URL")
     if db_url:
-        # ホスト部分のみ表示（セキュリティのため）
         host = db_url.split("@")[1].split("/")[0] if "@" in db_url else "Unknown"
         print(f"✓ DATABASE_URL configured (host: {host})")
     else:
@@ -65,23 +58,41 @@ async def startup_event():
     
     # データベース接続テスト
     try:
-        from routes.db.db import engine
+        from routes.db.database import engine
         with engine.connect() as conn:
+            result = conn.execute("SELECT 1")
             print("✓ Database connection successful!")
+    except ImportError as e:
+        print(f"✗ Database module import failed: {e}")
     except Exception as e:
         print(f"✗ Database connection failed: {e}")
+        import traceback
+        traceback.print_exc()  # 詳細なエラー情報を表示
     
     print("=" * 50)
 
 # ルーター登録
-app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-app.include_router(account_management.router, prefix="/account-management", tags=["Account Management"])
-app.include_router(renrakucho_management.router, prefix="/renrakucho-management", tags=["Renrakucho"])
-app.include_router(notifications.router, prefix="/notifications", tags=["WebSocket"])
-app.include_router(chat.router, prefix="/chat", tags=["Chat"])
-app.include_router(archive_management.router, prefix="/archive", tags=["Archive"])
+try:
+    from routes.api import (
+        auth,
+        account_management,
+        renrakucho_management,
+        chat,
+        archive_management
+    )
+    from routes.websocket import notifications
+    
+    app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+    app.include_router(account_management.router, prefix="/account-management", tags=["Account Management"])
+    app.include_router(renrakucho_management.router, prefix="/renrakucho-management", tags=["Renrakucho"])
+    app.include_router(notifications.router, prefix="/notifications", tags=["WebSocket"])
+    app.include_router(chat.router, prefix="/chat", tags=["Chat"])
+    app.include_router(archive_management.router, prefix="/archive", tags=["Archive"])
+    
+    print("✓ All routers loaded successfully")
+except ImportError as e:
+    print(f"⚠️ Some routers could not be loaded: {e}")
 
-# Render用のポート設定
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
