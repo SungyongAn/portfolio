@@ -23,7 +23,7 @@ if "?" in DATABASE_URL:
 connect_args = {}
 if "psdb.cloud" in DATABASE_URL:
     connect_args = {
-        "ssl": True  # シンプルに True のみ
+        "ssl": {}
     }
 
 print(f"Connecting to: {DATABASE_URL.split('@')[1]}")
