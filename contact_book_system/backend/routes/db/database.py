@@ -10,26 +10,29 @@ load_dotenv()
 # 環境変数から DATABASE_URL を取得
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is not set")
+
 # mysql:// を mysql+pymysql:// に変換
-if DATABASE_URL and DATABASE_URL.startswith("mysql://"):
+if DATABASE_URL.startswith("mysql://"):
     DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
 
-# PlanetScale用の接続設定
-# SSLパラメータをURL内で指定
-if DATABASE_URL and "psdb.cloud" in DATABASE_URL:
-    # URLに ssl_disabled=False を追加（PlanetScaleはSSL必須）
+# PlanetScale用のSSL設定
+# URLパラメータをクリーンにして、必要なSSLパラメータのみ追加
+if "psdb.cloud" in DATABASE_URL:
+    # 既存のクエリパラメータを削除
     if "?" in DATABASE_URL:
-        DATABASE_URL += "&ssl_disabled=false"
-    else:
-        DATABASE_URL += "?ssl_disabled=false"
+        DATABASE_URL = DATABASE_URL.split("?")[0]
+    
+    # 正しいSSLパラメータを追加
+    DATABASE_URL += "?ssl_mode=REQUIRED"
 
-# エンジン作成（connect_args は使わない）
+print(f"Connecting to: {DATABASE_URL.split('@')[1]}")  # パスワード部分を隠して表示
+
+# エンジン作成
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
-    connect_args={
-    "ssl": {}
-    },
     pool_recycle=3600,
     echo=False
 )
@@ -37,7 +40,6 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-
 
 def get_db():
     db = SessionLocal()
