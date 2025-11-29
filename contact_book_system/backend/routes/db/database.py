@@ -27,6 +27,9 @@ if DATABASE_URL and "psdb.cloud" in DATABASE_URL:
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
+    connect_args={
+    "ssl": {}
+    },
     pool_recycle=3600,
     echo=False
 )
