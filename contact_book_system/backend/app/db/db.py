@@ -20,9 +20,27 @@ if not DATABASE_URL:
     
     DATABASE_URL = f"mysql+pymysql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
 
+# mysql:// を mysql+pymysql:// に変換
+if DATABASE_URL.startswith("mysql://"):
+    DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
+
+# クエリパラメータをクリア
+if "?" in DATABASE_URL:
+    DATABASE_URL = DATABASE_URL.split("?")[0]
+
+# PlanetScale用の SSL 設定（検証を無効化）
+connect_args = {}
+if "psdb.cloud" in DATABASE_URL:
+    connect_args = {
+        "ssl": {}
+    }
+
+print(f"Connecting to: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'Unknown'}")
+
 # エンジン作成
 engine = create_engine(
     DATABASE_URL,
+    connect_args=connect_args,
     pool_pre_ping=True,
     pool_recycle=3600,
 )
