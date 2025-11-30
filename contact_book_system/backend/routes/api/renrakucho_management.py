@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from datetime import date
 import logging
-from routes.db.db import get_db
+from routes.db.database import get_db
 from routes.services.renrakucho_service import RenrakuchoService
 from routes.models.renrakucho_model import RenrakuchoEntryModel
 from routes.models.accounts_model import Account

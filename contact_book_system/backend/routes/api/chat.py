@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from routes.db.db import get_db
+from routes.db.database import get_db
 from routes.models.accounts_model import Account, RoleEnum
 from routes.services.auth import get_current_user
 from routes.services.chat_service import ChatService

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from routes.db.db import get_db
+from routes.db.database import get_db
 from routes.services.archive_service import ArchiveService
 from routes.schemas.archive_schema import (
     ArchiveExecutionRequest,

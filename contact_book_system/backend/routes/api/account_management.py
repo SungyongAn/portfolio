@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from routes.db.db import get_db
+from routes.db.database import get_db
 from routes.services.account_service import AccountService
 from routes.schemas.accounts_schema import (
     AccountRegisterRequest,
