@@ -1,4 +1,5 @@
 import os
+from sqlalchemy import text
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -62,7 +63,7 @@ async def startup_event():
     try:
         from routes.db.database import engine
         with engine.connect() as conn:
-            result = conn.execute("SELECT 1")
+            result = conn.execute(text("SELECT 1"))
             print("✓ Database connection successful!")
     except ImportError as e:
         print(f"✗ Database module import failed: {e}")
