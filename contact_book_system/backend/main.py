@@ -14,7 +14,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://contact-book-system.pages.dev",
-        "http://localhost:3000",
+        "https://320042be.contact-book-system.pages.dev/",
         "*"
     ],
     allow_credentials=True,
