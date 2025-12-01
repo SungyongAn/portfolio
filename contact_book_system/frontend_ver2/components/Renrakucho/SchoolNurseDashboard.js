@@ -1,174 +1,179 @@
 // 保健室の先生用
 const SchoolNurseDashboard = {
-    props: ['currentUser'],
-    emits: ['back'],
-    data() {
-        return {
-            notifications: [],
-            errorMessage: '',
-            selectedEntry: null,
-            ws: null,
-            isLoading: false,
-            lastCheckTime: new Date().toISOString()
-        };
+  props: ["currentUser"],
+  emits: ["back"],
+  data() {
+    return {
+      notifications: [],
+      errorMessage: "",
+      selectedEntry: null,
+      ws: null,
+      isLoading: false,
+      lastCheckTime: new Date().toISOString(),
+    };
+  },
+  computed: {
+    criticalCount() {
+      return this.notifications.filter(
+        (n) => n.physical_condition <= 2 || n.mental_state <= 2
+      ).length;
     },
-    computed: {
-        criticalCount() {
-            return this.notifications.filter(n =>
-                n.physical_condition <= 2 || n.mental_state <= 2
-            ).length;
-        },
-        sortedNotifications() {
-            return [...this.notifications].sort((a, b) => {
-                const scoreA = Math.min(a.physical_condition, a.mental_state);
-                const scoreB = Math.min(b.physical_condition, b.mental_state);
-                return scoreA - scoreB;
-            });
+    sortedNotifications() {
+      return [...this.notifications].sort((a, b) => {
+        const scoreA = Math.min(a.physical_condition, a.mental_state);
+        const scoreB = Math.min(b.physical_condition, b.mental_state);
+        return scoreA - scoreB;
+      });
+    },
+  },
+  methods: {
+    // ===== Axios で通知取得 =====
+    async fetchNotifications() {
+      this.isLoading = true;
+      try {
+        const res = await axios.get("/renrakucho-management/critical-entries");
+        if (res.data.success) {
+          this.notifications = res.data.data;
+          this.lastCheckTime = new Date().toISOString();
+        } else {
+          this.errorMessage = res.data.message || "通知取得失敗";
         }
+      } catch (err) {
+        console.error(err);
+        this.errorMessage = "通知取得中にエラーが発生しました";
+      } finally {
+        this.isLoading = false;
+      }
     },
-    methods: {
-        // ===== Axios で通知取得 =====
-        async fetchNotifications() {
-            this.isLoading = true;
-            try {
-                const res = await axios.get('http://127.0.0.1:8000/renrakucho-management/critical-entries');
-                if (res.data.success) {
-                    this.notifications = res.data.data;
-                    this.lastCheckTime = new Date().toISOString();
-                } else {
-                    this.errorMessage = res.data.message || '通知取得失敗';
-                }
-            } catch (err) {
-                console.error(err);
-                this.errorMessage = '通知取得中にエラーが発生しました';
-            } finally {
-                this.isLoading = false;
-            }
-        },
 
-        // ===== WebSocket 接続 =====
-        connectWebSocket() {
-            if (!this.currentUser || !this.currentUser.id) return;
+    // ===== WebSocket 接続 =====
+    connectWebSocket() {
+      if (!this.currentUser || !this.currentUser.id) return;
 
-            const wsUrl = `ws://127.0.0.1:8000/notifications/ws/nurse/${this.currentUser.id}`;
-            this.ws = new WebSocket(wsUrl);
+      const wsUrl = `ws://127.0.0.1:8000/notifications/ws/nurse/${this.currentUser.id}`;
+      this.ws = new WebSocket(wsUrl);
 
-            this.ws.onopen = () => console.log('✅ WebSocket 接続確立 (nurse)');
+      this.ws.onopen = () => console.log("✅ WebSocket 接続確立 (nurse)");
 
-            this.ws.onmessage = (event) => {
-                const entry = JSON.parse(event.data);
+      this.ws.onmessage = (event) => {
+        const entry = JSON.parse(event.data);
 
-                // 必須データが欠けている場合は無視
-                if (!entry.student_name || !entry.grade || !entry.class_name) {
-                    console.warn("⚠️ 無効なWebSocketデータを受信しました:", entry);
-                    return;
-                }
-
-                this.notifications.push(entry);
-                this.lastCheckTime = new Date().toISOString();
-                this.playNotificationSound();
-            };
-
-            this.ws.onclose = (event) => {
-                console.log('WebSocket 接続切断');
-            
-                // ✅ 正常な切断（コンポーネント破棄）の場合は再接続しない
-                if (event.code === 1000) {
-                    console.log('正常切断のため再接続しません');
-                    return;
-                }
-            
-                // 異常切断の場合のみ再接続
-                console.log('5秒後に再接続');
-                setTimeout(() => this.connectWebSocket(), 5000);
-            };
-
-            this.ws.onerror = (err) => console.error('WebSocket エラー:', err);
-        },
-
-        // ===== WebSocket 切断 =====
-        disconnectWebSocket() {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                // バックエンドに退出を通知
-                this.ws.send(JSON.stringify({ 
-                    type: 'nurse_disconnect',
-                    user_id: this.currentUser.id 
-                }));
-            
-                // 接続を切断
-                this.ws.close(1000, 'Nurse dashboard closed');
-                this.ws = null;
-            
-                console.log('✅ WebSocket disconnected (nurse dashboard)');
-            }
-        },
-
-        playNotificationSound() {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('新しい対象連絡帳', {
-                    body: '体調またはメンタルが低い生徒がいます',
-                    icon: '/icon.png'
-                });
-            }
-        },
-
-        requestNotificationPermission() {
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        },
-
-        viewEntryDetail(entry) {
-            this.selectedEntry = entry;
-        },
-        
-        closeDetail() {
-            this.selectedEntry = null;
-        },
-
-        getStatusBadgeClass(value) {
-            if (value <= 1) return 'bg-danger';
-            if (value === 2) return 'bg-warning';
-            return 'bg-secondary';
-        },
-        
-        getStatusText(value) {
-            if (value === 1) return '非常に悪い';
-            if (value === 2) return '悪い';
-            if (value === 3) return '普通';
-            if (value === 4) return '良い';
-            if (value === 5) return '非常に良い';
-            return '不明';
-        },
-        
-        formatTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-        },
-        
-        backToMenu() {
-            this.$emit('back');
+        // 必須データが欠けている場合は無視
+        if (!entry.student_name || !entry.grade || !entry.class_name) {
+          console.warn("⚠️ 無効なWebSocketデータを受信しました:", entry);
+          return;
         }
-    },
-    
-    mounted() {
-        this.fetchNotifications();
-        this.connectWebSocket();
-        this.requestNotificationPermission();
-    
-        // ✅ ブラウザ閉じる/リロード時の対策
-        window.addEventListener('beforeunload', this.disconnectWebSocket);
+
+        this.notifications.push(entry);
+        this.lastCheckTime = new Date().toISOString();
+        this.playNotificationSound();
+      };
+
+      this.ws.onclose = (event) => {
+        console.log("WebSocket 接続切断");
+
+        // ✅ 正常な切断（コンポーネント破棄）の場合は再接続しない
+        if (event.code === 1000) {
+          console.log("正常切断のため再接続しません");
+          return;
+        }
+
+        // 異常切断の場合のみ再接続
+        console.log("5秒後に再接続");
+        setTimeout(() => this.connectWebSocket(), 5000);
+      };
+
+      this.ws.onerror = (err) => console.error("WebSocket エラー:", err);
     },
 
-    beforeUnmount() {
-        // ✅ 丁寧な切断処理
-        this.disconnectWebSocket();
-    
-        // ✅ イベントリスナーの削除
-        window.removeEventListener('beforeunload', this.disconnectWebSocket);
+    // ===== WebSocket 切断 =====
+    disconnectWebSocket() {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        // バックエンドに退出を通知
+        this.ws.send(
+          JSON.stringify({
+            type: "nurse_disconnect",
+            user_id: this.currentUser.id,
+          })
+        );
+
+        // 接続を切断
+        this.ws.close(1000, "Nurse dashboard closed");
+        this.ws = null;
+
+        console.log("✅ WebSocket disconnected (nurse dashboard)");
+      }
     },
-    
-    template: `
+
+    playNotificationSound() {
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("新しい対象連絡帳", {
+          body: "体調またはメンタルが低い生徒がいます",
+          icon: "/icon.png",
+        });
+      }
+    },
+
+    requestNotificationPermission() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    },
+
+    viewEntryDetail(entry) {
+      this.selectedEntry = entry;
+    },
+
+    closeDetail() {
+      this.selectedEntry = null;
+    },
+
+    getStatusBadgeClass(value) {
+      if (value <= 1) return "bg-danger";
+      if (value === 2) return "bg-warning";
+      return "bg-secondary";
+    },
+
+    getStatusText(value) {
+      if (value === 1) return "非常に悪い";
+      if (value === 2) return "悪い";
+      if (value === 3) return "普通";
+      if (value === 4) return "良い";
+      if (value === 5) return "非常に良い";
+      return "不明";
+    },
+
+    formatTime(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString("ja-JP", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
+
+    backToMenu() {
+      this.$emit("back");
+    },
+  },
+
+  mounted() {
+    this.fetchNotifications();
+    this.connectWebSocket();
+    this.requestNotificationPermission();
+
+    // ✅ ブラウザ閉じる/リロード時の対策
+    window.addEventListener("beforeunload", this.disconnectWebSocket);
+  },
+
+  beforeUnmount() {
+    // ✅ 丁寧な切断処理
+    this.disconnectWebSocket();
+
+    // ✅ イベントリスナーの削除
+    window.removeEventListener("beforeunload", this.disconnectWebSocket);
+  },
+
+  template: `
         <div class="container mt-4">
             <!-- ヘッダー -->
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -317,5 +322,5 @@ const SchoolNurseDashboard = {
                 </div>
             </div>
         </div>
-    `
+    `,
 };

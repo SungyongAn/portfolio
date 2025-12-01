@@ -1,13 +1,13 @@
 // 担任・副担任）連絡帳の確認、既読処理
 const RenrakuchoList = {
-  props: ['records'],
-  emits: ['update'],
+  props: ["records"],
+  emits: ["update"],
   data() {
     return {
       selectedRecord: null,
       showModal: false,
       currentPage: 1,
-      perPage: 10
+      perPage: 10,
     };
   },
   computed: {
@@ -17,7 +17,7 @@ const RenrakuchoList = {
     paginatedRecords() {
       const start = (this.currentPage - 1) * this.perPage;
       return this.records.slice(start, start + this.perPage);
-    }
+    },
   },
   methods: {
     openModal(record) {
@@ -31,39 +31,41 @@ const RenrakuchoList = {
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
     formatDate(dateStr) {
-      if (!dateStr) return '-';
+      if (!dateStr) return "-";
       const d = new Date(dateStr);
       return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
     },
     async markAsRead(record) {
       if (!record) return;
-      const confirmed = confirm(`${record.student_name} さんの連絡帳を既読にしますか？`);
+      const confirmed = confirm(
+        `${record.student_name} さんの連絡帳を既読にしますか？`
+      );
       if (!confirmed) return;
 
       try {
         const payload = { renrakucho_ids: [record.renrakucho_id] };
         const response = await axios.post(
-          'http://127.0.0.1:8000/renrakucho-management/mark-as-read',
+          "/renrakucho-management/mark-as-read",
           payload
         );
 
         if (response.data.success) {
-          alert(response.data.message || '既読更新が完了しました');
-          this.$emit('update');
+          alert(response.data.message || "既読更新が完了しました");
+          this.$emit("update");
           this.closeModal();
         } else {
-          alert(response.data.message || '既読更新に失敗しました');
+          alert(response.data.message || "既読更新に失敗しました");
         }
       } catch (error) {
-        alert(error.response?.data?.detail || 'サーバーとの通信に失敗しました');
+        alert(error.response?.data?.detail || "サーバーとの通信に失敗しました");
       }
     },
     isCritical(record) {
       return record.physical_condition <= 2 || record.mental_state <= 2;
-    }
+    },
   },
   template: `
     <div class="d-flex justify-content-center">
@@ -152,5 +154,5 @@ const RenrakuchoList = {
 
       </div>
     </div>
-  `
+  `,
 };

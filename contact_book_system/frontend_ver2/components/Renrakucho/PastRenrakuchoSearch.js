@@ -1,7 +1,7 @@
 // 生徒用）連絡帳検索画面
 const PastRenrakuchoSearch = {
-  props: ['currentUser'],
-  emits: ['back', 'updateTitle'],
+  props: ["currentUser"],
+  emits: ["back", "updateTitle"],
   data() {
     const today = new Date();
     return {
@@ -11,11 +11,11 @@ const PastRenrakuchoSearch = {
       selectedWeekday: null,
       records: [],
       isLoading: false,
-      message: '',
+      message: "",
       currentPage: 1,
       perPage: 20,
       selectedRecord: null,
-      showModal: false
+      showModal: false,
     };
   },
   computed: {
@@ -29,17 +29,17 @@ const PastRenrakuchoSearch = {
     },
   },
   mounted() {
-    this.$emit('updateTitle', {
-      title: '過去の連絡帳検索',
-      icon: 'fas fa-folder-open',
-      showBackButton: true
+    this.$emit("updateTitle", {
+      title: "過去の連絡帳検索",
+      icon: "fas fa-folder-open",
+      showBackButton: true,
     });
   },
   beforeUnmount() {
-    this.$emit('updateTitle', {
-      title: '',
-      icon: '',
-      showBackButton: false
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
     });
   },
   methods: {
@@ -47,7 +47,7 @@ const PastRenrakuchoSearch = {
       if (!this.currentUser) return;
 
       this.isLoading = true;
-      this.message = '';
+      this.message = "";
       this.records = [];
       this.currentPage = 1;
 
@@ -57,18 +57,20 @@ const PastRenrakuchoSearch = {
         month: Number(this.selectedMonth),
       };
       if (this.selectedDay) payload.day = Number(this.selectedDay);
-      if (this.selectedWeekday !== null) payload.weekday = Number(this.selectedWeekday);
+      if (this.selectedWeekday !== null)
+        payload.weekday = Number(this.selectedWeekday);
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/renrakucho-management/past-renrakucho-search',
+          "/renrakucho-management/past-renrakucho-search",
           payload
         );
         this.records = response.data.data || [];
-        if (!this.records.length) this.message = '該当する過去の連絡帳はありません';
+        if (!this.records.length)
+          this.message = "該当する過去の連絡帳はありません";
       } catch (error) {
-        console.error('取得エラー:', error);
-        this.message = '過去の連絡帳の取得に失敗しました';
+        console.error("取得エラー:", error);
+        this.message = "過去の連絡帳の取得に失敗しました";
       } finally {
         this.isLoading = false;
       }
@@ -76,12 +78,12 @@ const PastRenrakuchoSearch = {
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
     formatDate(dateStr) {
-      if (!dateStr) return '-';
+      if (!dateStr) return "-";
       const date = new Date(dateStr);
-      const weekday = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+      const weekday = ["日", "月", "火", "水", "木", "金", "土"][date.getDay()];
       return `${date.getMonth() + 1}月${date.getDate()}日（${weekday}）`;
     },
     openModal(record) {
@@ -275,5 +277,5 @@ const PastRenrakuchoSearch = {
       </div>
       <div class="modal-backdrop fade show" v-if="showModal" @click="closeModal"></div>
     </div>
-  `
+  `,
 };

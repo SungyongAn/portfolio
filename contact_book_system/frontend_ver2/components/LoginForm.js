@@ -2,83 +2,86 @@ const LoginForm = {
   data() {
     return {
       loginData: {
-        id: '',
-        name: '',
-        password: ''
+        id: "",
+        name: "",
+        password: "",
       },
-      errorMessage: '',
+      errorMessage: "",
       isLoading: false,
-      showPassword: false
+      showPassword: false,
     };
   },
   methods: {
     async handleLogin() {
-      this.errorMessage = '';
+      this.errorMessage = "";
       this.isLoading = true;
 
       try {
-        const response = await axios.post(
-          'http://127.0.0.1:8000/auth/login',
-          this.loginData
-        );
-        console.log('Full response:', response);
-        console.log('Access token directly:', response.data.data.access_token);
+        const response = await axios.post("/auth/login", this.loginData);
+        console.log("Full response:", response);
+        console.log("Access token directly:", response.data.data.access_token);
 
         if (response.data.success) {
           // トークンの処理を先に行う
           const token = response.data.data.access_token;
-          console.log('Token before storage:', token);
-          
+          console.log("Token before storage:", token);
+
           if (token) {
             // トークンを保存
-            sessionStorage.setItem('access_token', token);
-            
+            sessionStorage.setItem("access_token", token);
+
             // axiosのデフォルトヘッダーに設定
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            console.log('Saved token:', token);
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            console.log("Saved token:", token);
           } else {
-            console.warn('No access_token in response');
-            this.errorMessage = 'トークンが取得できませんでした';
+            console.warn("No access_token in response");
+            this.errorMessage = "トークンが取得できませんでした";
             return;
           }
           // ユーザーデータの設定
           const userData = {
-            id: response.data.data.id, 
+            id: response.data.data.id,
             role: response.data.data.role,
             grade: response.data.data.grade,
             className: response.data.data.class_name,
             fullName: response.data.data.name,
-            isTeacher: response.data.data.role === 'teacher',
+            isTeacher: response.data.data.role === "teacher",
             teacherRole: response.data.data.teacher_role?.code || null,
-            isGradeLeader: response.data.data.teacher_role?.code === 'grade_leader', // 学年主任
-            isHomeroomTeacher: response.data.data.teacher_role?.code === 'homeroom', // 担任
-            isAssistantTeacher: response.data.data.teacher_role?.code === 'assistant_homeroom',  // 副担任
-            isSubjectTeacher: response.data.data.teacher_role?.code === 'subject_teacher', // 教科担当
-            isAdmin: response.data.data.role === 'admin',
+            isGradeLeader:
+              response.data.data.teacher_role?.code === "grade_leader", // 学年主任
+            isHomeroomTeacher:
+              response.data.data.teacher_role?.code === "homeroom", // 担任
+            isAssistantTeacher:
+              response.data.data.teacher_role?.code === "assistant_homeroom", // 副担任
+            isSubjectTeacher:
+              response.data.data.teacher_role?.code === "subject_teacher", // 教科担当
+            isAdmin: response.data.data.role === "admin",
             status: response.data.data.status,
             enrollmentYear: response.data.data.enrollment_year || 0,
-            graduationYear: response.data.data.graduation_year || 0
+            graduationYear: response.data.data.graduation_year || 0,
           };
 
           // ユーザー情報をemit
-          this.$emit('login', userData);
-          
+          this.$emit("login", userData);
+
           // フォームをリセット（resetFormメソッドがあれば）
           this.loginData = {
-            id: '',
-            name: '',
-            password: ''
+            id: "",
+            name: "",
+            password: "",
           };
         } else {
-          this.errorMessage = response.data.message || 'ログインに失敗しました';
+          this.errorMessage = response.data.message || "ログインに失敗しました";
         }
       } catch (error) {
-        console.error('Login error:', error);
-        this.errorMessage = error.response?.data?.detail || 'ログイン処理中にエラーが発生しました';
+        console.error("Login error:", error);
+        this.errorMessage =
+          error.response?.data?.detail ||
+          "ログイン処理中にエラーが発生しました";
       } finally {
         this.isLoading = false;
       }
-    }
+    },
   },
   template: `
     <div class="container mt-5">
@@ -151,5 +154,5 @@ const LoginForm = {
         </div>
       </div>
     </div>
-  `
+  `,
 };

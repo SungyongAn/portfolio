@@ -60,9 +60,7 @@ const ArchiveManagement = {
       this.errorMessage = "";
 
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/archive-management/statistics"
-        );
+        const response = await axios.get("/archive-management/statistics");
 
         if (response.data.success) {
           const data = response.data.data;
@@ -79,10 +77,9 @@ const ArchiveManagement = {
 
     async loadDeletionLogs() {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/archive-management/deletion-logs",
-          { params: { limit: 10 } }
-        );
+        const response = await axios.get("/archive-management/deletion-logs", {
+          params: { limit: 10 },
+        });
 
         if (response.data.success) {
           this.deletionLogs = response.data.data;
@@ -123,7 +120,7 @@ const ArchiveManagement = {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/archive-management/execute-archive",
+          "/archive-management/execute-archive",
           { archive_years: 3 }
         );
 
@@ -149,7 +146,7 @@ const ArchiveManagement = {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/archive-management/execute-deletion",
+          "/archive-management/execute-deletion",
           { retention_years: 5 }
         );
 
@@ -185,10 +182,9 @@ const ArchiveManagement = {
           params.month = this.searchForm.month;
         }
 
-        const response = await axios.get(
-          "http://127.0.0.1:8000/archive-management/search-archive",
-          { params }
-        );
+        const response = await axios.get("/archive-management/search-archive", {
+          params,
+        });
 
         if (response.data.success) {
           this.searchResults = response.data.data;

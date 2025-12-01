@@ -1,6 +1,12 @@
-// ============================================
-// ブラウザ更新対応版 app.js
-// ============================================
+import axios from "axios";
+
+const API_BASE_URL = "https://contact-book-system-bowp.onrender.com";
+const WS_BASE_URL = "wss://contact-book-system-bowp.onrender.com";
+
+axios.defaults.baseURL = API_BASE_URL;
+axios.defaults.headers.common["Content-Type"] = "application/json";
+
+window.WS_BASE_URL = WS_BASE_URL;
 
 Vue.createApp({
   data() {

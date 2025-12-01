@@ -1,7 +1,7 @@
 // 担任・副担任）過去の連絡帳閲覧
 const ClassPastRenrakucho = {
-  props: ['currentUser'],
-  emits: ['back', 'updateTitle'],
+  props: ["currentUser"],
+  emits: ["back", "updateTitle"],
   data() {
     const today = new Date();
     return {
@@ -9,14 +9,14 @@ const ClassPastRenrakucho = {
       selectedMonth: today.getMonth() + 1,
       selectedDay: null,
       selectedWeekday: null,
-      studentName: '',
+      studentName: "",
       records: [],
       isLoading: false,
-      message: '',
+      message: "",
       currentPage: 1,
       perPage: 10,
       selectedRecord: null,
-      showModal: false
+      showModal: false,
     };
   },
   computed: {
@@ -29,26 +29,32 @@ const ClassPastRenrakucho = {
       return this.records.slice(start, end);
     },
     isTeacher() {
-      return this.currentUser?.role === 'teacher' || this.currentUser?.role === '教師';
+      return (
+        this.currentUser?.role === "teacher" ||
+        this.currentUser?.role === "教師"
+      );
     },
     isAdmin() {
-      return this.currentUser?.role === 'admin' || this.currentUser?.role === '管理者';
-    }
+      return (
+        this.currentUser?.role === "admin" ||
+        this.currentUser?.role === "管理者"
+      );
+    },
   },
   mounted() {
     // ヘッダーにタイトルと戻るボタンを設定
-    this.$emit('updateTitle', {
-      title: '連絡帳履歴',
-      icon: 'fas fa-folder-open',
-      showBackButton: true
+    this.$emit("updateTitle", {
+      title: "連絡帳履歴",
+      icon: "fas fa-folder-open",
+      showBackButton: true,
     });
   },
   beforeUnmount() {
     // コンポーネント離脱時にタイトルをクリア
-    this.$emit('updateTitle', {
-      title: '',
-      icon: '',
-      showBackButton: false
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
     });
   },
   methods: {
@@ -56,7 +62,7 @@ const ClassPastRenrakucho = {
       if (!this.currentUser) return;
 
       this.isLoading = true;
-      this.message = '';
+      this.message = "";
       this.records = [];
       this.currentPage = 1;
 
@@ -66,23 +72,26 @@ const ClassPastRenrakucho = {
         teacher_name: this.currentUser.fullName,
         student_name: this.studentName || null,
         year: Number(this.selectedYear),
-        month: Number(this.selectedMonth)
+        month: Number(this.selectedMonth),
       };
       if (this.selectedDay) payload.day = Number(this.selectedDay);
-      if (this.selectedWeekday !== null) payload.weekday = Number(this.selectedWeekday);
+      if (this.selectedWeekday !== null)
+        payload.weekday = Number(this.selectedWeekday);
       payload.flag = true;
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/renrakucho-management/past-renrakucho-search',
+          "/renrakucho-management/past-renrakucho-search",
           payload,
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { "Content-Type": "application/json" } }
         );
         this.records = response.data.data || [];
-        if (!this.records.length) this.message = '検索条件に一致するデータがありません';
+        if (!this.records.length)
+          this.message = "検索条件に一致するデータがありません";
       } catch (error) {
         console.error(error);
-        this.message = error.response?.data?.detail || '連絡帳データの取得に失敗しました';
+        this.message =
+          error.response?.data?.detail || "連絡帳データの取得に失敗しました";
       } finally {
         this.isLoading = false;
       }
@@ -90,15 +99,15 @@ const ClassPastRenrakucho = {
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
     formatDate(dateStr) {
-      if (!dateStr) return '-';
+      if (!dateStr) return "-";
       const d = new Date(dateStr);
       return `${d.getMonth() + 1}/${d.getDate()}`;
     },
     formatDateFull(dateStr) {
-      if (!dateStr) return '-';
+      if (!dateStr) return "-";
       const d = new Date(dateStr);
       return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
     },
@@ -113,8 +122,8 @@ const ClassPastRenrakucho = {
     resetFilters() {
       this.selectedDay = null;
       this.selectedWeekday = null;
-      this.studentName = '';
-    }
+      this.studentName = "";
+    },
   },
   template: `
     <div class="container-fluid mt-4 px-2">
@@ -461,5 +470,5 @@ const ClassPastRenrakucho = {
         </div>
       </div>
     </div>
-  `
+  `,
 };

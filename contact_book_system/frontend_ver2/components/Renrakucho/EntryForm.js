@@ -17,8 +17,8 @@ const EntryForm = {
         reflection: {
           lesson: "",
           club: "",
-          other: ""
-        }
+          other: "",
+        },
       },
       isSubmitting: false,
       message: "",
@@ -32,31 +32,33 @@ const EntryForm = {
         this.entryForm.physicalCondition !== null &&
         this.entryForm.mentalState !== null &&
         (this.entryForm.reflection.lesson.trim() !== "" ||
-         this.entryForm.reflection.club.trim() !== "" ||
-         this.entryForm.reflection.other.trim() !== "")
+          this.entryForm.reflection.club.trim() !== "" ||
+          this.entryForm.reflection.other.trim() !== "")
       );
     },
     // バックエンド送信用に結合したテキストを生成
     combinedReflection() {
-      return `授業：\n${this.entryForm.reflection.lesson}\n\n` +
-             `部活動：\n${this.entryForm.reflection.club}\n\n` +
-             `その他(交友関係や私生活について)：\n${this.entryForm.reflection.other}`;
-    }
+      return (
+        `授業：\n${this.entryForm.reflection.lesson}\n\n` +
+        `部活動：\n${this.entryForm.reflection.club}\n\n` +
+        `その他(交友関係や私生活について)：\n${this.entryForm.reflection.other}`
+      );
+    },
   },
   mounted() {
     // ヘッダーにタイトルと戻るボタンを設定
-    this.$emit('updateTitle', {
-      title: '連絡帳の作成',
-      icon: 'fas fa-book',
-      showBackButton: true
+    this.$emit("updateTitle", {
+      title: "連絡帳の作成",
+      icon: "fas fa-book",
+      showBackButton: true,
     });
   },
   beforeUnmount() {
     // コンポーネント離脱時にタイトルをクリア
-    this.$emit('updateTitle', {
-      title: '',
-      icon: '',
-      showBackButton: false
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
     });
   },
   methods: {
@@ -86,7 +88,7 @@ const EntryForm = {
 
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/renrakucho-management/entry-renrakucho",
+          "/renrakucho-management/entry-renrakucho",
           payload
         );
 
@@ -126,7 +128,7 @@ const EntryForm = {
     },
     backToMenu() {
       this.$emit("back");
-    }
+    },
   },
   template: `
     <div class="d-flex justify-content-center mt-2 px-2">

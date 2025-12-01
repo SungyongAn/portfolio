@@ -1,169 +1,178 @@
 const ChatRoomList = {
-  emits: ['navigate', 'updateTitle'],
+  emits: ["navigate", "updateTitle"],
   data() {
     return {
       rooms: [],
       isLoading: false,
-      errorMessage: '',
+      errorMessage: "",
       userInfo: null,
-      
+
       showCreateModal: false,
       newRoom: {
-        name: '',
-        description: '',
-        participant_ids: []
+        name: "",
+        description: "",
+        participant_ids: [],
       },
-      
-      searchQuery: '',
+
+      searchQuery: "",
       searchResults: [],
-      selectedParticipants: []
+      selectedParticipants: [],
     };
   },
   computed: {
     isTeacher() {
-      return this.userInfo && 
-      (this.userInfo.role === 'teacher' || this.userInfo.role === 'admin');
-    }
+      return (
+        this.userInfo &&
+        (this.userInfo.role === "teacher" || this.userInfo.role === "admin")
+      );
+    },
   },
   async mounted() {
-    console.log('=== ChatRoomList mounted ===');
-    
+    console.log("=== ChatRoomList mounted ===");
+
     // トークンの確認
-    const token = sessionStorage.getItem('access_token');
-    console.log('Token in storage:', token ? token.substring(0, 20) + '...' : 'null');
-    console.log('Token in axios:', axios.defaults.headers.common['Authorization']);
-    
+    const token = sessionStorage.getItem("access_token");
+    console.log(
+      "Token in storage:",
+      token ? token.substring(0, 20) + "..." : "null"
+    );
+    console.log(
+      "Token in axios:",
+      axios.defaults.headers.common["Authorization"]
+    );
+
     // ★ トークンがない場合は設定
-    if (!axios.defaults.headers.common['Authorization'] && token) {
-      console.log('Setting token to axios...');
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    if (!axios.defaults.headers.common["Authorization"] && token) {
+      console.log("Setting token to axios...");
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
-    
-    this.$emit('updateTitle', {
-      title: 'チャットルーム',
-      icon: 'fas fa-comments',
-      showBackButton: true
+
+    this.$emit("updateTitle", {
+      title: "チャットルーム",
+      icon: "fas fa-comments",
+      showBackButton: true,
     });
-    
-    const storedUser = sessionStorage.getItem('currentUser');
+
+    const storedUser = sessionStorage.getItem("currentUser");
     if (storedUser) {
       this.userInfo = JSON.parse(storedUser);
-      console.log('User info:', this.userInfo);
+      console.log("User info:", this.userInfo);
     }
-    
+
     await this.loadRooms();
   },
   methods: {
     async loadRooms() {
       this.isLoading = true;
-      this.errorMessage = '';
-      
-      console.log('Loading rooms...');
-      console.log('Request headers:', axios.defaults.headers.common);
-      
+      this.errorMessage = "";
+
+      console.log("Loading rooms...");
+      console.log("Request headers:", axios.defaults.headers.common);
+
       try {
-        const response = await axios.get('http://127.0.0.1:8000/chat/rooms');
-        console.log('Rooms loaded:', response.data);
+        const response = await axios.get("/chat/rooms");
+        console.log("Rooms loaded:", response.data);
         this.rooms = response.data;
       } catch (err) {
-        console.error('Load rooms error:', err);
-        console.error('Error response:', err.response?.data);
-        this.errorMessage = 'ルーム一覧の読み込みに失敗しました: ' + (err.response?.data?.detail || err.message);
+        console.error("Load rooms error:", err);
+        console.error("Error response:", err.response?.data);
+        this.errorMessage =
+          "ルーム一覧の読み込みに失敗しました: " +
+          (err.response?.data?.detail || err.message);
       } finally {
         this.isLoading = false;
       }
     },
-    
+
     openCreateModal() {
       this.showCreateModal = true;
       this.newRoom = {
-        name: '',
-        description: '',
-        participant_ids: []
+        name: "",
+        description: "",
+        participant_ids: [],
       };
       this.selectedParticipants = [];
     },
-    
+
     async searchAccounts() {
       if (!this.searchQuery) {
         this.searchResults = [];
         return;
       }
-      
+
       try {
-        const response = await axios.get(
-          'http://127.0.0.1:8000/chat/accounts/search',
-          { params: { query: this.searchQuery } }
-        );
+        const response = await axios.get("/chat/accounts/search", {
+          params: { query: this.searchQuery },
+        });
         this.searchResults = response.data;
       } catch (err) {
         console.error(err);
       }
     },
-    
+
     addParticipant(account) {
-      if (!this.selectedParticipants.find(p => p.id === account.id)) {
+      if (!this.selectedParticipants.find((p) => p.id === account.id)) {
         this.selectedParticipants.push(account);
       }
-      this.searchQuery = '';
+      this.searchQuery = "";
       this.searchResults = [];
     },
-    
+
     removeParticipant(accountId) {
       this.selectedParticipants = this.selectedParticipants.filter(
-        p => p.id !== accountId
+        (p) => p.id !== accountId
       );
     },
-    
+
     async createRoom() {
       if (!this.newRoom.name) {
-        alert('ルーム名を入力してください');
+        alert("ルーム名を入力してください");
         return;
       }
-      
+
       if (this.selectedParticipants.length === 0) {
-        alert('参加者を選択してください');
+        alert("参加者を選択してください");
         return;
       }
-      
+
       this.isLoading = true;
-      
+
       try {
         const roomData = {
           name: this.newRoom.name,
           description: this.newRoom.description,
-          participant_ids: this.selectedParticipants.map(p => p.id)
+          participant_ids: this.selectedParticipants.map((p) => p.id),
         };
-        
-        await axios.post('http://127.0.0.1:8000/chat/rooms', roomData);
-        
+
+        await axios.post("/chat/rooms", roomData);
+
         this.showCreateModal = false;
         await this.loadRooms();
       } catch (err) {
         console.error(err);
-        alert('ルームの作成に失敗しました');
+        alert("ルームの作成に失敗しました");
       } finally {
         this.isLoading = false;
       }
     },
-    
+
     openRoom(roomId) {
-      this.$emit('navigate', 'chat-room', roomId);
+      this.$emit("navigate", "chat-room", roomId);
     },
-    
+
     formatDate(dateString) {
-      if (!dateString) return '';
+      if (!dateString) return "";
       const date = new Date(dateString);
       const now = new Date();
       const diffMs = now - date;
       const diffMins = Math.floor(diffMs / 60000);
-      
-      if (diffMins < 1) return '今';
+
+      if (diffMins < 1) return "今";
       if (diffMins < 60) return `${diffMins}分前`;
       if (diffMins < 1440) return `${Math.floor(diffMins / 60)}時間前`;
-      
-      return date.toLocaleDateString('ja-JP');
-    }
+
+      return date.toLocaleDateString("ja-JP");
+    },
   },
   template: `
 <div class="container mt-4">
@@ -306,5 +315,5 @@ const ChatRoomList = {
     </div>
   </div>
 </div>
-`
+`,
 };

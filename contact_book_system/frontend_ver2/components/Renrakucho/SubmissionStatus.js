@@ -1,48 +1,54 @@
 // 連絡帳の提出状況
 const SubmissionStatus = {
-  props: ['currentUser'],
-  emits: ['new-entry', 'back', 'updateTitle'], 
+  props: ["currentUser"],
+  emits: ["new-entry", "back", "updateTitle"],
   data() {
     const today = new Date();
     return {
-      targetDate: today.toISOString().split('T')[0],
+      targetDate: today.toISOString().split("T")[0],
       submissionData: null,
       isLoading: false,
-      errorMessage: '',
-      displayMode: 'all' // 'all', 'submitted', 'not_submitted'
+      errorMessage: "",
+      displayMode: "all", // 'all', 'submitted', 'not_submitted'
     };
   },
   computed: {
     todayDate() {
-      return new Date().toISOString().split('T')[0];
+      return new Date().toISOString().split("T")[0];
     },
     displayStudents() {
       if (!this.submissionData) return [];
 
       // 各生徒に is_submitted フラグを付与して結合
-      switch(this.displayMode) {
-        case 'submitted':
-          return (this.submissionData.submitted_students || []).map(s => ({
+      switch (this.displayMode) {
+        case "submitted":
+          return (this.submissionData.submitted_students || []).map((s) => ({
             ...s,
-            is_submitted: true
+            is_submitted: true,
           }));
-        case 'not_submitted':
-          return (this.submissionData.not_submitted_students || []).map(s => ({
-            ...s,
-            is_submitted: false
-          }));
-        case 'all':
+        case "not_submitted":
+          return (this.submissionData.not_submitted_students || []).map(
+            (s) => ({
+              ...s,
+              is_submitted: false,
+            })
+          );
+        case "all":
         default:
-          const submitted = (this.submissionData.submitted_students || []).map(s => ({
+          const submitted = (this.submissionData.submitted_students || []).map(
+            (s) => ({
+              ...s,
+              is_submitted: true,
+            })
+          );
+          const notSubmitted = (
+            this.submissionData.not_submitted_students || []
+          ).map((s) => ({
             ...s,
-            is_submitted: true
-          }));
-          const notSubmitted = (this.submissionData.not_submitted_students || []).map(s => ({
-            ...s,
-            is_submitted: false
+            is_submitted: false,
           }));
           return [...submitted, ...notSubmitted].sort((a, b) =>
-            a.student_name.localeCompare(b.student_name, 'ja')
+            a.student_name.localeCompare(b.student_name, "ja")
           );
       }
     },
@@ -54,25 +60,25 @@ const SubmissionStatus = {
         columns.push(students.slice(i, i + chunkSize));
       }
       return columns;
-    }
+    },
   },
   mounted() {
     // 初回データ取得
     this.checkSubmissionStatus();
 
     // ヘッダーにタイトルと戻るボタンを設定
-    this.$emit('updateTitle', {
-      title: '連絡帳の提出状況',
-      icon: 'fas fa-folder-open',
-      showBackButton: true
+    this.$emit("updateTitle", {
+      title: "連絡帳の提出状況",
+      icon: "fas fa-folder-open",
+      showBackButton: true,
     });
   },
   beforeUnmount() {
     // コンポーネント離脱時にタイトルをクリア
-    this.$emit('updateTitle', {
-      title: '',
-      icon: '',
-      showBackButton: false
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
     });
   },
   methods: {
@@ -82,35 +88,37 @@ const SubmissionStatus = {
         event.stopPropagation();
       }
 
-      if (!this.currentUser || this.currentUser.role !== 'teacher') {
-        this.errorMessage = '教師のみ利用可能です';
+      if (!this.currentUser || this.currentUser.role !== "teacher") {
+        this.errorMessage = "教師のみ利用可能です";
         return;
       }
 
       this.isLoading = true;
-      this.errorMessage = '';
+      this.errorMessage = "";
       this.submissionData = null;
-      this.displayMode = 'all'; // リセット
+      this.displayMode = "all"; // リセット
 
       const payload = {
         grade: Number(this.currentUser.grade),
         class_name: this.currentUser.className,
-        target_date: this.targetDate
+        target_date: this.targetDate,
       };
 
       try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/renrakucho-management/submission-status',
+          "/renrakucho-management/submission-status",
           payload
         );
 
         if (response.data.success) {
           this.submissionData = response.data.data;
         } else {
-          this.errorMessage = response.data.message || '提出状況の取得に失敗しました';
+          this.errorMessage =
+            response.data.message || "提出状況の取得に失敗しました";
         }
       } catch (error) {
-        this.errorMessage = error.response?.data?.detail || 'サーバーとの通信に失敗しました';
+        this.errorMessage =
+          error.response?.data?.detail || "サーバーとの通信に失敗しました";
       } finally {
         this.isLoading = false;
       }
@@ -124,27 +132,27 @@ const SubmissionStatus = {
 
     // ✅ 方法②：バッジ色をモードに応じて変更
     getStatusBadge(student) {
-      if (this.displayMode === 'submitted') {
-        return 'bg-success';
-      } else if (this.displayMode === 'not_submitted') {
-        return 'bg-danger';
+      if (this.displayMode === "submitted") {
+        return "bg-success";
+      } else if (this.displayMode === "not_submitted") {
+        return "bg-danger";
       } else {
-        return student.is_submitted ? 'bg-success' : 'bg-danger';
+        return student.is_submitted ? "bg-success" : "bg-danger";
       }
     },
 
     // ✅ 方法①：表示文言をモードに応じて変更
     getStatusText(student) {
-      if (this.displayMode === 'submitted') {
-        return '提出済み';
-      } else if (this.displayMode === 'not_submitted') {
-        return '未提出';
+      if (this.displayMode === "submitted") {
+        return "提出済み";
+      } else if (this.displayMode === "not_submitted") {
+        return "未提出";
       } else {
-        return student.is_submitted ? '提出済み' : '未提出';
+        return student.is_submitted ? "提出済み" : "未提出";
       }
-    }
+    },
   },
-  
+
   template: `
     <div class="d-flex justify-content-center px-2">
   <div class="d-flex" style="max-width: 900px; width: 100%;">
@@ -246,5 +254,5 @@ const SubmissionStatus = {
     </div>
   </div>
 </div>
-  `
+  `,
 };

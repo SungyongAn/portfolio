@@ -241,7 +241,7 @@ const ChatRoom = {
     async markAsRead() {
       try {
         await axios.post(
-          `http://127.0.0.1:8000/chat/rooms/${this.roomId}/read`
+          `/chat/rooms/${this.roomId}/read`
         );
         console.log('✅ メッセージを既読にしました');
       } catch (err) {
@@ -270,7 +270,7 @@ const ChatRoom = {
 
     async loadRoomDetail() {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/chat/rooms/${this.roomId}`);
+        const res = await axios.get(`/chat/rooms/${this.roomId}`);
         this.room = res.data;
         this.participants = res.data.participants;
         
@@ -297,7 +297,7 @@ const ChatRoom = {
 
     async loadInitialMessages() {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/chat/rooms/${this.roomId}/messages`);
+        const res = await axios.get(`/chat/rooms/${this.roomId}/messages`);
         this.messages = res.data;
       } catch (err) {
         console.error('メッセージ履歴取得失敗:', err);
@@ -323,7 +323,7 @@ const ChatRoom = {
         return;
       }
       try {
-        const res = await axios.get('http://127.0.0.1:8000/chat/accounts/search', {
+        const res = await axios.get('/chat/accounts/search', {
           params: { query: this.searchQuery }
         });
         this.searchResults = res.data;
@@ -348,7 +348,7 @@ const ChatRoom = {
       try {
         const ids = this.selectedParticipants.map(p => p.id);
         await axios.post(
-          `http://127.0.0.1:8000/chat/rooms/${this.roomId}/participants`,
+          `/chat/rooms/${this.roomId}/participants`,
           { user_ids: ids }
         );
         alert('参加者を追加しました');
