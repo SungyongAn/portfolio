@@ -26,6 +26,7 @@ class Account(Base):
     __tablename__ = "accounts"
 
     id = Column(Integer, primary_key=True, autoincrement=True, comment="アカウントID")
+    email = Column(String(255), unique=True, nullable=False, comment="メールアドレス(ログインID)")
     
     # 基本属性（生徒・教師共通）
     name = Column(String(100), nullable=False, comment="氏名")

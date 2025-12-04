@@ -41,7 +41,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 def authenticate_user(db: Session, login_data: LoginRequest) -> LoginResponse:
     try:
         account = db.query(Account).filter(
-            Account.id == login_data.id,
+            Account.email == login_data.id,
         ).first()
         
         if not account:

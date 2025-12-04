@@ -17,6 +17,10 @@ All notable changes to this project will be documented in this file.
   - バックエンド
     - `auth_schema.py` を修正（ログイン用スキーマをメールアドレス専用に）
     - `auth.py` の認証処理を更新（ユーザー名不要のメールアドレス認証へ変更）
+    - `accounts_model.py` に `email` カラムを追加
+      - ログイン ID をメールアドレスで管理するため
+      - `email: String(255), nullable=False` を新規追加
+      - 今後の認証方式をメールアドレス＋パスワードに統一するための更新
 
 ## 2025-11
 

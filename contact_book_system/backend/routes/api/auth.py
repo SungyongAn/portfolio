@@ -14,5 +14,4 @@ router = APIRouter()
 @router.post("/login", response_model=LoginResponse)
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     result = auth.authenticate_user(db, login_data)
-    print(result)
     return result
