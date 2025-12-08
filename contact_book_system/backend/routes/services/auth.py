@@ -37,11 +37,11 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-# ログイン機能（ID、パスワードで認証）
+# ログイン機能（email、パスワードで認証）
 def authenticate_user(db: Session, login_data: LoginRequest) -> LoginResponse:
     try:
         account = db.query(Account).filter(
-            Account.email == login_data.id,
+            Account.email == login_data.email,
         ).first()
         
         if not account:
@@ -50,8 +50,6 @@ def authenticate_user(db: Session, login_data: LoginRequest) -> LoginResponse:
         # パスワード検証
         if not pwd_context.verify(login_data.password, account.password):
             return LoginResponse(success=False, message="入力情報に誤りがあります。")
-        
-        print(f"[LOGIN] ログイン成功 - ID: {account.id}, 名前: {account.name}, ロール: {account.role.value}")
 
         # JWTトークンを作成
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -65,7 +63,8 @@ def authenticate_user(db: Session, login_data: LoginRequest) -> LoginResponse:
             "id": account.id,
             "grade": account.grade,
             "class_name": account.class_name,
-            "name": account.name,
+            "last_name": account.last_name,
+            "first_name": account.first_name,
             "role": account.role.value,
             "status": account.status.value,
             "enrollment_year": account.enrollment_year,

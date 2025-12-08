@@ -15,62 +15,54 @@ const LoginForm = {
       this.errorMessage = "";
       this.isLoading = true;
 
+      const payload = {
+        email: this.loginData.id + "@school.com",
+        password: this.loginData.password,
+      };
+
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/auth/login",
-          this.loginData
+          payload
         );
-        console.log("Full response:", response);
-        console.log("Access token directly:", response.data.data.access_token);
 
         if (response.data.success) {
-          // トークンの処理を先に行う
           const token = response.data.data.access_token;
-          console.log("Token before storage:", token);
 
           if (token) {
-            // トークンを保存
             sessionStorage.setItem("access_token", token);
-
-            // axiosのデフォルトヘッダーに設定
             axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            console.log("Saved token:", token);
           } else {
-            console.warn("No access_token in response");
             this.errorMessage = "トークンが取得できませんでした";
             return;
           }
-          // ユーザーデータの設定
+
           const userData = {
             id: response.data.data.id,
             role: response.data.data.role,
             grade: response.data.data.grade,
             className: response.data.data.class_name,
-            fullName: response.data.data.name,
+            lastName: response.data.data.last_name,
+            firstName: response.data.data.first_name,
             isTeacher: response.data.data.role === "teacher",
             teacherRole: response.data.data.teacher_role?.code || null,
             isGradeLeader:
-              response.data.data.teacher_role?.code === "grade_leader", // 学年主任
+              response.data.data.teacher_role?.code === "grade_leader",
             isHomeroomTeacher:
-              response.data.data.teacher_role?.code === "homeroom", // 担任
+              response.data.data.teacher_role?.code === "homeroom",
             isAssistantTeacher:
-              response.data.data.teacher_role?.code === "assistant_homeroom", // 副担任
+              response.data.data.teacher_role?.code === "assistant_homeroom",
             isSubjectTeacher:
-              response.data.data.teacher_role?.code === "subject_teacher", // 教科担当
+              response.data.data.teacher_role?.code === "subject_teacher",
             isAdmin: response.data.data.role === "admin",
             status: response.data.data.status,
             enrollmentYear: response.data.data.enrollment_year || 0,
             graduationYear: response.data.data.graduation_year || 0,
           };
 
-          // ユーザー情報をemit
           this.$emit("login", userData);
 
-          // フォームをリセット（resetFormメソッドがあれば）
-          this.loginData = {
-            id: "",
-            password: "",
-          };
+          this.loginData = { id: "", password: "" };
         } else {
           this.errorMessage = response.data.message || "ログインに失敗しました";
         }
@@ -98,17 +90,22 @@ const LoginForm = {
               </div>
               
               <form @submit.prevent="handleLogin">
+
+                <!-- ID入力（ローカルパート） -->
                 <div class="mb-3">
                   <label for="id" class="form-label">ID</label>
-                  <input 
-                    type="text" 
-                    class="form-control" 
-                    id="id"
-                    v-model="loginData.id" 
-                    required
-                    :disabled="isLoading">
+                  <div class="input-group">
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="id"
+                      v-model="loginData.id" 
+                      required
+                      :disabled="isLoading">
+                  </div>
                 </div>
-                
+
+                <!-- パスワード -->
                 <div class="mb-3">
                   <label for="password" class="form-label">パスワード</label>
                   <input 
@@ -119,7 +116,6 @@ const LoginForm = {
                     required
                     :disabled="isLoading">
                   
-                  <!-- チェックボックス -->
                   <div class="form-check mt-2">
                     <input 
                       type="checkbox" 
@@ -129,7 +125,6 @@ const LoginForm = {
                     <label for="showPassword" class="form-check-label">パスワードを表示</label>
                   </div>
                 </div>
-                
                 
                 <button 
                   type="submit" 

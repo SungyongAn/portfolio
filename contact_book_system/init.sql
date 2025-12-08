@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS subjects (
 CREATE TABLE IF NOT EXISTS accounts (
     id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'アカウントID',
     email VARCHAR(255) NOT NULL UNIQUE COMMENT 'メールアドレス（ログインID）',
-    name VARCHAR(100) NOT NULL COMMENT '氏名',
+    last_name VARCHAR(50) NOT NULL COMMENT '姓',
+    first_name VARCHAR(50) NOT NULL COMMENT '名',
     password VARCHAR(255) NOT NULL COMMENT 'パスワード（bcryptハッシュ化）',
     role ENUM('admin', 'teacher', 'student', 'school_nurse') NOT NULL DEFAULT 'student' COMMENT 'アカウント種別',
     status ENUM('enrolled', 'graduated', 'transferred', 'on_leave', 'other') NOT NULL DEFAULT 'enrolled' COMMENT '在籍状況',
@@ -60,9 +61,13 @@ CREATE TABLE IF NOT EXISTS accounts (
     subject_id INT NULL COMMENT '担当教科ID（教師のみ）',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新日時',
+
     FOREIGN KEY (teacher_role_id) REFERENCES teacher_roles(id) ON DELETE SET NULL,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='アカウント情報';
+) ENGINE=InnoDB 
+DEFAULT CHARSET=utf8mb4 
+COLLATE=utf8mb4_unicode_ci 
+COMMENT='アカウント情報';
 
 -- 連絡帳エントリーテーブル
 CREATE TABLE IF NOT EXISTS renrakucho_entries (
@@ -161,7 +166,243 @@ INSERT INTO subjects (id, code, name) VALUES
 (9, 'tech', '技術'),
 (10, 'home_ec', '家庭科');
 
+-- 連絡帳のアーカイブテーブルを作成
+CREATE TABLE renrakucho_entries_archive (
+    renrakucho_id INT NOT NULL COMMENT '連絡帳ID',
+    student_id INT NOT NULL COMMENT '生徒ID',
+    submitted_date DATE NOT NULL COMMENT '提出日',
+    target_date DATE NOT NULL COMMENT '対象日',
+    physical_condition TINYINT NOT NULL COMMENT '体調（1-5）',
+    mental_state TINYINT NOT NULL COMMENT 'メンタル（1-5）',
+    physical_mental_notes TEXT DEFAULT NULL COMMENT '体調・メンタルメモ',
+    daily_reflection TEXT NOT NULL COMMENT '1日の振り返り',
+    is_read BOOLEAN NOT NULL COMMENT '既読フラグ',
+    created_at DATETIME NOT NULL COMMENT '作成日時',
+    archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'アーカイブ日時',
+    
+    PRIMARY KEY (renrakucho_id, target_date),
+    INDEX idx_student_id (student_id),
+    INDEX idx_target_date (target_date),
+    INDEX idx_archived_at (archived_at)
+) ENGINE=InnoDB 
+  ROW_FORMAT=COMPRESSED 
+  DEFAULT CHARSET=utf8mb4 
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='アーカイブされた連絡帳データ（3-5年分）';
 
+
+-- 連絡帳の削除ログテーブルを作成
+CREATE TABLE data_deletion_log (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'ログID',
+    deletion_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '削除実行日時',
+    table_name VARCHAR(100) NOT NULL COMMENT '対象テーブル名',
+    records_deleted INT NOT NULL COMMENT '削除件数',
+    date_range_from DATE COMMENT '削除対象期間（開始）',
+    date_range_to DATE COMMENT '削除対象期間（終了）',
+    reason VARCHAR(255) COMMENT '削除理由',
+    executed_by VARCHAR(100) DEFAULT 'SYSTEM' COMMENT '実行者',
+    backup_file VARCHAR(255) COMMENT 'バックアップファイル名',
+    
+    INDEX idx_deletion_date (deletion_date),
+    INDEX idx_table_name (table_name)
+) ENGINE=InnoDB 
+  DEFAULT CHARSET=utf8mb4 
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='データ削除の監査ログ';
+
+
+
+DELIMITER $$
+-- アーカイブプロシージャ
+CREATE PROCEDURE archive_old_renrakucho(
+    IN archive_years INT
+)
+BEGIN
+    DECLARE archive_date DATE;
+    DECLARE affected_rows INT DEFAULT 0;
+    DECLARE exit_handler_called BOOLEAN DEFAULT FALSE;
+    
+    -- エラーハンドラー
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET exit_handler_called = TRUE;
+        ROLLBACK;
+    END;
+    
+    -- アーカイブ対象日を計算（デフォルト: 3年前）
+    IF archive_years IS NULL OR archive_years < 1 THEN
+        SET archive_years = 3;
+    END IF;
+    
+    SET archive_date = DATE_SUB(CURDATE(), INTERVAL archive_years YEAR);
+    
+    -- トランザクション開始
+    START TRANSACTION;
+    
+    -- アーカイブテーブルに挿入（重複を避けるためNOT EXISTS使用）
+    INSERT INTO renrakucho_entries_archive 
+        (renrakucho_id, student_id, submitted_date, target_date, 
+         physical_condition, mental_state, physical_mental_notes, 
+         daily_reflection, is_read, created_at)
+    SELECT 
+        r.renrakucho_id, 
+        r.student_id, 
+        r.submitted_date, 
+        r.target_date,
+        r.physical_condition, 
+        r.mental_state, 
+        r.physical_mental_notes,
+        r.daily_reflection, 
+        r.is_read, 
+        r.created_at
+    FROM renrakucho_entries r
+    WHERE r.target_date < archive_date
+    AND NOT EXISTS (
+        SELECT 1 
+        FROM renrakucho_entries_archive a 
+        WHERE a.renrakucho_id = r.renrakucho_id
+    );
+    
+    SET affected_rows = ROW_COUNT();
+    
+    -- 元のテーブルから削除
+    DELETE FROM renrakucho_entries
+    WHERE target_date < archive_date;
+    
+    -- エラーチェック
+    IF exit_handler_called THEN
+        SELECT 
+            FALSE AS success,
+            'Archive failed due to error' AS message,
+            0 AS records_archived;
+    ELSE
+        -- コミット
+        COMMIT;
+        
+        -- 結果を返す
+        SELECT 
+            TRUE AS success,
+            CONCAT('Successfully archived records before ', archive_date) AS message,
+            affected_rows AS records_archived,
+            archive_date AS cutoff_date;
+    END IF;
+    
+END$$
+
+-- 削除プロシージャ
+CREATE PROCEDURE delete_expired_renrakucho(
+    IN retention_years INT
+)
+BEGIN
+    DECLARE delete_date DATE;
+    DECLARE deleted_count INT DEFAULT 0;
+    DECLARE backup_filename VARCHAR(255);
+    DECLARE exit_handler_called BOOLEAN DEFAULT FALSE;
+    
+    -- エラーハンドラー
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET exit_handler_called = TRUE;
+        ROLLBACK;
+    END;
+    
+    -- 保管期間を計算（デフォルト: 5年）
+    IF retention_years IS NULL OR retention_years < 1 THEN
+        SET retention_years = 5;
+    END IF;
+    
+    SET delete_date = DATE_SUB(CURDATE(), INTERVAL retention_years YEAR);
+    SET backup_filename = CONCAT('archive_before_', delete_date, '_', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'), '.sql.gz');
+    
+    -- トランザクション開始
+    START TRANSACTION;
+    
+    -- アーカイブテーブルから削除（削除前にカウント）
+    SELECT COUNT(*) INTO deleted_count
+    FROM renrakucho_entries_archive
+    WHERE target_date < delete_date;
+    
+    -- 実際に削除
+    DELETE FROM renrakucho_entries_archive
+    WHERE target_date < delete_date;
+    
+    -- 削除ログを記録
+    INSERT INTO data_deletion_log 
+        (table_name, records_deleted, date_range_to, reason, backup_file)
+    VALUES (
+        'renrakucho_entries_archive',
+        deleted_count,
+        delete_date,
+        CONCAT(retention_years, ' years retention policy'),
+        backup_filename
+    );
+    
+    -- エラーチェック
+    IF exit_handler_called THEN
+        SELECT 
+            FALSE AS success,
+            'Deletion failed due to error' AS message,
+            0 AS records_deleted;
+    ELSE
+        -- コミット
+        COMMIT;
+        
+        -- 結果を返す
+        SELECT 
+            TRUE AS success,
+            CONCAT('Successfully deleted records before ', delete_date) AS message,
+            deleted_count AS records_deleted,
+            delete_date AS cutoff_date,
+            backup_filename AS backup_file;
+    END IF;
+    
+END$$
+
+-- データ統計取得プロシージャ（管理画面用）
+CREATE PROCEDURE get_archive_statistics()
+BEGIN
+    -- アクティブデータの統計
+    SELECT
+        'active' AS data_type,
+        COUNT(*) AS record_count,
+        MIN(target_date) AS oldest_date,
+        MAX(target_date) AS newest_date,
+        ROUND(SUM(DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024, 2) AS size_mb
+    FROM renrakucho_entries
+    JOIN information_schema.TABLES 
+        ON TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'renrakucho_entries'
+        
+    
+    UNION ALL
+    
+    -- アーカイブデータの統計
+    SELECT 
+        'archive' AS data_type,
+        COUNT(*) AS record_count,
+        MIN(target_date) AS oldest_date,
+        MAX(target_date) AS newest_date,
+        ROUND(
+            (DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024, 2
+        ) AS size_mb
+    FROM renrakucho_entries_archive
+    JOIN information_schema.TABLES 
+        ON TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'renrakucho_entries_archive';
+
+END$$
+
+DELIMITER ;
+
+-- 毎年4月1日 午前2時にアーカイブを実行
+CREATE EVENT IF NOT EXISTS yearly_archive_renrakucho
+ON SCHEDULE EVERY 1 YEAR
+STARTS '2026-04-01 02:00:00'
+COMMENT 'Yearly archiving of old renrakucho entries (3+ years)'
+DO
+    CALL archive_old_renrakucho(3);
+
+-- 毎年4月1日 午前3時に削除を実行（アーカイブの1時間後）
 CREATE EVENT IF NOT EXISTS yearly_delete_expired_renrakucho
 ON SCHEDULE EVERY 1 YEAR
 STARTS '2026-04-01 03:00:00'

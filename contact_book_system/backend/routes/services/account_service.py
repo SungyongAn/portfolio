@@ -42,9 +42,12 @@ class AccountService:
             )
 
             # 重複チェック（リポジトリを使用）
+            
             existing_account = AccountRepository.find_by_name_grade_class(
                 db,
-                register_data.name,
+                register_data.email,
+                register_data.last_name,
+                register_data.first_name,
                 grade,
                 register_data.class_name
             )
@@ -85,9 +88,11 @@ class AccountService:
 
             # 新規アカウントの作成（リポジトリを使用）
             new_account = Account(
+                email = register_data.email,
                 grade=grade,
                 class_name=register_data.class_name,
-                name=register_data.name,
+                last_name=register_data.last_name,
+                first_name=register_data.first_name,
                 password=hashed_password,
                 enrollment_year=enrollment_year,
                 graduation_year=graduation_year,
@@ -117,8 +122,9 @@ class AccountService:
                 "success": True,
                 "message": "Account created successfully",
                 "data": {
-                    "id": new_account.id,
-                    "name": new_account.name,
+                    "email": new_account.email,
+                    "last_name": new_account.last_name,
+                    "first_name": new_account.first_name,
                     "role": new_account.role.value,
                     "grade": new_account.grade,
                     "class_name": new_account.class_name,
@@ -171,7 +177,8 @@ class AccountService:
         accounts = AccountRepository.search_with_filters(
             db,
             role=payload.role,
-            full_name=payload.fullName,
+            last_name=payload.last_name,
+            first_name=payload.first_name,
             grade=payload.grade,
             class_name=payload.class_name,
             enrollment_year=payload.enrollment_year,
@@ -181,7 +188,7 @@ class AccountService:
         )
 
         # 管理者権限のアカウント情報を除外
-        accounts = accounts.filter(Account.role != RoleEnum.admin)
+        accounts = [acc for acc in accounts if acc.role != RoleEnum.admin]
 
         # レスポンス形式を整形
         results = []
@@ -202,7 +209,8 @@ class AccountService:
             results.append({
                 "id": acc.id,
                 "role": acc.role.value,
-                "fullName": acc.name,
+                "last_name": acc.last_name,
+                "first_name": acc.first_name,
                 "grade": acc.grade,
                 "className": acc.class_name,
                 "enrollmentYear": acc.enrollment_year,
@@ -255,7 +263,8 @@ class AccountService:
 
                 # 基本情報の更新
                 account.role = role_enum
-                account.name = item.fullName
+                account.last_name = item.last_name
+                account.first_name = item.first_name
                 account.grade = item.grade
                 account.class_name = item.className
                 account.status = status_enum
@@ -302,9 +311,9 @@ class AccountService:
     """ 以下、未使用 """
     # ログイン認証
     @staticmethod
-    def verify_login(db: Session, name: str, password: str):
+    def verify_login(db: Session, last_name: str, first_name: str, password: str):
         # リポジトリを使用してアカウント検索
-        account = AccountRepository.find_by_name(db, name)
+        account = AccountRepository.find_by_full_name(db, last_name, first_name)
         
         if not account:
             return {"success": False, "message": "Account not found"}
@@ -318,7 +327,8 @@ class AccountService:
             "message": "Login successful",
             "data": {
                 "id": account.id,
-                "name": account.name,
+                "last_name": account.last_name,
+                "first_name": account.first_name,
                 "role": account.role.value,
                 "grade": account.grade,
                 "class_name": account.class_name,
@@ -328,10 +338,10 @@ class AccountService:
 
     # パスワードリセット（管理者用）
     @staticmethod
-    def reset_password(db: Session, account_id: int, new_password: str):
+    def reset_password(db: Session, email: str, new_password: str):
         try:
             # リポジトリを使用してアカウント取得
-            account = AccountRepository.find_by_id(db, account_id)
+            account = AccountRepository.find_by_email(db, email)
             
             if not account:
                 return {"success": False, "message": "Account not found"}

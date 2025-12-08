@@ -62,7 +62,7 @@ const UserHeader = {
           <span v-if="isAdmin()" class="badge bg-warning text-dark">管理者</span>
 
           <!-- 氏名 -->
-          <span class="fw-bold">{{ currentUser.fullName }}</span>
+          <span class="fw-bold">{{ currentUser.lastName }} {{ currentUser.firstName }}</span>
 
           <!-- 学年・組（管理者・看護教諭以外） -->
           <small class="text-muted" v-if="!isAdmin() && !isSchoolNurse()">

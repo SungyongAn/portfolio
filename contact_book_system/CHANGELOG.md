@@ -4,6 +4,49 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
+## 12/8
+
+- **ログイン機能の仕様変更**
+  - フロントエンド
+    - `LoginForm.js` を修正し、ログインIDとして メールアドレスのローカルパートを入力する形式に変更
+    - バックエンドへ送信する前に、ローカルパートに固定ドメインを付与して 完全な `email` を生成 するように変更
+    - `UserHeader.js` を氏名から姓、名を表示するように変更
+  - バックエンド
+    - `auth_schema.py` の `LoginRequest` で、フィールド名を `id` から `email` に変更
+    - `auth.py`（service / api）の認証処理を、従来の `id` ベースから `email` ベースに変更
+
+- **連絡帳アーカイブ機能の追加(データベース)**
+  - テーブル追加
+    - `renrakucho_entries_archive`：連絡帳の過去データを保存するアーカイブテーブル（3～5年分）
+    - `data_deletion_log`：アーカイブデータ削除時の監査ログ用テーブル
+  - ストアドプロシージャ追加
+    - `archive_old_renrakucho(years INT)`：古い連絡帳をアーカイブ
+    - `delete_expired_renrakucho(retention_years INT)`：保管期限切れアーカイブデータを削除
+    - `get_archive_statistics()`：アクティブ・アーカイブデータの統計取得
+  - スケジュールイベント追加
+    - `yearly_archive_renrakucho`：毎年4月1日午前2時にアーカイブ実行
+    - `yearly_delete_expired_renrakucho`：毎年4月1日午前3時に削除実行（アーカイブ1時間後）
+
+- **アカウント検索機能の仕様変更**
+  - フロントエンド
+    - `AccountSearch.js` を修正し、ログインIDとして メールアドレスのローカルパートを入力する形式に変更
+    - バックエンドへ送信する前に、ローカルパートに固定ドメインを付与して 完全な `email` を生成 するように変更
+    - 氏名を姓、名と分けて入力する形式に変更
+  - バックエンド
+    - `accounts_schema.py` 内のフィールド名を `id` から `email` に、 `fullName` から `last_name` と `first_name` に全て変更
+    - `account_repository.py` を `id` から `email` に、 `fullName` から `last_name` と `first_name` への変更に対応した内容に修正
+    - `account_service.py` を `id` から `email` に、 `fullName` から `last_name` と `first_name` への変更に対応した内容に一部修正
+
+## 12/7
+
+- **アカウント登録機能の仕様変更**
+  - フロントエンド
+    - `AccountForm.js` を修正し、生徒・職員ID入力欄をローカルパート入力欄に変更（ドメインを固定）
+    - アカウント登録時にバックエンドへ送信する項目を id から email に変更
+  - バックエンド
+    - `accounts_schema.py` の `AccountRegisterRequest` に `email` フィールドを追加
+    - `account_repository.py`に`def find_by_email()`メゾットを追加
+
 ## 12/4
 
 - **ドキュメント整理**

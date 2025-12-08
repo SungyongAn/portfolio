@@ -29,7 +29,8 @@ class Account(Base):
     email = Column(String(255), unique=True, nullable=False, comment="メールアドレス(ログインID)")
     
     # 基本属性（生徒・教師共通）
-    name = Column(String(100), nullable=False, comment="氏名")
+    last_name = Column(String(50), nullable=False, comment="姓")
+    first_name = Column(String(50), nullable=False, comment="名")
     password = Column(String(255), nullable=False, comment="パスワード（ハッシュ化）")
     role = Column(SQLEnum(RoleEnum), nullable=False, default=RoleEnum.student, comment="アカウント種別")
     status = Column(SQLEnum(StatusEnum), nullable=False, default=StatusEnum.enrolled, comment="在籍状況")

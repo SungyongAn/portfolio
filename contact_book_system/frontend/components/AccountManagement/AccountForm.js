@@ -1,49 +1,50 @@
 const AccountForm = {
-  emits: ['back-to-menu', 'updateTitle'],
+  emits: ["back-to-menu", "updateTitle"],
   data() {
     const currentYear = new Date().getFullYear();
     return {
       accountForm: {
-        studentNumber: '',
-        role: '生徒',
-        fullName: '',
+        studentNumber: "",
+        role: "生徒",
+        last_name: "",
+        first_name: "",
         grade: null,
-        class_name: '',
-        teacher_role: '',
-        subject: '',
-        password: '',
-        confirmPassword: '',
-        enrollment_year: currentYear
+        class_name: "",
+        teacher_role: "",
+        subject: "",
+        password: "",
+        confirmPassword: "",
+        enrollment_year: currentYear,
       },
       showPassword: false,
       showConfirmPassword: false,
       registeredAccount: null,
-      errorMessage: '',
+      errorMessage: "",
       isLoading: false,
       // 教員区分
       teacherRoles: [
-        { code: 'grade_leader', name: '学年主任' },
-        { code: 'homeroom_teacher', name: '担任' },
-        { code: 'assistant_teacher', name: '副担任' },
-        { code: 'subject_teacher', name: '教科担当' }
+        { code: "grade_leader", name: "学年主任" },
+        { code: "homeroom_teacher", name: "担任" },
+        { code: "assistant_teacher", name: "副担任" },
+        { code: "subject_teacher", name: "教科担当" },
       ],
       // 科目
       subjects: [
-        { code: 'Japanese', name: '国語' },
-        { code: 'SocialStudies', name: '社会' },
-        { code: 'Mathematics', name: '数学' },
-        { code: 'Science', name: '理科' },
-        { code: 'Music', name: '音楽' },
-        { code: 'Art', name: '美術' },
-        { code: 'PE', name: '保健体育' },
-        { code: 'TechnologyHomeEconomics', name: '技術・家庭' },
-        { code: 'English', name: '英語' }
-      ]
+        { code: "Japanese", name: "国語" },
+        { code: "SocialStudies", name: "社会" },
+        { code: "Mathematics", name: "数学" },
+        { code: "Science", name: "理科" },
+        { code: "Music", name: "音楽" },
+        { code: "Art", name: "美術" },
+        { code: "PE", name: "保健体育" },
+        { code: "TechnologyHomeEconomics", name: "技術・家庭" },
+        { code: "English", name: "英語" },
+      ],
     };
   },
   computed: {
     graduationYear() {
-      if (this.accountForm.role !== '生徒') return 0;
+      if (this.accountForm.role !== "生徒") return 0;
       const year = parseInt(this.accountForm.enrollment_year);
       const grade = parseInt(this.accountForm.grade);
       if (!year || !grade) return null;
@@ -55,25 +56,31 @@ const AccountForm = {
       return graduation;
     },
     isTeacher() {
-      return this.accountForm.role === '教師';
+      return this.accountForm.role === "教師";
     },
     isSchoolNurse() {
-      return this.accountForm.role === '養護教諭';
+      return this.accountForm.role === "養護教諭";
     },
     displayRegisteredAccount() {
       if (!this.registeredAccount) return null;
       const result = { ...this.registeredAccount };
 
-      const roleMap = { student: '生徒', teacher: '教師', school_nurse: '養護教諭' };
+      const roleMap = {
+        student: "生徒",
+        teacher: "教師",
+        school_nurse: "養護教諭",
+      };
       if (result.role) result.role = roleMap[result.role] || result.role;
 
       if (result.teacher_role) {
-        const role = this.teacherRoles.find(r => r.code === result.teacher_role);
+        const role = this.teacherRoles.find(
+          (r) => r.code === result.teacher_role
+        );
         result.teacher_role = role ? role.name : result.teacher_role;
       }
 
       if (result.subject) {
-        const subject = this.subjects.find(s => s.code === result.subject);
+        const subject = this.subjects.find((s) => s.code === result.subject);
         result.subject = subject ? subject.name : result.subject;
       }
 
@@ -81,94 +88,129 @@ const AccountForm = {
     },
     resultFields() {
       return [
-        { label: 'ID', key: 'id' },
-        { label: '名前', key: 'name' },
-        { label: '学年', key: 'grade', suffix: '年' },
-        { label: 'クラス', key: 'class_name', suffix: '組' },
-        { label: '役割', key: 'role' },
-        { label: '教員区分', key: 'teacher_role' },
-        { label: '担当科目', key: 'subject' },
-        { label: '登録年', key: 'enrollment_year', suffix: '年' },
-        { label: '卒業予定年', key: 'graduation_year', suffix: '年' }
+        { label: "ID", key: "email" },
+        { label: "姓", key: "last_name" },
+        { label: "名", key: "first_name" },
+        { label: "学年", key: "grade", suffix: "年" },
+        { label: "クラス", key: "class_name", suffix: "組" },
+        { label: "役割", key: "role" },
+        { label: "教員区分", key: "teacher_role" },
+        { label: "担当科目", key: "subject" },
+        { label: "登録年", key: "enrollment_year", suffix: "年" },
+        { label: "卒業予定年", key: "graduation_year", suffix: "年" },
       ];
-    }
+    },
   },
   mounted() {
-    this.$emit('updateTitle', {
-      title: '新規アカウントの作成',
-      icon: 'fas fa-folder-open',
-      showBackButton: true
+    this.$emit("updateTitle", {
+      title: "新規アカウントの作成",
+      icon: "fas fa-folder-open",
+      showBackButton: true,
     });
   },
   beforeUnmount() {
-    this.$emit('updateTitle', { title: '', icon: '', showBackButton: false });
+    this.$emit("updateTitle", { title: "", icon: "", showBackButton: false });
   },
   methods: {
     async handleCreateAccount(event) {
       if (event) event.preventDefault();
-      if (!this.accountForm.fullName || !this.accountForm.password || !this.accountForm.enrollment_year || (this.isTeacher && !this.accountForm.teacher_role)) {
-        this.errorMessage = 'すべての必須項目を入力してください';
+
+      if (!this.accountForm.studentNumber) {
+        this.errorMessage = "生徒・職員IDを入力してください";
+        return;
+      }
+
+      if (
+        !this.accountForm.last_name ||
+        !this.accountForm.first_name ||
+        !this.accountForm.password ||
+        !this.accountForm.enrollment_year ||
+        (this.isTeacher && !this.accountForm.teacher_role)
+      ) {
+        this.errorMessage = "すべての必須項目を入力してください";
         return;
       }
       if (this.accountForm.password !== this.accountForm.confirmPassword) {
-        this.errorMessage = 'パスワードが一致しません';
+        this.errorMessage = "パスワードが一致しません";
         return;
       }
 
       this.isLoading = true;
-      this.errorMessage = '';
+      this.errorMessage = "";
 
       try {
-        const roleMap = { '生徒': 'student', '教師': 'teacher', '養護教諭': 'school_nurse' };
+        const roleMap = {
+          生徒: "student",
+          教師: "teacher",
+          養護教諭: "school_nurse",
+        };
 
-        let gradeValue = 0, classValue = '0';
-        if (this.accountForm.role === '生徒') {
+        let gradeValue = 0,
+          classValue = "0";
+        if (this.accountForm.role === "生徒") {
           gradeValue = parseInt(this.accountForm.grade);
           classValue = this.accountForm.class_name;
         } else if (this.isTeacher) {
-          const selectedRole = this.teacherRoles.find(r => r.code === this.accountForm.teacher_role);
+          const selectedRole = this.teacherRoles.find(
+            (r) => r.code === this.accountForm.teacher_role
+          );
           if (selectedRole) {
-            switch(selectedRole.code){
-              case 'grade_leader':
+            switch (selectedRole.code) {
+              case "grade_leader":
                 gradeValue = parseInt(this.accountForm.grade);
-                classValue = '0';
+                classValue = "0";
                 break;
-              case 'homeroom_teacher':
-              case 'assistant_teacher':
+              case "homeroom_teacher":
+              case "assistant_teacher":
                 gradeValue = parseInt(this.accountForm.grade);
                 classValue = this.accountForm.class_name;
                 break;
               default:
                 gradeValue = 0;
-                classValue = '0';
+                classValue = "0";
             }
           }
         }
 
         const payload = {
-          role: roleMap[this.accountForm.role] || 'student',
-          name: this.accountForm.fullName,
+          email: this.accountForm.studentNumber + "@school.com", // ← これを追加
+          role: roleMap[this.accountForm.role] || "student",
+          last_name: this.accountForm.last_name,
+          first_name: this.accountForm.first_name,
           grade: gradeValue,
           class_name: classValue,
           password: this.accountForm.password,
           enrollment_year: parseInt(this.accountForm.enrollment_year),
           graduation_year: this.graduationYear || 2099,
-          teacher_role: this.isTeacher && this.accountForm.teacher_role ? this.accountForm.teacher_role : null,
-          subject: this.isTeacher && this.accountForm.subject ? this.accountForm.subject : null
+          teacher_role:
+            this.isTeacher && this.accountForm.teacher_role
+              ? this.accountForm.teacher_role
+              : null,
+          subject:
+            this.isTeacher && this.accountForm.subject
+              ? this.accountForm.subject
+              : null,
         };
 
-        console.log('Sending payload:', payload);
+        console.log("Sending payload:", payload);
 
-        const response = await axios.post('http://127.0.0.1:8000/account-management/register', payload);
+        const response = await axios.post(
+          "http://127.0.0.1:8000/account-management/register",
+          payload
+        );
 
         if (response.data.success) {
           this.registeredAccount = response.data.data;
         } else {
-          this.errorMessage = response.data.message || 'アカウント作成に失敗しました';
+          this.errorMessage =
+            response.data.message || "アカウント作成に失敗しました";
         }
-      } catch(err){
+      } catch (err) {
         console.error(err);
-        this.errorMessage = err.response?.data?.detail || err.response?.data?.message || 'アカウント作成に失敗しました。';
+        this.errorMessage =
+          err.response?.data?.detail ||
+          err.response?.data?.message ||
+          "アカウント作成に失敗しました。";
       } finally {
         this.isLoading = false;
       }
@@ -176,29 +218,29 @@ const AccountForm = {
     resetToNewRegistration() {
       const currentYear = new Date().getFullYear();
       this.registeredAccount = null;
-      this.accountForm = { 
-        studentNumber: '',
-        role: '生徒', 
-        fullName: '', 
-        grade: null, 
-        class_name: '', 
-        teacher_role: '', 
-        subject: '', 
-        password: '', 
-        confirmPassword: '',
-        enrollment_year: currentYear 
+      this.accountForm = {
+        studentNumber: "",
+        role: "生徒",
+        fullName: "",
+        grade: null,
+        class_name: "",
+        teacher_role: "",
+        subject: "",
+        password: "",
+        confirmPassword: "",
+        enrollment_year: currentYear,
       };
-      this.errorMessage = '';
+      this.errorMessage = "";
     },
     backToMenu() {
-      this.$emit('back-to-menu');
-    }
+      this.$emit("back-to-menu");
+    },
   },
   template: `
 <div class="d-flex justify-content-center mt-5 px-2">
   <div class="card p-4 w-100" style="max-width:700px;">
 
-    <!-- 登録済み結果表示 -->
+    <!-- 登録結果表示 -->
     <template v-if="registeredAccount">
       <div class="alert alert-success mb-3">
         <i class="fas fa-check-circle me-2"></i>アカウントが正常に作成されました。
@@ -227,8 +269,19 @@ const AccountForm = {
         <!-- 1行目: 生徒・職員番号 + 登録年 -->
         <div class="row mb-3">
           <div class="col-md-6">
-            <label class="form-label">生徒・職員番号</label>
-            <input type="text" class="form-control" v-model="accountForm.studentNumber" :disabled="isLoading" placeholder="仮設定のため入力不要">
+            <label class="form-label">生徒・職員ID <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input
+                type="text" 
+                class="form-control" 
+                v-model="accountForm.studentNumber" 
+                :disabled="isLoading" 
+                placeholder="例: tanaka.taro"
+                required
+              >
+              <span class="input-group-text">@school.com</span>
+            </div>
+            <small class="text-muted">ローカルパートがログイン時のIDとして使用されます</small>
           </div>
           <div class="col-md-6">
             <label class="form-label">登録年</label>
@@ -238,9 +291,26 @@ const AccountForm = {
 
         <!-- 2行目: 氏名 + 役割 -->
         <div class="row mb-3">
-          <div class="col-md-6">
-            <label class="form-label">氏名 <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" v-model="accountForm.fullName" :disabled="isLoading">
+          <div class="col-md-3">
+            <label class="form-label">姓 <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              v-model="accountForm.last_name"
+              :disabled="isLoading"
+              required
+            >
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">名 <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              v-model="accountForm.first_name"
+              :disabled="isLoading"
+              required
+            >
           </div>
           <div class="col-md-6">
             <label class="form-label">役割 <span class="text-danger">*</span></label>
@@ -333,5 +403,5 @@ const AccountForm = {
     </template>
   </div>
 </div>
-`
+`,
 };

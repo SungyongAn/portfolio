@@ -197,17 +197,17 @@ class ArchiveService:
             results = []
             for row in rows:
                 results.append({
-                    "student_name": row[0],
-                    "grade": row[1],
-                    "class_name": row[2],
-                    "target_date": row[3],
-                    "submitted_date": row[4],
-                    "physical_condition": row[5],
-                    "mental_state": row[6],
-                    "daily_reflection": row[7],
-                    "is_read": row[8]
-                })
-            
+                    "student_name": row[0] or "",
+                    "grade": row[1] or 0,
+                    "class_name": row[2] or "",
+                    "target_date": row[3].isoformat() if row[3] else None,
+                    "submitted_date": row[4].isoformat() if row[4] else None,
+                    "physical_condition": row[5] or 0,
+                    "mental_state": row[6] or 0,
+                    "daily_reflection": row[7] or "",
+                    "is_read": bool(row[8])
+                    })
+
             return {
                 "success": True,
                 "data": results

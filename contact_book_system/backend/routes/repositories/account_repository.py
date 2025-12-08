@@ -12,22 +12,44 @@ class AccountRepository:
     def find_by_id(db: Session, account_id: int) -> Optional[Account]:
         return db.query(Account).filter(Account.id == account_id).first()
 
-    # 名前でアカウント検索
+    # 姓でアカウント検索
     @staticmethod
-    def find_by_name(db: Session, name: str) -> Optional[Account]:
-        return db.query(Account).filter(Account.name == name).first()
+    def find_by_last_name(db: Session, last_name: str) -> Optional[Account]:
+        return db.query(Account).filter(Account.last_name == last_name).first()
+
+    # 名でアカウント検索
+    @staticmethod
+    def find_by_first_name(db: Session, first_name: str) -> Optional[Account]:
+        return db.query(Account).filter(Account.first_name == first_name).first()
+
+    # 姓名の両方でアカウント検索
+    @staticmethod
+    def find_by_full_name(db: Session, last_name: str, first_name: str) -> Optional[Account]:
+        return db.query(Account).filter(
+            Account.last_name == last_name,
+            Account.first_name == first_name
+        ).first()
+
+    # emailでアカウント検索(重複チェックに使用)
+    @staticmethod
+    def find_by_email(db: Session, email: str) -> Optional[Account]:
+        return db.query(Account).filter(Account.email == email).first()
 
     # 名前・学年・クラスでアカウントを検索（重複チェックに使用）
     @staticmethod
     def find_by_name_grade_class(
-        db: Session, 
-        name: str, 
+        db: Session,
+        email: str,
+        last_name: str, 
+        first_name: str,
         grade: int, 
         class_name: str
     ) -> Optional[Account]:
         
         return db.query(Account).filter(
-            Account.name == name,
+            Account.email == email,
+            Account.last_name == last_name,
+            Account.first_name == first_name,
             Account.grade == grade,
             Account.class_name == class_name
         ).first()
@@ -51,8 +73,10 @@ class AccountRepository:
     @staticmethod
     def search_with_filters(
         db: Session,
+        email: Optional[str] = None,
         role: Optional[str] = None,
-        full_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        first_name: Optional[str] = None,
         grade: Optional[int] = None,
         class_name: Optional[str] = None,
         enrollment_year: Optional[int] = None,
@@ -63,6 +87,9 @@ class AccountRepository:
         
         query = db.query(Account)
 
+        if email:
+            query = query.filter(Account.email == email)
+
         if role:
             try:
                 role_enum = RoleEnum(role.lower())
@@ -70,8 +97,11 @@ class AccountRepository:
             except ValueError:
                 return []
 
-        if full_name:
-            query = query.filter(Account.name == full_name)
+        if last_name:
+            query = query.filter(Account.last_name == last_name)
+            
+        if first_name:
+            query = query.filter(Account.first_name == first_name)
 
         if grade:
             query = query.filter(Account.grade == grade)
@@ -110,7 +140,7 @@ class AccountRepository:
             Account.grade == grade,
             Account.class_name == class_name,
             Account.role == RoleEnum.student
-        ).order_by(Account.name).all()
+        ).order_by(Account.last_name, Account.first_name)
     """ ここまで未使用 """
 
 

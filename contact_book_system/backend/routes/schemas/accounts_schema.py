@@ -4,21 +4,24 @@ from pydantic import BaseModel, ConfigDict
 # アカウント登録リクエスト
 class AccountRegisterRequest(BaseModel):
     role: str
-    name: str
+    email: str
+    last_name: str
+    first_name: str
     grade: int
     class_name: str
     password: str
     enrollment_year: int
     graduation_year: int | None = None
-    teacher_role: str | None = None  # ✅ codeで受け取る
-    subject: str | None = None       # ✅ codeで受け取る
+    teacher_role: str | None = None  
+    subject: str | None = None       
 
 
 class AccountData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
-    id: int
-    name: str
+    email: str
+    last_name: str
+    first_name: str
     role: str
     grade: int
     class_name: str
@@ -37,13 +40,14 @@ class AccountRegisterResponse(BaseModel):
 
 # アカウント検索
 class AccountSearchPayload(BaseModel):
-    studentStaffNumber: str | None = None
+    email: str | None = None
     role: str | None = None
-    fullName: str | None = None
+    last_name: str | None = None
+    first_name: str | None = None
     grade: int | None = None
     class_name: str | None = None
-    teacher_role: str | None = None  # codeで受け取る
-    subject: str | None = None       # codeで受け取る
+    teacher_role: str | None = None
+    subject: str | None = None
     enrollment_year: int | None = None
     status: str | None = None
 
@@ -56,9 +60,10 @@ class AccountSearchResponse(BaseModel):
 
 # アカウント更新用
 class AccountUpdatePayload(BaseModel):
-    id: int
+    email: str
     role: str
-    fullName: str
+    last_name: str
+    first_name: str
     grade: int
     className: str
     status: str
