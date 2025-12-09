@@ -148,23 +148,22 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- 教員区分マスタ
 INSERT INTO teacher_roles (id, code, name, description) VALUES
-(1, 'homeroom', '担任', 'クラス担任'),
-(2, 'assistant_homeroom', '副担任', 'クラス副担任'),
+(1, 'homeroom_teacher', '担任', 'クラス担任'),
+(2, 'assistant_teacher', '副担任', 'クラス副担任'),
 (3, 'subject_teacher', '教科担当', '教科のみ担当'),
 (4, 'grade_leader', '学年主任', '学年全体の統括責任者');
 
 -- 科目マスタ
 INSERT INTO subjects (id, code, name) VALUES
-(1, 'japanese', '国語'),
-(2, 'math', '数学'),
-(3, 'english', '英語'),
-(4, 'science', '理科'),
-(5, 'social', '社会'),
-(6, 'pe', '体育'),
-(7, 'music', '音楽'),
-(8, 'art', '美術'),
-(9, 'tech', '技術'),
-(10, 'home_ec', '家庭科');
+(1, 'Japanese', '国語'),
+(2, 'Mathematics', '数学'),
+(3, 'English', '英語'),
+(4, 'Science', '理科'),
+(5, 'SocialStudies', '社会'),
+(6, 'PE', '保健体育'),
+(7, 'Music', '音楽'),
+(8, 'Art', '美術'),
+(9, 'TechnologyHomeEconomics', '技術・家庭');
 
 -- 連絡帳のアーカイブテーブルを作成
 CREATE TABLE renrakucho_entries_archive (
@@ -390,9 +389,6 @@ BEGIN
         ON TABLE_SCHEMA = DATABASE() 
         AND TABLE_NAME = 'renrakucho_entries_archive';
 
-END$$
-
-DELIMITER ;
 
 -- 毎年4月1日 午前2時にアーカイブを実行
 CREATE EVENT IF NOT EXISTS yearly_archive_renrakucho
@@ -402,6 +398,7 @@ COMMENT 'Yearly archiving of old renrakucho entries (3+ years)'
 DO
     CALL archive_old_renrakucho(3);
 
+
 -- 毎年4月1日 午前3時に削除を実行（アーカイブの1時間後）
 CREATE EVENT IF NOT EXISTS yearly_delete_expired_renrakucho
 ON SCHEDULE EVERY 1 YEAR
@@ -409,3 +406,26 @@ STARTS '2026-04-01 03:00:00'
 COMMENT 'Yearly deletion of expired renrakucho entries (5+ years)'
 DO
     CALL delete_expired_renrakucho(5);
+
+
+-- 毎年4月1日 午前1時に3年のstatusを卒業に変更、他生徒の学年を＋1
+CREATE EVENT promote_students
+ON SCHEDULE EVERY 1 YEAR
+    STARTS '2025-04-01 01:00:00'
+DO
+BEGIN
+    -- 1. 元の3年生を卒業扱いにする（学生のみ）
+    UPDATE accounts 
+        SET status = 'graduated'
+        WHERE role = 'student' 
+          AND grade = 3;
+
+    -- 2. 1〜2年の学生のみ進級させる
+    UPDATE accounts
+        SET grade = grade + 1
+        WHERE role = 'student'
+          AND grade < 3;
+
+END$$
+
+DELIMITER ;

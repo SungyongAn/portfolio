@@ -2,7 +2,6 @@ const AccountSearch = {
   props: ["currentUser"],
   emits: ["show-results", "back-to-menu", "updateTitle"],
   data() {
-    const currentYear = new Date().getFullYear();
     return {
       form: {
         studentStaffNumber: "",
@@ -13,7 +12,7 @@ const AccountSearch = {
         class_name: "",
         teacher_role: "",
         subject: "",
-        enrollment_year: currentYear,
+        enrollment_year: "",
         status: "",
       },
       isLoading: false,
@@ -242,7 +241,6 @@ const AccountSearch = {
                 class="form-control"
                 v-model="form.last_name"
                 :disabled="isLoading"
-                required
               >
             </div>
 
@@ -253,7 +251,6 @@ const AccountSearch = {
                 class="form-control"
                 v-model="form.first_name"
                 :disabled="isLoading"
-                required
               >
             </div>
 
@@ -273,7 +270,7 @@ const AccountSearch = {
             <div class="col-md-6">
               <label class="form-label">登録年</label>
               <input type="text" v-model="form.enrollment_year" class="form-control"
-              :disabled="true">
+              :disabled="isLoading">
             </div>
             <div class="col-md-6">
               <label class="form-label">担当科目</label>

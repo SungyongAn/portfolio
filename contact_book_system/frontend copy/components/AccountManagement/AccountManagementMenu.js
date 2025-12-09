@@ -20,6 +20,7 @@ const AccountManagementMenu = {
         AccountForm: "account-form",
         AccountSearch: "account-search",
         ArchiveManagement: "archive-management",
+        YearlyProcessingMenu: "yearly-processing-menu",
       };
       this.$emit("navigate-account", pageMap[page] || page);
     },
@@ -69,6 +70,20 @@ const AccountManagementMenu = {
                                     <h5 class="card-title">アーカイブ管理</h5>
                                     <p class="card-text text-muted small">
                                         データの保管状況とアーカイブ設定
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 年度処理 -->
+                        <div class="col-md-6">
+                            <div class="card h-100 shadow-sm hover-card" 
+                                @click="navigateTo('YearlyProcessingMenu')" 
+                                style="cursor: pointer;">
+                                <div class="card-body text-center p-4">
+                                    <i class="fas fa-database fa-3x text-warning mb-3"></i>
+                                    <h5 class="card-title">年次処理</h5>
+                                    <p class="card-text text-muted small">
+                                        
                                     </p>
                                 </div>
                             </div>

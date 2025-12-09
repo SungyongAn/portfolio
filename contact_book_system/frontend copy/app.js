@@ -19,24 +19,12 @@ Vue.createApp({
     };
   },
 
-  components: {
-    "login-form": LoginForm,
-    "user-header": UserHeader,
-    "main-menu": MainMenu,
-    "entry-form": EntryForm,
-    "past-renrakucho-search": PastRenrakuchoSearch,
-    "class-entry-renrakucho": ClassEntryRenrakucho,
-    "class-past-renrakucho": ClassPastRenrakucho,
-    "submission-status": SubmissionStatus,
-    "account-management-menu": AccountManagementMenu,
-    "account-form": AccountForm,
-    "account-search": AccountSearch,
-    "account-search-results": AccountSearchResults,
-    "account-update-table": AccountUpdateTable,
-    "school-nurse-dashboard": SchoolNurseDashboard,
-    "chat-room-list": ChatRoomList,
-    "chat-room": ChatRoom,
-    "archive-management": ArchiveManagement,
+  components: routes,
+
+  computed: {
+    CurrentComponent() {
+      return routes[this.currentPage] || "login-form";
+    },
   },
 
   methods: {
@@ -146,6 +134,8 @@ Vue.createApp({
         this.chatRoomId = null;
       } else if (this.currentPage === "archive-management") {
         this.currentPage = "account-management-menu";
+      } else if (this.currentPage === "yearly-processing-menu") {
+        this.currentPage = "account-management-menu";
       } else {
         this.currentPage = "main-menu";
       }
@@ -245,138 +235,33 @@ Vue.createApp({
   },
 
   template: `
-        <div>
-            <!-- ログイン後は常に上部に表示 -->
-            <user-header
-                v-if="isLoggedIn && currentUser"
-                :current-user="currentUser"
-                :page-title="pageTitle"
-                :page-icon="pageIcon"
-                :show-back-button="showBackButton"
-                @logout="handleLogout"
-                @back="goBackToMenu">
-            </user-header>
+  <user-header
+  v-if="isLoggedIn && currentUser"
+  :current-user="currentUser"
+  :page-title="pageTitle"
+  :page-icon="pageIcon"
+  :show-back-button="showBackButton"
+  @logout="handleLogout"
+  @back="goBackToMenu"
+  />
 
-            <!-- ログイン画面 -->
-            <login-form 
-                v-if="currentPage === 'login-form'" 
-                @login="handleLogin">
-            </login-form>
+  <component
+  :is="CurrentComponent"
+  :current-user="currentUser"
+  :results="results"
+  :result-type="resultType"
+  :result-message="resultMessage"
+  :accounts="selectedAccounts"
+  :room-id="chatRoomId"
 
-            <!-- メインメニュー -->
-            <main-menu 
-                v-else-if="isLoggedIn && currentPage === 'main-menu'"
-                :current-user="currentUser"
-                @navigate="setCurrentPage">
-            </main-menu>
+  @navigate="setCurrentPage"
+  @back="goBackToMenu"
+  @back-to-search="() => setCurrentPage('account-search')"
+  @back-to-results="() => setCurrentPage('account-search-results')"
 
-            <!-- 生徒用 -->
-            <entry-form
-                v-else-if="currentPage === 'entry-form'"
-                :current-user="currentUser"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </entry-form>
-
-            <past-renrakucho-search
-                v-else-if="currentPage === 'past-renrakucho-search'"
-                :current-user="currentUser"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </past-renrakucho-search>
-
-            <!-- 教師用 -->
-            <submission-status
-                v-else-if="currentPage === 'submission-status'"
-                :current-user="currentUser"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </submission-status>
-
-            <class-entry-renrakucho
-                v-else-if="currentPage === 'class-entry-renrakucho'"
-                :current-user="currentUser"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </class-entry-renrakucho>
-
-            <class-past-renrakucho
-                v-else-if="currentPage === 'class-past-renrakucho'"
-                :current-user="currentUser"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </class-past-renrakucho>
-
-            <!-- 養護教諭用 -->
-            <school-nurse-dashboard
-                v-else-if="isLoggedIn && currentPage === 'school-nurse-dashboard'"
-                :current-user="currentUser"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </school-nurse-dashboard>
-
-            <!-- 管理者用 -->
-            <account-management-menu
-                v-else-if="currentPage === 'account-management-menu'"
-                @navigate-account="setCurrentPage"
-                @back-to-menu="goBackToMenu"
-                @update-title="updateTitle">
-            </account-management-menu>
-
-            <account-form
-                v-else-if="currentPage === 'account-form'"
-                :current-user="currentUser"
-                @back-to-menu="setCurrentPage('account-management-menu')"
-                @update-title="updateTitle">
-            </account-form>
-
-            <account-search
-                v-else-if="currentPage === 'account-search'"
-                :current-user="currentUser"
-                @back-to-menu="setCurrentPage('account-management-menu')"
-                @show-results="handleSearchResults"
-                @update-title="updateTitle">
-            </account-search>
-
-            <account-search-results
-                v-else-if="currentPage === 'account-search-results'"
-                :results="results"
-                :result-type="resultType"
-                :result-message="resultMessage"
-                @select-account="handleSelectAccount"
-                @back-to-search="setCurrentPage('account-search')"
-                @back-to-menu="setCurrentPage('account-management-menu')"
-                @update-title="updateTitle">
-            </account-search-results>
-
-            <account-update-table
-                v-else-if="currentPage === 'account-update-table'"
-                :accounts="selectedAccounts"
-                @back-to-search="setCurrentPage('account-search')"
-                @back-to-results="setCurrentPage('account-search-results')"
-                @update-title="updateTitle">
-            </account-update-table>
-
-            <archive-management
-                v-else-if="currentPage === 'archive-management'"
-                @back-to-menu="setCurrentPage('account-management-menu')"
-                @update-title="updateTitle">
-            </archive-management>
-
-            <!-- チャット機能 -->
-            <chat-room-list 
-                v-else-if="currentPage === 'chat-room-list'"
-                @navigate="navigateToChat"
-                @update-title="updateTitle">
-            </chat-room-list>
-
-            <chat-room 
-                v-else-if="currentPage === 'chat-room'"
-                :room-id="chatRoomId"
-                @back="goBackToMenu"
-                @update-title="updateTitle">
-            </chat-room>
-
-        </div>
+  @show-results="handleSearchResults"
+  @select-account="handleSelectAccount"
+  @update-title="updateTitle"
+  />
     `,
 }).mount("#app");

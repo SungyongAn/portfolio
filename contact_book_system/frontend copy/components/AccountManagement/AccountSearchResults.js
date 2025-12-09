@@ -9,7 +9,7 @@ const AccountSearchResults = {
   data() {
     return {
       currentPage: 1,
-      perPage: 10
+      perPage: 10,
     };
   },
   computed: {
@@ -24,108 +24,124 @@ const AccountSearchResults = {
     // ✅ 役割に応じた表示列を動的に決定
     displayColumns() {
       if (this.results.length === 0) return [];
-      
+
       // 結果の最初の項目の役割を確認（複数役割が混在する場合は全項目表示）
-      const roles = [...new Set(this.results.map(r => r.role))];
-      
+      const roles = [...new Set(this.results.map((r) => r.role))];
+
       if (roles.length === 1) {
         const role = roles[0];
-        
-        if (role === '教師') {
+
+        if (role === "教師") {
           return [
-            { key: 'id', label: 'ID', width: '60px' },
-            { key: 'fullName', label: '氏名', width: '120px' },
-            { key: 'role', label: '役割', width: '80px' },
-            { key: 'teacher_role', label: '教員区分', width: '110px' },
-            { key: 'subject', label: '担当科目', width: '120px' },
-            { key: 'grade', label: '学年', width: '70px', suffix: '年' },
-            { key: 'className', label: 'クラス', width: '70px', suffix: '組' },
-            { key: 'enrollmentYear', label: '登録年', width: '90px', suffix: '年' },
-            { key: 'status', label: '状態', width: '90px', isStatus: true }
+            { key: "id", label: "ID", width: "60px" },
+            { key: "fullName", label: "氏名", width: "120px" },
+            { key: "role", label: "役割", width: "80px" },
+            { key: "teacher_role", label: "教員区分", width: "110px" },
+            { key: "subject", label: "担当科目", width: "120px" },
+            { key: "grade", label: "学年", width: "70px", suffix: "年" },
+            { key: "className", label: "クラス", width: "70px", suffix: "組" },
+            {
+              key: "enrollmentYear",
+              label: "登録年",
+              width: "90px",
+              suffix: "年",
+            },
+            { key: "status", label: "状態", width: "90px", isStatus: true },
           ];
-        } else if (role === '生徒') {
+        } else if (role === "生徒") {
           return [
-            { key: 'id', label: 'ID', width: '60px' },
-            { key: 'fullName', label: '氏名', width: '120px' },
-            { key: 'grade', label: '学年', width: '80px', suffix: '年' },
-            { key: 'className', label: 'クラス', width: '80px', suffix: '組' },
-            { key: 'status', label: '状態', width: '100px', isStatus: true }
+            { key: "id", label: "ID", width: "60px" },
+            { key: "fullName", label: "氏名", width: "120px" },
+            { key: "grade", label: "学年", width: "80px", suffix: "年" },
+            { key: "className", label: "クラス", width: "80px", suffix: "組" },
+            { key: "status", label: "状態", width: "100px", isStatus: true },
           ];
-        } else if (role === '養護教諭') {
+        } else if (role === "養護教諭") {
           return [
-            { key: 'id', label: 'ID', width: '80px' },
-            { key: 'fullName', label: '氏名', width: '120px' },
-            { key: 'role', label: '役割', width: '120px' },
-            { key: 'status', label: '状態', width: '100px', isStatus: true }
+            { key: "id", label: "ID", width: "80px" },
+            { key: "fullName", label: "氏名", width: "120px" },
+            { key: "role", label: "役割", width: "120px" },
+            { key: "status", label: "状態", width: "100px", isStatus: true },
           ];
-        } else if (role === '管理者') {
+        } else if (role === "管理者") {
           return [
-            { key: 'id', label: 'ID', width: '60px' },
-            { key: 'fullName', label: '氏名', width: '120px' },
-            { key: 'role', label: '役割', width: '80px' },
-            { key: 'grade', label: '学年', width: '70px', suffix: '年' },
-            { key: 'className', label: 'クラス', width: '70px', suffix: '組' },
-            { key: 'status', label: '状態', width: '90px', isStatus: true }
+            { key: "id", label: "ID", width: "60px" },
+            { key: "fullName", label: "氏名", width: "120px" },
+            { key: "role", label: "役割", width: "80px" },
+            { key: "grade", label: "学年", width: "70px", suffix: "年" },
+            { key: "className", label: "クラス", width: "70px", suffix: "組" },
+            { key: "status", label: "状態", width: "90px", isStatus: true },
           ];
         }
       }
-      
+
       // 複数役割が混在する場合は全項目表示
       return [
-        { key: 'id', label: 'ID', width: '60px' },
-        { key: 'fullName', label: '氏名', width: '120px' },
-        { key: 'role', label: '役割', width: '80px' },
-        { key: 'teacher_role', label: '教員区分', width: '110px' },
-        { key: 'subject', label: '担当科目', width: '120px' },
-        { key: 'grade', label: '学年', width: '70px', suffix: '年' },
-        { key: 'className', label: 'クラス', width: '70px', suffix: '組' },
-        { key: 'enrollmentYear', label: '登録年', width: '90px', suffix: '年' },
-        { key: 'status', label: '状態', width: '90px', isStatus: true }
+        { key: "id", label: "登録No", width: "60px" },
+        { key: "fullName", label: "氏名", width: "120px" },
+        { key: "role", label: "役割", width: "80px" },
+        { key: "teacher_role", label: "教員区分", width: "110px" },
+        { key: "subject", label: "担当科目", width: "120px" },
+        { key: "grade", label: "学年", width: "70px", suffix: "年" },
+        { key: "className", label: "クラス", width: "70px", suffix: "組" },
+        { key: "enrollmentYear", label: "登録年", width: "90px", suffix: "年" },
+        { key: "status", label: "状態", width: "90px", isStatus: true },
       ];
-    }
+    },
   },
   methods: {
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
     getStatusLabel(status) {
       const statusMap = {
-        'enrolled': '在籍',
-        'graduated': '卒業',
-        'transferred': '転校',
-        'suspended': '休学',
-        'on_leave': '休学',
-        'other': 'その他'
+        enrolled: "在籍",
+        graduated: "卒業",
+        transferred: "転校",
+        suspended: "休学",
+        on_leave: "休学",
+        other: "その他",
       };
       return statusMap[status] || status;
     },
     getStatusClass(status) {
       const classMap = {
-        'enrolled': 'bg-success',
-        'graduated': 'bg-secondary',
-        'transferred': 'bg-warning',
-        'suspended': 'bg-danger',
-        'on_leave': 'bg-danger',
-        'other': 'bg-info'
+        enrolled: "bg-success",
+        graduated: "bg-secondary",
+        transferred: "bg-warning",
+        suspended: "bg-danger",
+        on_leave: "bg-danger",
+        other: "bg-info",
       };
-      return classMap[status] || 'bg-secondary';
+      return classMap[status] || "bg-secondary";
     },
     getCellValue(item, column) {
-      const value = item[column.key];
-      
-      if (value === null || value === undefined || value === '' || value === 0) {
-        return '-';
+      if (column.key === "fullName") {
+        const last = item.last_name || "";
+        const first = item.first_name || "";
+        return last + " " + first;
       }
-      
-      return value + (column.suffix || '');
-    }
+
+      const value = item[column.key];
+
+      if (
+        value === null ||
+        value === undefined ||
+        value === "" ||
+        value === 0
+      ) {
+        return "-";
+      }
+
+      return value + (column.suffix || "");
+    },
   },
   watch: {
     results() {
       this.currentPage = 1;
-    }
+    },
   },
   template: `
     <div class="d-flex justify-content-center mt-4 px-2">
@@ -216,5 +232,5 @@ const AccountSearchResults = {
 
       </div>
     </div>
-  `
+  `,
 };

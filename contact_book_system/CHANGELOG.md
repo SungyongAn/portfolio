@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
+# 12/9
+
+- **部分修正**
+  - フロントエンド
+    - `AccountSearch.js` と教員区分マスタ・科目マスタで `code` 情報が違っていたため教員区分マスタ・科目マスタを修正
+    - `AccountUpdateTable` の氏名表示を姓・名へ対応と、教師情報の更新時に教員区分・担当科目が空白だった状態から現在の設定状況を初期表示とするように変更
+  - バックエンド
+    - `account_service.py` を `id` から `email` に、 `fullName` から `last_name` と `first_name` への変更に対応した内容に一部修正
+    - 4月1日午前1時に3年を卒業、１年２年は学年を+1と自動で行うイベントを `promote_students` を作成
+
+- **年次処理機能の追加**
+  - フロントエンド
+    - `AccountManagementMenu.js` に年度処理の項目を追加
+    - `YearlyProcessingMenu.js` を作成
+
+- **Viteの導入開始**
+  - `index.html` `app.js` の冗長化に伴いViteの導入開始
+  - `npm create vite@latest renrakucho-app -- --template vue` Viteプロジェクトの作成
+  - `/src` 配下に `/components` を移動
+  - `/src` 配下に `App.vue` `main.js` を作成
+  - 各種コンポーネントのVue SFC 形式に変換を開始
+
 ## 12/8
 
 - **ログイン機能の仕様変更**
