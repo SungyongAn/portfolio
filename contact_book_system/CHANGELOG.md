@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
-# 12/9
+## 12/10
+
+- **Viteの導入（続き）**
+  - 各種コンポーネントのVue SFC 形式に変換
+  - `main.js` の内容を修正
+  - `renrakucho-app` ディレクトリを削除
+  - `npm create vite@latest frontend -- --template vue` でViteプロジェクトの作成をやり直し
+  - `components` `App.vue` `main.js` を作成済みのファイルに更新
+  - Bootstrap / Font Awesome / axios をインストール
+
+## 12/9
 
 - **部分修正**
   - フロントエンド
