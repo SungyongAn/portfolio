@@ -10,49 +10,57 @@
             <div v-if="errorMessage" class="alert alert-danger">
               {{ errorMessage }}
             </div>
-            
-            <form @submit.prevent="handleLogin">
 
+            <form @submit.prevent="handleLogin">
               <!-- ID入力（ローカルパート） -->
               <div class="mb-3">
                 <label for="id" class="form-label">ID</label>
                 <div class="input-group">
-                  <input 
-                    type="text" 
-                    class="form-control" 
+                  <input
+                    type="text"
+                    class="form-control"
                     id="id"
-                    v-model="loginData.id" 
+                    v-model="loginData.id"
                     required
-                    :disabled="isLoading">
+                    :disabled="isLoading"
+                  />
                 </div>
               </div>
 
               <!-- パスワード -->
               <div class="mb-3">
                 <label for="password" class="form-label">パスワード</label>
-                <input 
+                <input
                   :type="showPassword ? 'text' : 'password'"
-                  class="form-control" 
+                  class="form-control"
                   id="password"
-                  v-model="loginData.password" 
+                  v-model="loginData.password"
                   required
-                  :disabled="isLoading">
-                
+                  :disabled="isLoading"
+                />
+
                 <div class="form-check mt-2">
-                  <input 
-                    type="checkbox" 
-                    class="form-check-input" 
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
                     id="showPassword"
-                    v-model="showPassword">
-                  <label for="showPassword" class="form-check-label">パスワードを表示</label>
+                    v-model="showPassword"
+                  />
+                  <label for="showPassword" class="form-check-label"
+                    >パスワードを表示</label
+                  >
                 </div>
               </div>
-              
-              <button 
-                type="submit" 
-                class="btn btn-primary w-100" 
-                :disabled="isLoading">
-                <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+
+              <button
+                type="submit"
+                class="btn btn-primary w-100"
+                :disabled="isLoading"
+              >
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm me-2"
+                ></span>
                 ログイン
               </button>
             </form>
@@ -64,11 +72,11 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  name: 'LoginForm',
-  emits: ['login'],
+  name: "LoginForm",
+  emits: ["login"],
   data() {
     return {
       loginData: {
@@ -133,6 +141,8 @@ export default {
           this.$emit("login", userData);
 
           this.loginData = { id: "", password: "" };
+
+          this.$router.push({ path: "/menu" });
         } else {
           this.errorMessage = response.data.message || "ログインに失敗しました";
         }
@@ -145,6 +155,6 @@ export default {
         this.isLoading = false;
       }
     },
-  }
-}
+  },
+};
 </script>

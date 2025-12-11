@@ -1,22 +1,33 @@
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="p-4 bg-white shadow rounded" style="max-width:600px; width:100%;">
-
+    <div
+      class="p-4 bg-white shadow rounded"
+      style="max-width: 600px; width: 100%"
+    >
       <!-- 生徒用メニュー -->
       <template v-if="isStudent()">
         <ul class="nav flex-column">
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-primary w-100" @click.prevent="navigate('entry-form')">
+            <button
+              class="btn btn-outline-primary w-100"
+              @click.prevent="navigate('EntryForm')"
+            >
               <i class="fas fa-calendar-day me-2"></i>連絡帳の提出
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-primary w-100" @click.prevent="navigate('past-renrakucho-search')">
+            <button
+              class="btn btn-outline-primary w-100"
+              @click.prevent="navigate('PastRenrakuchoSearch')"
+            >
               <i class="fas fa-history me-2"></i>過去の連絡帳(閲覧のみ)
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-success w-100" @click.prevent="navigate('chat-room-list')">
+            <button
+              class="btn btn-outline-success w-100"
+              @click.prevent="navigate('ChatRoomList')"
+            >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
           </li>
@@ -27,22 +38,34 @@
       <template v-if="isGradeLeader()">
         <ul class="nav flex-column mb-3">
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-secondary w-100" @click.prevent="navigate('submission-status')">
+            <button
+              class="btn btn-outline-secondary w-100"
+              @click.prevent="navigate('SubmissionStatus')"
+            >
               <i class="fas fa-file-alt me-2"></i>連絡帳提出状況
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-secondary w-100" @click.prevent="navigate('class-entry-renrakucho')">
+            <button
+              class="btn btn-outline-secondary w-100"
+              @click.prevent="navigate('ClassEntryRenrakucho')"
+            >
               <i class="fas fa-file-alt me-2"></i>未確認の連絡帳
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-secondary w-100" @click.prevent="navigate('class-past-renrakucho')">
+            <button
+              class="btn btn-outline-secondary w-100"
+              @click.prevent="navigate('ClassPastRenrakucho')"
+            >
               <i class="fas fa-folder-open me-2"></i>過去の連絡帳
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-success w-100" @click.prevent="navigate('chat-room-list')">
+            <button
+              class="btn btn-outline-success w-100"
+              @click.prevent="navigate('ChatRoomList')"
+            >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
           </li>
@@ -53,22 +76,34 @@
       <template v-if="isHomeroomTeacher() || isAssistantTeacher()">
         <ul class="nav flex-column mb-3">
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-secondary w-100" @click.prevent="navigate('submission-status')">
+            <button
+              class="btn btn-outline-secondary w-100"
+              @click.prevent="navigate('SubmissionStatus')"
+            >
               <i class="fas fa-file-alt me-2"></i>連絡帳提出状況
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-secondary w-100" @click.prevent="navigate('class-entry-renrakucho')">
+            <button
+              class="btn btn-outline-secondary w-100"
+              @click.prevent="navigate('ClassEntryRenrakucho')"
+            >
               <i class="fas fa-file-alt me-2"></i>未確認の連絡帳
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-secondary w-100" @click.prevent="navigate('class-past-renrakucho')">
+            <button
+              class="btn btn-outline-secondary w-100"
+              @click.prevent="navigate('ClassPastRenrakucho')"
+            >
               <i class="fas fa-folder-open me-2"></i>過去の連絡帳
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-success w-100" @click.prevent="navigate('chat-room-list')">
+            <button
+              class="btn btn-outline-success w-100"
+              @click.prevent="navigate('ChatRoomList')"
+            >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
           </li>
@@ -79,7 +114,10 @@
       <template v-if="isSubjectTeacher()">
         <ul class="nav flex-column mb-3">
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-success w-100" @click.prevent="navigate('chat-room-list')">
+            <button
+              class="btn btn-outline-success w-100"
+              @click.prevent="navigate('ChatRoomList')"
+            >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
           </li>
@@ -90,12 +128,18 @@
       <template v-if="isSchoolNurse()">
         <ul class="nav flex-column mb-3">
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-success w-100" @click.prevent="navigate('chat-room-list')">
+            <button
+              class="btn btn-outline-success w-100"
+              @click.prevent="navigate('ChatRoomList')"
+            >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
           </li>
           <li class="nav-item mb-2">
-            <button class="btn btn-outline-success w-100" @click.prevent="navigate('school-nurse-dashboard')">
+            <button
+              class="btn btn-outline-success w-100"
+              @click.prevent="navigate('SchoolNurseDashboard')"
+            >
               <i class="fas fa-comments me-2"></i>生徒の状況確認(仮)
             </button>
           </li>
@@ -107,42 +151,46 @@
 
 <script>
 export default {
-  name: 'MainMenu',
-  props: ['currentUser', 'isLoggedIn'],
-  emits: ['logout', 'navigate'],
+  name: "MainMenu",
+  props: ["currentUser", "isLoggedIn"],
+  emits: ["logout"],
+
   methods: {
     handleLogout() {
-      this.$emit('logout');
+      this.$emit("logout");
     },
-    navigate(componentName) {
-      this.$emit('navigate', componentName);
+
+    // ★ルーターを直接使う
+    navigate(routeName) {
+      this.$router.push({ name: routeName });
     },
+
     isStudent() {
-      return this.currentUser && this.currentUser.role === 'student';
+      return this.currentUser?.role === "student";
     },
     isTeacher() {
-      return this.currentUser && this.currentUser.role === 'teacher';
+      return this.currentUser?.role === "teacher";
     },
     isSchoolNurse() {
-      return this.currentUser && this.currentUser.role === 'school_nurse';
+      return this.currentUser?.role === "school_nurse";
     },
     isAdmin() {
-      return this.currentUser && this.currentUser.role === 'admin';
+      return this.currentUser?.role === "admin";
     },
 
     // 教師の種別チェック
     isGradeLeader() {
-      return this.currentUser && this.currentUser.teacherRole === 'grade_leader';
+      return this.currentUser?.teacherRole === "grade_leader";
     },
     isHomeroomTeacher() {
-      return this.currentUser && this.currentUser.teacherRole === 'homeroom';
+      return this.currentUser?.teacherRole === "homeroom";
     },
     isAssistantTeacher() {
-      return this.currentUser && this.currentUser.teacherRole === 'assistant_homeroom';
+      return this.currentUser?.teacherRole === "assistant_homeroom";
     },
     isSubjectTeacher() {
-      return this.currentUser && this.currentUser.teacherRole === 'subject_teacher';
-    }
-  }
-}
+      return this.currentUser?.teacherRole === "subject_teacher";
+    },
+  },
+};
 </script>

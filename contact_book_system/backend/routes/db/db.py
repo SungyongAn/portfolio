@@ -4,7 +4,7 @@ from typing import Generator
 
 # データベース接続URL（環境に応じて変更）
 # DATABASE_URL = "mysql+pymysql://appuser:apppass@mysql:3306/renrakucho_db?charset=utf8mb4"
-DATABASE_URL = "mysql+pymysql://appuser:apppass@localhost:3306/renrakucho_db?charset=utf8mb4"
+DATABASE_URL = "mysql+pymysql://appuser:apppass@renrakucho_mysql:3306/renrakucho_db?charset=utf8mb4"
 
 engine = create_engine(
     DATABASE_URL,

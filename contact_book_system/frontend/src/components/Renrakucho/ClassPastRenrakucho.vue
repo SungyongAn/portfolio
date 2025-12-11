@@ -278,7 +278,7 @@
             ></button>
           </div>
           <div class="modal-body" v-if="selectedRecord">
-            <!-- モーダル内容は省略（元の template をそのまま使用可能） -->
+            <!-- モーダル内容は元のまま -->
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="closeModal">
@@ -295,7 +295,8 @@
 export default {
   name: "ClassPastRenrakucho",
   props: ["currentUser"],
-  emits: ["back", "updateTitle"],
+  emits: ["updateTitle"], // ★ back は不要
+
   data() {
     const today = new Date();
     return {
@@ -313,35 +314,26 @@ export default {
       showModal: false,
     };
   },
+
   computed: {
     totalPages() {
       return Math.ceil(this.records.length / this.perPage) || 1;
     },
     paginatedRecords() {
       const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      return this.records.slice(start, end);
-    },
-    isTeacher() {
-      return (
-        this.currentUser?.role === "teacher" ||
-        this.currentUser?.role === "教師"
-      );
-    },
-    isAdmin() {
-      return (
-        this.currentUser?.role === "admin" ||
-        this.currentUser?.role === "管理者"
-      );
+      return this.records.slice(start, start + this.perPage);
     },
   },
+
   mounted() {
     this.$emit("updateTitle", {
       title: "連絡帳履歴",
       icon: "fas fa-folder-open",
       showBackButton: true,
+      onBack: this.backToMenu, // ★ ヘッダーの戻るボタンで Router 使用
     });
   },
+
   beforeUnmount() {
     this.$emit("updateTitle", {
       title: "",
@@ -349,6 +341,7 @@ export default {
       showBackButton: false,
     });
   },
+
   methods: {
     async fetchClassPastRecords() {
       if (!this.currentUser) return;
@@ -364,56 +357,63 @@ export default {
         student_name: this.studentName || null,
         year: Number(this.selectedYear),
         month: Number(this.selectedMonth),
+        flag: true,
       };
+
       if (this.selectedDay) payload.day = Number(this.selectedDay);
       if (this.selectedWeekday !== null)
         payload.weekday = Number(this.selectedWeekday);
-      payload.flag = true;
 
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/renrakucho-management/past-renrakucho-search",
-          payload,
-          { headers: { "Content-Type": "application/json" } }
+          payload
         );
         this.records = response.data.data || [];
-        if (!this.records.length)
+        if (!this.records.length) {
           this.message = "検索条件に一致するデータがありません";
+        }
       } catch (error) {
-        console.error(error);
         this.message =
           error.response?.data?.detail || "連絡帳データの取得に失敗しました";
       } finally {
         this.isLoading = false;
       }
     },
+
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
+
     formatDate(dateStr) {
       if (!dateStr) return "-";
       const d = new Date(dateStr);
       return `${d.getMonth() + 1}/${d.getDate()}`;
     },
-    formatDateFull(dateStr) {
-      if (!dateStr) return "-";
-      const d = new Date(dateStr);
-      return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
-    },
+
     showDetail(record) {
       this.selectedRecord = record;
       this.showModal = true;
     },
+
     closeModal() {
       this.showModal = false;
       this.selectedRecord = null;
     },
+
     resetFilters() {
       this.selectedDay = null;
       this.selectedWeekday = null;
       this.studentName = "";
+    },
+
+    /**
+     * Vue Router 戻る
+     */
+    backToMenu() {
+      this.$router.back();
     },
   },
 };

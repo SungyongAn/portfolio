@@ -58,17 +58,32 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+
 export default {
   name: "UserHeader",
   props: ["currentUser", "pageTitle", "pageIcon", "showBackButton"],
   emits: ["logout", "back"],
+
+  setup() {
+    const router = useRouter();
+    return { router };
+  },
+
   methods: {
     handleLogout() {
       this.$emit("logout");
     },
+
+    // ★ Router バージョンの戻る処理
     handleBack() {
+      // 親（App.vue）が独自処理したい場合は emitも残す
       this.$emit("back");
+
+      // ブラウザの戻る
+      this.router.back();
     },
+
     isStudent() {
       return this.currentUser?.role === "student";
     },
@@ -82,7 +97,6 @@ export default {
       return this.currentUser?.role === "admin";
     },
 
-    // 教師の種別チェック
     isGradeLeader() {
       return this.currentUser?.isGradeLeader;
     },
@@ -96,7 +110,6 @@ export default {
       return this.currentUser?.isSubjectTeacher;
     },
 
-    // バッジテキスト取得
     getTeacherBadgeText() {
       if (this.isGradeLeader()) return "学年主任";
       if (this.isHomeroomTeacher()) return "担任";

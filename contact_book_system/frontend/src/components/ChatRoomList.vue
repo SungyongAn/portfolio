@@ -31,20 +31,21 @@
             <h5 class="mb-1">
               {{ room.name }}
 
-              <!-- 未読メッセージ数 -->
               <span v-if="room.unread_count > 0" class="badge bg-danger ms-2">
                 {{ room.unread_count }}
               </span>
             </h5>
+
             <p v-if="room.last_message" class="mb-1 text-muted">
               {{ room.last_message.substring(0, 50) }}
               <span v-if="room.last_message.length > 50">...</span>
             </p>
+
             <small class="text-muted">
               <i class="fas fa-users me-1"></i>{{ room.participant_count }}人
               <span v-if="room.last_message_at" class="ms-2">
-                <i class="fas fa-clock me-1"></i
-                >{{ formatDate(room.last_message_at) }}
+                <i class="fas fa-clock me-1"></i>
+                {{ formatDate(room.last_message_at) }}
               </span>
             </small>
           </div>
@@ -53,6 +54,7 @@
       </a>
     </div>
 
+    <!-- ルーム作成モーダル -->
     <div
       v-if="showCreateModal"
       class="modal d-block"
@@ -68,6 +70,7 @@
               @click="showCreateModal = false"
             ></button>
           </div>
+
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label"
@@ -143,6 +146,7 @@
               </div>
             </div>
           </div>
+
           <div class="modal-footer">
             <button
               type="button"
@@ -151,16 +155,19 @@
             >
               キャンセル
             </button>
+
             <button
               type="button"
               class="btn btn-primary"
               @click="createRoom"
               :disabled="
-                isLoading || !newRoom.name || selectedParticipants.length === 0
+                createLoading ||
+                !newRoom.name ||
+                selectedParticipants.length === 0
               "
             >
               <span
-                v-if="isLoading"
+                v-if="createLoading"
                 class="spinner-border spinner-border-sm me-2"
               ></span>
               作成
@@ -169,6 +176,7 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -182,6 +190,7 @@ export default {
     return {
       rooms: [],
       isLoading: false,
+      createLoading: false,
       errorMessage: "",
       userInfo: null,
 
@@ -197,6 +206,7 @@ export default {
       selectedParticipants: [],
     };
   },
+
   computed: {
     isTeacher() {
       return (
@@ -205,70 +215,39 @@ export default {
       );
     },
   },
+
   async mounted() {
-    console.log("=== ChatRoomList mounted ===");
-
-    // トークンの確認
-    const token = sessionStorage.getItem("access_token");
-    console.log(
-      "Token in storage:",
-      token ? token.substring(0, 20) + "..." : "null"
-    );
-    console.log(
-      "Token in axios:",
-      axios.defaults.headers.common["Authorization"]
-    );
-
-    // ★ トークンがない場合は設定
-    if (!axios.defaults.headers.common["Authorization"] && token) {
-      console.log("Setting token to axios...");
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }
-
     this.$emit("updateTitle", {
       title: "チャットルーム",
       icon: "fas fa-comments",
       showBackButton: true,
     });
-
-    const storedUser = sessionStorage.getItem("currentUser");
-    if (storedUser) {
-      this.userInfo = JSON.parse(storedUser);
-      console.log("User info:", this.userInfo);
-    }
-
     await this.loadRooms();
   },
+
   methods: {
     async loadRooms() {
       this.isLoading = true;
       this.errorMessage = "";
 
-      console.log("Loading rooms...");
-      console.log("Request headers:", axios.defaults.headers.common);
-
       try {
         const response = await axios.get("http://127.0.0.1:8000/chat/rooms");
-        console.log("Rooms loaded:", response.data);
         this.rooms = response.data;
       } catch (err) {
-        console.error("Load rooms error:", err);
-        console.error("Error response:", err.response?.data);
         this.errorMessage =
-          "ルーム一覧の読み込みに失敗しました: " +
-          (err.response?.data?.detail || err.message);
+          err.response?.data?.detail || "ルーム一覧の読み込みに失敗しました";
       } finally {
         this.isLoading = false;
       }
     },
 
+    openRoom(roomId) {
+      this.$emit("navigate", { page: "chat-room", roomId });
+    },
+
     openCreateModal() {
       this.showCreateModal = true;
-      this.newRoom = {
-        name: "",
-        description: "",
-        participant_ids: [],
-      };
+      this.newRoom = { name: "", description: "", participant_ids: [] };
       this.selectedParticipants = [];
     },
 
@@ -279,11 +258,11 @@ export default {
       }
 
       try {
-        const response = await axios.get(
+        const res = await axios.get(
           "http://127.0.0.1:8000/chat/accounts/search",
           { params: { query: this.searchQuery } }
         );
-        this.searchResults = response.data;
+        this.searchResults = res.data;
       } catch (err) {
         console.error(err);
       }
@@ -297,54 +276,32 @@ export default {
       this.searchResults = [];
     },
 
-    removeParticipant(accountId) {
+    removeParticipant(id) {
       this.selectedParticipants = this.selectedParticipants.filter(
-        (p) => p.id !== accountId
+        (p) => p.id !== id
       );
     },
 
     async createRoom() {
-      if (!this.newRoom.name) {
-        alert("ルーム名を入力してください");
-        return;
-      }
+      if (!this.newRoom.name || this.selectedParticipants.length === 0) return;
 
-      if (this.selectedParticipants.length === 0) {
-        alert("参加者を選択してください");
-        return;
-      }
-
-      this.isLoading = true;
+      this.createLoading = true;
 
       try {
-        const roomData = {
+        await axios.post("http://127.0.0.1:8000/chat/rooms", {
           name: this.newRoom.name,
           description: this.newRoom.description,
           participant_ids: this.selectedParticipants.map((p) => p.id),
-        };
-
-        await axios.post("http://127.0.0.1:8000/chat/rooms", roomData);
+        });
 
         this.showCreateModal = false;
         await this.loadRooms();
       } catch (err) {
-        console.error(err);
         alert("ルームの作成に失敗しました");
+        console.error(err);
       } finally {
-        this.isLoading = false;
+        this.createLoading = false;
       }
-    },
-
-    openRoom(roomId) {
-      // ❌ 修正前: this.$emit('navigate', 'chat-room', roomId);
-      // ✅ 修正後: App.vueでは2つの引数を受け取れないため、別のイベントを使う
-      // または、App.vueの@navigateハンドラーを修正する必要がある
-
-      // オプション1: navigateToChatイベントを使う（App.vueに対応する@navigate-to-chatが必要）
-      // this.$emit('navigateToChat', 'chat-room', roomId);
-
-      // オプション2: App.vueのsetCurrentPageを拡張して使う（推奨）
-      this.$parent.navigateToChat("chat-room", roomId);
     },
 
     formatDate(dateString) {

@@ -26,21 +26,26 @@ export default {
     ClassRenrakuchoSearch,
     RenrakuchoList,
   },
+
   props: ["currentUser"],
-  emits: ["back", "updateTitle"],
+  emits: ["updateTitle"], // ★ back は不要になった
+
   data() {
     return {
       records: [],
     };
   },
+
   mounted() {
     // ヘッダーにタイトルと戻るボタンを設定
     this.$emit("updateTitle", {
       title: "未確認の連絡帳",
       icon: "fas fa-calendar-day",
       showBackButton: true,
+      onBack: this.backToMenu, // ★ Router の戻る動作を渡す
     });
   },
+
   beforeUnmount() {
     // コンポーネント離脱時にタイトルをクリア
     this.$emit("updateTitle", {
@@ -49,17 +54,23 @@ export default {
       showBackButton: false,
     });
   },
+
   methods: {
     handleSearchResult(data) {
       this.records = data;
     },
+
     async reloadAfterUpdate() {
-      if (this.$refs.searchComp && this.$refs.searchComp.fetchUnviewedRecords) {
+      if (this.$refs.searchComp?.fetchUnviewedRecords) {
         await this.$refs.searchComp.fetchUnviewedRecords();
       }
     },
+
+    /**
+     * Vue Router で戻る
+     */
     backToMenu() {
-      this.$emit("back");
+      this.$router.back(); // ★ Vue Router の戻る機能でページ遷移
     },
   },
 };

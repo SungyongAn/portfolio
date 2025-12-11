@@ -6,7 +6,6 @@
         v-if="submittedEntry"
         :entry="submittedEntry"
         @new-entry="resetToNewEntry"
-        @back="backToMenu"
       ></entry-result>
 
       <!-- 確認画面 -->
@@ -20,9 +19,10 @@
           {{ entryForm.physicalMentalNotes }}
         </p>
         <p><strong>前日の振り返り:</strong></p>
-        <pre style="white-space: pre-wrap; word-wrap: break-word">{{
-          combinedReflection
-        }}</pre>
+        <pre style="white-space: pre-wrap; word-wrap: break-word">
+          {{ combinedReflection }}
+        </pre>
+
         <div class="d-flex gap-2 flex-wrap">
           <button
             class="btn btn-secondary"
@@ -31,6 +31,7 @@
           >
             戻る
           </button>
+
           <button
             class="btn btn-success"
             @click="submitEntry"
@@ -43,7 +44,7 @@
 
       <!-- 未提出フォーム -->
       <div v-else>
-        <!-- エラーメッセージ -->
+        <!-- メッセージ -->
         <div
           v-if="message"
           :class="[
@@ -57,9 +58,9 @@
 
         <!-- 2カラムレイアウト -->
         <div class="row">
-          <!-- 左列：日付、体調・メンタル -->
+          <!-- 左列 -->
           <div class="col-md-5">
-            <!-- 日付フィールド -->
+            <!-- 日付 -->
             <div class="mb-3">
               <label class="form-label">日付</label>
               <input
@@ -72,9 +73,7 @@
 
             <!-- 体調 -->
             <div class="mb-3">
-              <label class="form-label"
-                >本日の体調（1:悪い 3:普通 5:良い）</label
-              >
+              <label class="form-label">本日の体調（1〜5）</label>
               <div
                 class="d-flex justify-content-between"
                 style="max-width: 300px"
@@ -94,9 +93,7 @@
 
             <!-- メンタル -->
             <div class="mb-3">
-              <label class="form-label"
-                >本日のメンタル（1:悪い 3:普通 5:良い）</label
-              >
+              <label class="form-label">本日のメンタル（1〜5）</label>
               <div
                 class="d-flex justify-content-between"
                 style="max-width: 300px"
@@ -114,63 +111,49 @@
               </div>
             </div>
 
-            <!-- 体調・メンタル自由記述 -->
+            <!-- 自由記述 -->
             <div class="mb-3">
-              <label class="form-label"
-                >体調・メンタルについて（自由記述）</label
-              >
+              <label class="form-label">体調・メンタルについて</label>
               <textarea
                 class="form-control"
                 rows="5"
                 v-model="entryForm.physicalMentalNotes"
-                placeholder="例：頭痛がする、眠れない、イライラする、集中できない など"
                 :disabled="isSubmitting"
               ></textarea>
             </div>
           </div>
 
-          <!-- 右列：前日の振り返り -->
+          <!-- 右列：振り返り -->
           <div class="col-md-7">
             <div class="mb-3">
               <h5 class="mb-3">
                 前日の振り返り <span class="text-danger">*</span>
               </h5>
 
-              <!-- 授業 -->
               <div class="mb-3">
                 <label class="form-label fw-bold">授業</label>
                 <textarea
                   class="form-control"
                   rows="4"
                   v-model="entryForm.reflection.lesson"
-                  placeholder="授業について振り返ってください"
-                  :disabled="isSubmitting"
                 ></textarea>
               </div>
 
-              <!-- 部活動 -->
               <div class="mb-3">
                 <label class="form-label fw-bold">部活動</label>
                 <textarea
                   class="form-control"
                   rows="4"
                   v-model="entryForm.reflection.club"
-                  placeholder="部活動について振り返ってください"
-                  :disabled="isSubmitting"
                 ></textarea>
               </div>
 
-              <!-- その他 -->
               <div class="mb-3">
-                <label class="form-label fw-bold"
-                  >その他（交友関係や私生活について）</label
-                >
+                <label class="form-label fw-bold">その他</label>
                 <textarea
                   class="form-control"
                   rows="4"
                   v-model="entryForm.reflection.other"
-                  placeholder="交友関係や私生活について振り返ってください"
-                  :disabled="isSubmitting"
                 ></textarea>
               </div>
             </div>
@@ -186,6 +169,7 @@
           >
             リセット
           </button>
+
           <button
             class="btn btn-primary"
             @click="confirmEntry"
@@ -195,7 +179,7 @@
           </button>
         </div>
       </div>
-      <!-- 未提出フォーム終了 -->
+      <!-- end 未提出 -->
     </div>
   </div>
 </template>
@@ -208,7 +192,7 @@ export default {
   name: "EntryForm",
   components: { EntryResult },
   props: ["currentUser"],
-  emits: ["back", "updateTitle"],
+  emits: ["updateTitle"],
   data() {
     const today = new Date().toISOString().slice(0, 10);
     return {
@@ -236,16 +220,16 @@ export default {
       return (
         this.entryForm.physicalCondition !== null &&
         this.entryForm.mentalState !== null &&
-        (this.entryForm.reflection.lesson.trim() !== "" ||
-          this.entryForm.reflection.club.trim() !== "" ||
-          this.entryForm.reflection.other.trim() !== "")
+        (this.entryForm.reflection.lesson.trim() ||
+          this.entryForm.reflection.club.trim() ||
+          this.entryForm.reflection.other.trim())
       );
     },
     combinedReflection() {
       return (
         `授業：\n${this.entryForm.reflection.lesson}\n\n` +
         `部活動：\n${this.entryForm.reflection.club}\n\n` +
-        `その他(交友関係や私生活について)：\n${this.entryForm.reflection.other}`
+        `その他：\n${this.entryForm.reflection.other}`
       );
     },
   },
@@ -283,7 +267,7 @@ export default {
         submitted_date: this.submittedDate,
         target_date: this.entryForm.inputDate,
         physical_condition: Number(this.entryForm.physicalCondition),
-        mental_state: Number(this.entryForm.mentalState),
+        mental_state: Number(this.entryUser.mentalState),
         physical_mental_notes: this.entryForm.physicalMentalNotes.trim(),
         daily_reflection: this.combinedReflection.trim(),
       };
@@ -294,7 +278,7 @@ export default {
           payload
         );
 
-        if (response.data && response.data.success) {
+        if (response.data.success) {
           this.submittedEntry = response.data.data || payload;
           this.showConfirmation = false;
         } else {
@@ -303,12 +287,11 @@ export default {
           this.messageType = "error";
         }
       } catch (error) {
-        console.error("提出エラー:", error);
         this.showConfirmation = false;
         this.messageType = "error";
         this.message =
-          (error.response && error.response.data.detail) ||
-          "提出に失敗しました。サーバーに接続できません。";
+          error.response?.data?.detail ||
+          "提出に失敗しました（サーバー通信エラー）。";
       } finally {
         this.isSubmitting = false;
       }
@@ -327,9 +310,6 @@ export default {
     resetToNewEntry() {
       this.submittedEntry = null;
       this.resetForm();
-    },
-    backToMenu() {
-      this.$emit("back");
     },
   },
 };

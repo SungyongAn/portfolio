@@ -4,43 +4,68 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
+## 12/11
+
+- **ローカル環境のコンテナ化**
+
+  - バックエンド
+    - コンテナ後にデータベース接続でエラー発生していたため `db.py` 内の `DATABASE_URL` を修正
+
+- **画面管理に Vue Router を使う仕様に変更**
+
+  - フロントエンド
+    - `npm install vue-router` にて `vue-router` をインストール
+    - `src` 配下に `router`ディレクトリと `main.js` を作成
+    - `router` 配下に `index.js` を作成
+    - `App.vue` を `Vue Router` に対応、かつコンポーネント内の画面切り替えボタンに対応した内容に更新
+    - コンポーネントの更新を開始 次回 `PastRenrakuchoSearch.vue` の修正から
+
 ## 12/10
 
-- **Viteの導入（続き）**
-  - 各種コンポーネントのVue SFC 形式に変換
+- **Vite の導入（続き）**
+
+  - 各種コンポーネントの Vue SFC 形式に変換
   - `main.js` の内容を修正
   - `renrakucho-app` ディレクトリを削除
-  - `npm create vite@latest frontend -- --template vue` でViteプロジェクトの作成をやり直し
+  - `npm create vite@latest frontend -- --template vue` で Vite プロジェクトの作成をやり直し
   - `components` `App.vue` `main.js` を作成済みのファイルに更新
   - Bootstrap / Font Awesome / axios をインストール
+
+- **その他**
+  - `frontend_old` を削除
+  - `login_info.txt` と情報が被っていたため `accounts.csv` `accounts.json` `accounts.txt` を削除
+  - Vite の導入に合わせてフロントエンドの `Dockerfile` と `docker-compose.yml` を修正
 
 ## 12/9
 
 - **部分修正**
+
   - フロントエンド
     - `AccountSearch.js` と教員区分マスタ・科目マスタで `code` 情報が違っていたため教員区分マスタ・科目マスタを修正
     - `AccountUpdateTable` の氏名表示を姓・名へ対応と、教師情報の更新時に教員区分・担当科目が空白だった状態から現在の設定状況を初期表示とするように変更
   - バックエンド
     - `account_service.py` を `id` から `email` に、 `fullName` から `last_name` と `first_name` への変更に対応した内容に一部修正
-    - 4月1日午前1時に3年を卒業、１年２年は学年を+1と自動で行うイベントを `promote_students` を作成
+    - 4 月 1 日午前 1 時に 3 年を卒業、１年２年は学年を+1 と自動で行うイベントを `promote_students` を作成
 
 - **年次処理機能の追加**
+
   - フロントエンド
     - `AccountManagementMenu.js` に年度処理の項目を追加
     - `YearlyProcessingMenu.js` を作成
 
-- **Viteの導入開始**
-  - `index.html` `app.js` の冗長化に伴いViteの導入開始
-  - `npm create vite@latest renrakucho-app -- --template vue` Viteプロジェクトの作成
+- **Vite の導入開始**
+  - `index.html` `app.js` の冗長化に伴い Vite の導入開始
+  - `npm create vite@latest renrakucho-app -- --template vue` Vite プロジェクトの作成
   - `/src` 配下に `/components` を移動
   - `/src` 配下に `App.vue` `main.js` を作成
-  - 各種コンポーネントのVue SFC 形式に変換を開始
+  - 各種コンポーネントの Vue SFC 形式に変換を開始
 
 ## 12/8
 
 - **ログイン機能の仕様変更**
+
   - フロントエンド
-    - `LoginForm.js` を修正し、ログインIDとして メールアドレスのローカルパートを入力する形式に変更
+    - `LoginForm.js` を修正し、ログイン ID として メールアドレスのローカルパートを入力する形式に変更
     - バックエンドへ送信する前に、ローカルパートに固定ドメインを付与して 完全な `email` を生成 するように変更
     - `UserHeader.js` を氏名から姓、名を表示するように変更
   - バックエンド
@@ -48,20 +73,21 @@ All notable changes to this project will be documented in this file.
     - `auth.py`（service / api）の認証処理を、従来の `id` ベースから `email` ベースに変更
 
 - **連絡帳アーカイブ機能の追加(データベース)**
+
   - テーブル追加
-    - `renrakucho_entries_archive`：連絡帳の過去データを保存するアーカイブテーブル（3～5年分）
+    - `renrakucho_entries_archive`：連絡帳の過去データを保存するアーカイブテーブル（3 ～ 5 年分）
     - `data_deletion_log`：アーカイブデータ削除時の監査ログ用テーブル
   - ストアドプロシージャ追加
     - `archive_old_renrakucho(years INT)`：古い連絡帳をアーカイブ
     - `delete_expired_renrakucho(retention_years INT)`：保管期限切れアーカイブデータを削除
     - `get_archive_statistics()`：アクティブ・アーカイブデータの統計取得
   - スケジュールイベント追加
-    - `yearly_archive_renrakucho`：毎年4月1日午前2時にアーカイブ実行
-    - `yearly_delete_expired_renrakucho`：毎年4月1日午前3時に削除実行（アーカイブ1時間後）
+    - `yearly_archive_renrakucho`：毎年 4 月 1 日午前 2 時にアーカイブ実行
+    - `yearly_delete_expired_renrakucho`：毎年 4 月 1 日午前 3 時に削除実行（アーカイブ 1 時間後）
 
 - **アカウント検索機能の仕様変更**
   - フロントエンド
-    - `AccountSearch.js` を修正し、ログインIDとして メールアドレスのローカルパートを入力する形式に変更
+    - `AccountSearch.js` を修正し、ログイン ID として メールアドレスのローカルパートを入力する形式に変更
     - バックエンドへ送信する前に、ローカルパートに固定ドメインを付与して 完全な `email` を生成 するように変更
     - 氏名を姓、名と分けて入力する形式に変更
   - バックエンド
@@ -73,7 +99,7 @@ All notable changes to this project will be documented in this file.
 
 - **アカウント登録機能の仕様変更**
   - フロントエンド
-    - `AccountForm.js` を修正し、生徒・職員ID入力欄をローカルパート入力欄に変更（ドメインを固定）
+    - `AccountForm.js` を修正し、生徒・職員 ID 入力欄をローカルパート入力欄に変更（ドメインを固定）
     - アカウント登録時にバックエンドへ送信する項目を id から email に変更
   - バックエンド
     - `accounts_schema.py` の `AccountRegisterRequest` に `email` フィールドを追加
@@ -82,6 +108,7 @@ All notable changes to this project will be documented in this file.
 ## 12/4
 
 - **ドキュメント整理**
+
   - `README.md` から開発履歴部分を抽出し、`CHANGELOG.md` に整理
 
 - **ログイン機能の仕様変更**

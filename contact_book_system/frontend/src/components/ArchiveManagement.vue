@@ -1,5 +1,12 @@
 <template>
   <div class="container mt-4">
+    <!-- メニューへ戻る -->
+    <div class="mb-3">
+      <button class="btn btn-outline-secondary" @click="goBackToMenu">
+        <i class="fas fa-arrow-left me-2"></i>メニューへ戻る
+      </button>
+    </div>
+
     <!-- エラー・成功メッセージ -->
     <div
       v-if="errorMessage"
@@ -87,7 +94,7 @@
                       {{ totalRecords.toLocaleString() }}件
                     </p>
                     <p class="mb-1">{{ totalSize }} MB</p>
-                    <small> 次回自動実行: 2026年4月1日 </small>
+                    <small>次回自動実行: 2026年4月1日</small>
                   </div>
                 </div>
               </div>
@@ -133,8 +140,8 @@
 
             <div class="mt-3">
               <small class="text-muted">
-                <i class="fas fa-info-circle me-1"></i>
-                アーカイブ: 3年以上前のデータを圧縮保管します（検索可能）<br />
+                <i class="fas fa-info-circle me-1"></i>アーカイブ:
+                3年以上前のデータを圧縮保管します（検索可能）<br />
                 <i class="fas fa-exclamation-triangle me-1 text-danger"></i>
                 削除: 5年以上前のデータを完全に削除します（元に戻せません）
               </small>
@@ -172,7 +179,6 @@
                   class="form-control"
                   v-model.number="searchForm.year"
                   :min="2020"
-                  :max="new Date().getFullYear()"
                 />
               </div>
 
@@ -242,6 +248,7 @@
           <div class="card-header bg-warning">
             <h5 class="mb-0"><i class="fas fa-history me-2"></i>削除履歴</h5>
           </div>
+
           <div class="card-body">
             <div v-if="deletionLogs.length > 0" class="table-responsive">
               <table class="table table-sm">
@@ -267,6 +274,7 @@
                 </tbody>
               </table>
             </div>
+
             <div v-else class="alert alert-info">削除履歴はありません</div>
           </div>
         </div>
@@ -290,9 +298,11 @@
               @click="showConfirmModal = false"
             ></button>
           </div>
+
           <div class="modal-body">
             <p>{{ confirmMessage }}</p>
           </div>
+
           <div class="modal-footer">
             <button
               type="button"
@@ -333,7 +343,8 @@ import axios from "axios";
 
 export default {
   name: "ArchiveManagement",
-  emits: ["back-to-menu", "updateTitle"],
+  emits: ["updateTitle"],
+
   data() {
     return {
       statistics: {
@@ -342,31 +353,38 @@ export default {
       },
       deletionLogs: [],
       searchResults: [],
+
       isLoading: false,
       errorMessage: "",
       successMessage: "",
+
       searchForm: {
         studentName: "",
         year: new Date().getFullYear(),
         month: null,
       },
+
       showConfirmModal: false,
       confirmAction: null,
       confirmMessage: "",
     };
   },
+
   computed: {
     totalRecords() {
-      const active = this.statistics.active?.record_count || 0;
-      const archive = this.statistics.archive?.record_count || 0;
-      return active + archive;
+      return (
+        (this.statistics.active?.record_count || 0) +
+        (this.statistics.archive?.record_count || 0)
+      );
     },
     totalSize() {
-      const active = this.statistics.active?.size_mb || 0;
-      const archive = this.statistics.archive?.size_mb || 0;
-      return (active + archive).toFixed(2);
+      return (
+        (this.statistics.active?.size_mb || 0) +
+        (this.statistics.archive?.size_mb || 0)
+      ).toFixed(2);
     },
   },
+
   async mounted() {
     this.$emit("updateTitle", {
       title: "アーカイブ管理",
@@ -377,6 +395,7 @@ export default {
     await this.loadStatistics();
     await this.loadDeletionLogs();
   },
+
   beforeUnmount() {
     this.$emit("updateTitle", {
       title: "",
@@ -384,7 +403,14 @@ export default {
       showBackButton: false,
     });
   },
+
   methods: {
+    /** メニューへ戻る */
+    goBackToMenu() {
+      this.$router.push("/menu");
+    },
+
+    /** 統計情報 */
     async loadStatistics() {
       this.isLoading = true;
       this.errorMessage = "";
@@ -397,13 +423,14 @@ export default {
           this.statistics.active = data.find((d) => d.data_type === "active");
           this.statistics.archive = data.find((d) => d.data_type === "archive");
         }
-      } catch (err) {
-        console.error(err);
+      } catch (e) {
         this.errorMessage = "データの読み込みに失敗しました";
       } finally {
         this.isLoading = false;
       }
     },
+
+    /** 削除ログ読み込み */
     async loadDeletionLogs() {
       try {
         const response = await axios.get(
@@ -413,34 +440,42 @@ export default {
         if (response.data.success) {
           this.deletionLogs = response.data.data;
         }
-      } catch (err) {
-        console.error(err);
-      }
+      } catch {}
     },
+
+    /** アーカイブ確認 */
     confirmArchive() {
       this.confirmAction = "archive";
       this.confirmMessage =
         "3年以上前のデータをアーカイブします。よろしいですか？";
       this.showConfirmModal = true;
     },
+
+    /** 削除確認 */
     confirmDelete() {
       this.confirmAction = "delete";
       this.confirmMessage =
         "5年以上前のデータを完全に削除します。この操作は元に戻せません。よろしいですか？";
       this.showConfirmModal = true;
     },
+
+    /** 実行 */
     async executeConfirmedAction() {
       this.showConfirmModal = false;
+
       if (this.confirmAction === "archive") {
         await this.executeArchive();
       } else if (this.confirmAction === "delete") {
         await this.executeDelete();
       }
     },
+
+    /** アーカイブ実行 */
     async executeArchive() {
       this.isLoading = true;
       this.errorMessage = "";
       this.successMessage = "";
+
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/archive-management/execute-archive",
@@ -453,17 +488,19 @@ export default {
         } else {
           this.errorMessage = response.data.message;
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         this.errorMessage = "アーカイブの実行に失敗しました";
       } finally {
         this.isLoading = false;
       }
     },
+
+    /** 削除実行 */
     async executeDelete() {
       this.isLoading = true;
       this.errorMessage = "";
       this.successMessage = "";
+
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/archive-management/execute-deletion",
@@ -476,43 +513,52 @@ export default {
         } else {
           this.errorMessage = response.data.message;
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         this.errorMessage = "データ削除の実行に失敗しました";
       } finally {
         this.isLoading = false;
       }
     },
+
+    /** アーカイブ検索 */
     async searchArchive() {
       this.isLoading = true;
       this.errorMessage = "";
       this.searchResults = [];
+
       try {
         const params = {};
+
         if (this.searchForm.studentName)
           params.student_name = this.searchForm.studentName;
+
         if (this.searchForm.year) params.year = this.searchForm.year;
+
         if (this.searchForm.month) params.month = this.searchForm.month;
+
         const response = await axios.get(
           "http://127.0.0.1:8000/archive-management/search-archive",
           { params }
         );
+
         if (response.data.success) {
           this.searchResults = response.data.data;
         } else {
           this.errorMessage = response.data.message;
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         this.errorMessage = "アーカイブ検索に失敗しました";
       } finally {
         this.isLoading = false;
       }
     },
+
+    /** 日付表示整形 */
     formatDate(dateString) {
       if (!dateString) return "-";
       return new Date(dateString).toLocaleDateString("ja-JP");
     },
+
     formatDateTime(dateString) {
       if (!dateString) return "-";
       return new Date(dateString).toLocaleString("ja-JP");

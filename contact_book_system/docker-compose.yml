@@ -27,7 +27,7 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: mysql+pymysql://appuser:apppass@mysql:3306/renrakucho_db
-      CORS_ORIGINS: http://localhost:8080,http://localhost:3000
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080,http://localhost:3000
     volumes:
       - ./backend:/app
     depends_on:
@@ -43,16 +43,19 @@ services:
     container_name: renrakucho_frontend
     restart: always
     ports:
-      - "8080:80"
+      - "5173:5173"
     depends_on:
       - backend
     networks:
       - app_network
     environment:
-      VUE_APP_API_URL: http://localhost:8000
+      VITE_API_URL: http://localhost:8000
+    # volumes:
+    #   - ./frontend:/app
+    #   - /app/node_modules
 
 volumes:
-  mysql_data: # 名前付きボリューム定義
+  mysql_data:
 
 networks:
   app_network:
