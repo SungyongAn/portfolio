@@ -21,6 +21,7 @@
                     class="form-control"
                     id="id"
                     v-model="loginData.id"
+                    autocomplete="username"
                     required
                     :disabled="isLoading"
                   />
@@ -35,6 +36,7 @@
                   class="form-control"
                   id="password"
                   v-model="loginData.password"
+                  autocomplete="current-password"
                   required
                   :disabled="isLoading"
                 />
@@ -76,7 +78,7 @@ import axios from "axios";
 
 export default {
   name: "LoginForm",
-  emits: ["login"],
+  emits: ["login", "updateTitle"],
   data() {
     return {
       loginData: {
@@ -141,8 +143,6 @@ export default {
           this.$emit("login", userData);
 
           this.loginData = { id: "", password: "" };
-
-          this.$router.push({ path: "/menu" });
         } else {
           this.errorMessage = response.data.message || "ログインに失敗しました";
         }
@@ -155,6 +155,22 @@ export default {
         this.isLoading = false;
       }
     },
+  },
+  mounted() {
+    // ログイン画面ではヘッダーを非表示にする
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
+    });
+  },
+  beforeUnmount() {
+    // コンポーネントが破棄される時も念のためリセット
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
+    });
   },
 };
 </script>

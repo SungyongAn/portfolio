@@ -10,9 +10,7 @@
       @back="goBack"
     />
 
-    <ChatRoomList @navigate="navigateToChat" />
-
-    <!-- ここでルーターの画面を切り替える -->
+    <!-- 画面を切り替える -->
     <router-view
       :current-user="currentUser"
       @update-title="updateTitle"
@@ -28,7 +26,9 @@ import UserHeader from "./components/UserHeader.vue";
 export default {
   name: "App",
 
-  components: { UserHeader },
+  components: {
+    UserHeader,
+  },
 
   data() {
     return {
@@ -40,21 +40,36 @@ export default {
     };
   },
 
+  watch: {
+    $route(to, from) {
+      // ログイン画面に戻った場合、ログアウト状態にする
+      if (to.path === "/") {
+        this.currentUser = null;
+        this.isLoggedIn = false;
+        sessionStorage.clear();
+        delete axios.defaults.headers.common["Authorization"];
+      }
+    },
+  },
+
   methods: {
-    // ルーター履歴で戻る
+    navigateToChat(roomId) {
+      this.$router.push(`/chat/${roomId}`);
+    },
+
     goBack() {
       this.$router.back();
     },
 
-    // ログイン処理
     handleLogin(userData) {
+      console.log("ログインユーザー:", userData);
+      console.log("role:", userData.role);
       this.currentUser = userData;
       this.isLoggedIn = true;
 
       sessionStorage.setItem("currentUser", JSON.stringify(userData));
       sessionStorage.setItem("isLoggedIn", "true");
 
-      // ログイン後の遷移
       if (userData.role === "admin") {
         this.$router.push("/account-management");
       } else {
@@ -62,7 +77,6 @@ export default {
       }
     },
 
-    // ログアウト
     handleLogout() {
       this.currentUser = null;
       this.isLoggedIn = false;
@@ -73,7 +87,6 @@ export default {
       this.$router.push("/");
     },
 
-    // 画面タイトル更新（各コンポーネントから呼べる）
     updateTitle({ title, icon, showBackButton }) {
       this.pageTitle = title || "";
       this.pageIcon = icon || "";
@@ -84,13 +97,33 @@ export default {
   mounted() {
     const storedUser = sessionStorage.getItem("currentUser");
     const loggedIn = sessionStorage.getItem("isLoggedIn");
+    const token = sessionStorage.getItem("access_token");
 
     if (storedUser && loggedIn === "true") {
       this.currentUser = JSON.parse(storedUser);
       this.isLoggedIn = true;
+
+      // トークンをaxiosヘッダーに復元
+      if (token) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      }
+
+      // ログイン画面にいる場合は適切な画面にリダイレクト
+      if (this.$route.path === "/") {
+        if (this.currentUser.role === "admin") {
+          this.$router.push("/account-management");
+        } else {
+          this.$router.push("/menu");
+        }
+      }
     } else {
       this.currentUser = null;
       this.isLoggedIn = false;
+
+      // ログインしていない場合はログイン画面へ
+      if (this.$route.path !== "/") {
+        this.$router.push("/");
+      }
     }
   },
 };

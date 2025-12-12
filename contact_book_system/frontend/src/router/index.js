@@ -28,31 +28,96 @@ import ChatRoom from "../components/ChatRoom.vue";
 import ArchiveManagement from "../components/ArchiveManagement.vue";
 
 const routes = [
-  { path: "/", component: LoginForm },
-  { path: "/menu", component: MainMenu },
+  { path: "/", component: LoginForm, props: true },
+  { path: "/menu", component: MainMenu, props: true },
 
   // Account
-  { path: "/account-management", component: AccountManagementMenu },
-  { path: "/account/form", component: AccountForm },
-  { path: "/account/search", component: AccountSearch },
-  { path: "/account/search-results", component: AccountSearchResults },
-  { path: "/account/update", component: AccountUpdateTable },
-  { path: "/yearly-processing", component: YearlyProcessingMenu },
+  {
+    path: "/account-management",
+    name: "account-management",
+    component: AccountManagementMenu,
+    props: true,
+  },
+  {
+    path: "/account/form",
+    name: "account-form",
+    component: AccountForm,
+    props: true,
+  },
+  {
+    path: "/account/search",
+    name: "account-search",
+    component: AccountSearch,
+    props: true,
+  },
+  {
+    path: "/account/search-results",
+    name: "account-search-results",
+    component: AccountSearchResults,
+    props: true,
+  },
+  {
+    path: "/account/update",
+    name: "account-update",
+    component: AccountUpdateTable,
+    props: true,
+  },
+  {
+    path: "/yearly-processing",
+    name: "yearly-processing-menu",
+    component: YearlyProcessingMenu,
+    props: true,
+  },
 
   // Renrakucho
-  { path: "/entry", component: EntryForm },
-  { path: "/past-search", component: PastRenrakuchoSearch },
-  { path: "/submission-status", component: SubmissionStatus },
-  { path: "/class-entry", component: ClassEntryRenrakucho },
-  { path: "/class-past", component: ClassPastRenrakucho },
-  { path: "/nurse-dashboard", component: SchoolNurseDashboard },
+  { path: "/entry", name: "entry-form", component: EntryForm, props: true },
+  {
+    path: "/past-search",
+    name: "past-search",
+    component: PastRenrakuchoSearch,
+    props: true,
+  },
+  {
+    path: "/submission-status",
+    name: "submission-status",
+    component: SubmissionStatus,
+    props: true,
+  },
+  {
+    path: "/class-entry",
+    name: "class-entry-renrakucho",
+    component: ClassEntryRenrakucho,
+    props: true,
+  },
+  {
+    path: "/class-past",
+    name: "class-past-renrakucho",
+    component: ClassPastRenrakucho,
+    props: true,
+  },
+  {
+    path: "/nurse-dashboard",
+    name: "school-nurse-dashboard",
+    component: SchoolNurseDashboard,
+    props: true,
+  },
 
   // Chat
-  { path: "/chat", component: ChatRoomList },
-  { path: "/chat/:id", component: ChatRoom },
+  {
+    path: "/chat",
+    name: "chat-room-list",
+    component: ChatRoomList,
+    props: true,
+  },
+  { path: "/chat/:id", name: "chat-room", component: ChatRoom, props: true },
 
   // Archive
-  { path: "/archive", component: ArchiveManagement },
+  {
+    path: "/archive",
+    name: "archive-management",
+    component: ArchiveManagement,
+    props: true,
+  },
 ];
 
 const router = createRouter({

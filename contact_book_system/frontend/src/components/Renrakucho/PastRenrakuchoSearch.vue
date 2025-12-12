@@ -19,6 +19,7 @@
                 </option>
               </select>
             </div>
+
             <!-- 月 -->
             <div class="mb-3">
               <label class="form-label fw-bold"
@@ -28,6 +29,7 @@
                 <option v-for="m in 12" :key="m" :value="m">{{ m }}月</option>
               </select>
             </div>
+
             <!-- 日 -->
             <div class="mb-3">
               <label class="form-label fw-bold"
@@ -38,6 +40,7 @@
                 <option v-for="d in 31" :key="d" :value="d">{{ d }}日</option>
               </select>
             </div>
+
             <!-- 曜日 -->
             <div class="mb-3">
               <label class="form-label fw-bold"
@@ -54,20 +57,19 @@
                 </option>
               </select>
             </div>
+
             <!-- 検索ボタン -->
             <div class="d-grid gap-2">
               <button class="btn btn-primary btn-lg" @click="fetchRecords">
                 <i class="fas fa-search me-2"></i>検索
               </button>
             </div>
+
             <!-- 条件リセット -->
             <div class="d-grid gap-2 mt-2">
               <button
                 class="btn btn-outline-secondary btn-sm"
-                @click="
-                  selectedDay = null;
-                  selectedWeekday = null;
-                "
+                @click="resetFilters"
               >
                 <i class="fas fa-redo me-2"></i>日・曜日リセット
               </button>
@@ -84,11 +86,8 @@
             <div v-if="isLoading" class="text-center my-5">
               <div
                 class="spinner-border text-primary"
-                role="status"
                 style="width: 3rem; height: 3rem"
-              >
-                <span class="visually-hidden">読み込み中...</span>
-              </div>
+              ></div>
               <p class="mt-3 text-muted">データを取得中...</p>
             </div>
 
@@ -101,7 +100,8 @@
             <div v-if="records.length && !isLoading">
               <div class="alert alert-success mb-3">
                 <i class="fas fa-check-circle me-2"></i>
-                <strong>{{ records.length }}件</strong>の連絡帳が見つかりました
+                <strong>{{ records.length }}</strong
+                >件の連絡帳が見つかりました
               </div>
 
               <div class="table-responsive">
@@ -122,7 +122,7 @@
                   <tbody>
                     <tr
                       v-for="record in paginatedRecords"
-                      :key="record.record_date"
+                      :key="record.record_date + record.id"
                     >
                       <td class="text-center">
                         <button
@@ -154,8 +154,9 @@
                             'bg-warning': record.physical_condition === 3,
                             'bg-success': record.physical_condition >= 4,
                           }"
-                          >{{ record.physical_condition }}</span
                         >
+                          {{ record.physical_condition }}
+                        </span>
                       </td>
                       <td class="text-center">
                         <span
@@ -165,8 +166,9 @@
                             'bg-warning': record.mental_state === 3,
                             'bg-success': record.mental_state >= 4,
                           }"
-                          >{{ record.mental_state }}</span
                         >
+                          {{ record.mental_state }}
+                        </span>
                       </td>
                       <td class="text-center">
                         <span
@@ -185,36 +187,65 @@
               </div>
 
               <!-- ページネーション -->
-              <nav class="d-flex justify-content-center my-3">
-                <ul class="pagination">
-                  <li
-                    class="page-item"
-                    :class="{ disabled: currentPage === 1 }"
+              <nav
+                class="d-flex justify-content-center my-3 align-items-center gap-2"
+              >
+                <!-- 最初ページ -->
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  :disabled="currentPage === 1"
+                  @click="changePage(1)"
+                >
+                  <i class="fas fa-angle-double-left me-1"></i>最初
+                </button>
+
+                <!-- 前ページ -->
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  :disabled="currentPage === 1"
+                  @click="changePage(currentPage - 1)"
+                >
+                  <i class="fas fa-chevron-left me-1"></i>前へ
+                </button>
+
+                <!-- ページジャンプ -->
+                <div class="d-flex align-items-center gap-1">
+                  <span>ページ:</span>
+                  <input
+                    type="number"
+                    class="form-control"
+                    v-model.number="jumpPage"
+                    min="1"
+                    :max="totalPages"
+                    @keyup.enter="jumpToPage"
+                    style="width: 80px"
+                  />
+                  <button
+                    class="btn btn-outline-primary btn-sm"
+                    @click="jumpToPage"
                   >
-                    <button
-                      class="page-link"
-                      @click="changePage(currentPage - 1)"
-                    >
-                      <i class="fas fa-chevron-left me-1"></i>前へ
-                    </button>
-                  </li>
-                  <li class="page-item disabled">
-                    <span class="page-link"
-                      >ページ {{ currentPage }} / {{ totalPages }}</span
-                    >
-                  </li>
-                  <li
-                    class="page-item"
-                    :class="{ disabled: currentPage === totalPages }"
-                  >
-                    <button
-                      class="page-link"
-                      @click="changePage(currentPage + 1)"
-                    >
-                      次へ<i class="fas fa-chevron-right ms-1"></i>
-                    </button>
-                  </li>
-                </ul>
+                    移動
+                  </button>
+                  <span>/ {{ totalPages }}</span>
+                </div>
+
+                <!-- 次ページ -->
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  :disabled="currentPage === totalPages"
+                  @click="changePage(currentPage + 1)"
+                >
+                  次へ<i class="fas fa-chevron-right ms-1"></i>
+                </button>
+
+                <!-- 最後ページ -->
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  :disabled="currentPage === totalPages"
+                  @click="changePage(totalPages)"
+                >
+                  最後<i class="fas fa-angle-double-right ms-1"></i>
+                </button>
               </nav>
             </div>
           </div>
@@ -222,7 +253,7 @@
       </div>
     </div>
 
-    <!-- モーダル（詳細表示） -->
+    <!-- モーダル -->
     <div
       v-if="showModal"
       class="modal fade show"
@@ -242,29 +273,27 @@
             ></button>
           </div>
           <div class="modal-body">
-            <!-- モーダル内容は必要に応じて追加 -->
+            <pre>{{ selectedRecord }}</pre>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">
+            <button class="btn btn-secondary" @click="closeModal">
               <i class="fas fa-times me-2"></i>閉じる
             </button>
           </div>
         </div>
       </div>
+      <div class="modal-backdrop fade show" @click="closeModal"></div>
     </div>
-    <div
-      v-if="showModal"
-      class="modal-backdrop fade show"
-      @click="closeModal"
-    ></div>
   </div>
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+import axios from "axios";
+
 export default {
   name: "PastRenrakuchoSearch",
   props: ["currentUser"],
-  emits: ["back", "updateTitle"],
   data() {
     const today = new Date();
     return {
@@ -277,6 +306,7 @@ export default {
       message: "",
       currentPage: 1,
       perPage: 20,
+      jumpPage: 1,
       selectedRecord: null,
       showModal: false,
     };
@@ -290,19 +320,12 @@ export default {
       return this.records.slice(start, start + this.perPage);
     },
   },
-  mounted() {
-    this.$emit("updateTitle", {
-      title: "過去の連絡帳検索",
-      icon: "fas fa-folder-open",
-      showBackButton: true,
-    });
+  setup() {
+    const router = useRouter();
+    return { router };
   },
-  beforeUnmount() {
-    this.$emit("updateTitle", {
-      title: "",
-      icon: "",
-      showBackButton: false,
-    });
+  mounted() {
+    document.title = "過去の連絡帳検索";
   },
   methods: {
     async fetchRecords() {
@@ -312,6 +335,7 @@ export default {
       this.message = "";
       this.records = [];
       this.currentPage = 1;
+      this.jumpPage = 1;
 
       const payload = {
         student_id: Number(this.currentUser.id),
@@ -340,7 +364,15 @@ export default {
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
+      this.jumpPage = page;
       window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    jumpToPage() {
+      if (this.jumpPage >= 1 && this.jumpPage <= this.totalPages) {
+        this.changePage(this.jumpPage);
+      } else {
+        this.jumpPage = this.currentPage;
+      }
     },
     formatDate(dateStr) {
       if (!dateStr) return "-";
@@ -356,12 +388,18 @@ export default {
       this.selectedRecord = null;
       this.showModal = false;
     },
+    resetFilters() {
+      this.selectedDay = null;
+      this.selectedWeekday = null;
+    },
+    goBack() {
+      this.router.back();
+    },
   },
 };
 </script>
 
 <style scoped>
-/* モーダルの背景やその他スタイル */
 .modal-backdrop {
   z-index: 1040;
 }

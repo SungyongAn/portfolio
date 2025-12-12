@@ -17,13 +17,13 @@
         <div class="d-flex gap-2">
           <button
             class="btn btn-outline-secondary btn-sm"
-            @click="$emit('back-to-search')"
+            @click="backToSearch"
           >
             <i class="fas fa-arrow-left me-1"></i>検索画面に戻る
           </button>
           <button
             class="btn btn-outline-secondary btn-sm"
-            @click="$emit('back-to-menu')"
+            @click="backToMenu"
           >
             <i class="fas fa-home me-1"></i>メニューに戻る
           </button>
@@ -74,7 +74,7 @@
                 <td class="text-center">
                   <button
                     class="btn btn-sm btn-primary"
-                    @click="$emit('select-account', item)"
+                    @click="editAccount(item)"
                   >
                     <i class="fas fa-edit me-1"></i>編集
                   </button>
@@ -115,6 +115,8 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+
 export default {
   name: "AccountSearchResults",
   props: {
@@ -123,12 +125,29 @@ export default {
       default: () => [],
     },
   },
-  emits: ["select-account", "back-to-search", "back-to-menu"],
   data() {
     return {
       currentPage: 1,
       perPage: 10,
     };
+  },
+  setup() {
+    const router = useRouter();
+
+    const backToSearch = () => {
+      router.push({ name: "account-search" });
+    };
+
+    const backToMenu = () => {
+      router.push({ name: "account-management-menu" });
+    };
+
+    const editAccount = (item) => {
+      // 編集ページに遷移（ID をパラメータで渡す例）
+      router.push({ name: "account-form", params: { id: item.id } });
+    };
+
+    return { backToSearch, backToMenu, editAccount };
   },
   computed: {
     totalPages() {
@@ -136,8 +155,7 @@ export default {
     },
     paginatedResults() {
       const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      return this.results.slice(start, end);
+      return this.results.slice(start, start + this.perPage);
     },
     displayColumns() {
       if (this.results.length === 0) return [];
@@ -156,12 +174,7 @@ export default {
             { key: "subject", label: "担当科目", width: "120px" },
             { key: "grade", label: "学年", width: "70px", suffix: "年" },
             { key: "className", label: "クラス", width: "70px", suffix: "組" },
-            {
-              key: "enrollmentYear",
-              label: "登録年",
-              width: "90px",
-              suffix: "年",
-            },
+            { key: "enrollmentYear", label: "登録年", width: "90px", suffix: "年" },
             { key: "status", label: "状態", width: "90px", isStatus: true },
           ];
         } else if (role === "生徒") {
@@ -247,12 +260,7 @@ export default {
 
       const value = item[column.key];
 
-      if (
-        value === null ||
-        value === undefined ||
-        value === "" ||
-        value === 0
-      ) {
+      if (value === null || value === undefined || value === "" || value === 0) {
         return "-";
       }
 

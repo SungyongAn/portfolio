@@ -209,10 +209,12 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+import axios from "axios";
+
 export default {
   name: "SchoolNurseDashboard",
   props: ["currentUser"],
-  emits: ["back"],
   data() {
     return {
       notifications: [],
@@ -236,6 +238,10 @@ export default {
         return scoreA - scoreB;
       });
     },
+  },
+  setup() {
+    const router = useRouter();
+    return { router };
   },
   methods: {
     async fetchNotifications() {
@@ -279,7 +285,6 @@ export default {
       this.ws.onclose = (event) => {
         console.log("WebSocket 接続切断");
         if (event.code === 1000) return;
-        console.log("5秒後に再接続");
         setTimeout(() => this.connectWebSocket(), 5000);
       };
 
@@ -295,7 +300,6 @@ export default {
         );
         this.ws.close(1000, "Nurse dashboard closed");
         this.ws = null;
-        console.log("✅ WebSocket disconnected (nurse dashboard)");
       }
     },
     playNotificationSound() {
@@ -338,7 +342,7 @@ export default {
       });
     },
     backToMenu() {
-      this.$emit("back");
+      this.router.back(); // Vue Router に対応
     },
   },
   mounted() {

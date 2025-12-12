@@ -173,6 +173,14 @@
           >
             <i class="fas fa-redo me-2"></i>リセット
           </button>
+
+          <button
+            type="button"
+            @click="backToMenu"
+            class="btn btn-outline-secondary px-4"
+          >
+            <i class="fas fa-arrow-left me-2"></i>戻る
+          </button>
         </div>
       </form>
     </div>
@@ -181,13 +189,21 @@
 
 <script>
 import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
   name: "AccountSearch",
   props: {
     currentUser: Object,
   },
-  emits: ["show-results", "back-to-menu", "updateTitle"],
+  emits: ["updateTitle"],
+  setup() {
+    const router = useRouter();
+    const backToMenu = () => {
+      router.push({ name: "account-management-menu" });
+    };
+    return { backToMenu };
+  },
   data() {
     return {
       form: {
@@ -349,7 +365,9 @@ export default {
           resultMessage = data.message || "検索に失敗しました";
         }
 
-        this.$emit("show-results", { results, resultType, resultMessage });
+        // Router で検索結果ページに遷移する場合はここで push() も可能
+        // 例: router.push({ name: 'account-search-results', params: { results } })
+
       } catch (error) {
         console.error("🔴 検索エラー:", error);
         let errorMessage = "通信エラーが発生しました";
@@ -359,11 +377,7 @@ export default {
             error.response.data.message ||
             errorMessage;
         }
-        this.$emit("show-results", {
-          results: [],
-          resultType: "error",
-          resultMessage: errorMessage,
-        });
+        alert(errorMessage);
       } finally {
         this.isLoading = false;
       }

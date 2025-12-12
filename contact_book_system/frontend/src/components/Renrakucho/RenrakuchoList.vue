@@ -35,27 +35,53 @@
       </div>
 
       <!-- ページネーション -->
-      <nav class="d-flex justify-content-center mt-3">
-        <ul class="pagination mb-0">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <button class="page-link" @click="changePage(currentPage - 1)">
-              前へ
-            </button>
-          </li>
-          <li class="page-item disabled">
-            <span class="page-link"
-              >ページ {{ currentPage }} / {{ totalPages }}</span
-            >
-          </li>
-          <li
-            class="page-item"
-            :class="{ disabled: currentPage === totalPages }"
-          >
-            <button class="page-link" @click="changePage(currentPage + 1)">
-              次へ
-            </button>
-          </li>
-        </ul>
+      <nav class="d-flex justify-content-center mt-3 align-items-center gap-2">
+        <button
+          class="btn btn-outline-primary btn-sm"
+          :disabled="currentPage === 1"
+          @click="changePage(1)"
+        >
+          最初
+        </button>
+        <button
+          class="btn btn-outline-primary btn-sm"
+          :disabled="currentPage === 1"
+          @click="changePage(currentPage - 1)"
+        >
+          前へ
+        </button>
+
+        <div class="d-flex align-items-center gap-1">
+          <span>ページ:</span>
+          <input
+            type="number"
+            class="form-control"
+            v-model.number="jumpPage"
+            min="1"
+            :max="totalPages"
+            @keyup.enter="jumpToPage"
+            style="width: 80px"
+          />
+          <button class="btn btn-outline-primary btn-sm" @click="jumpToPage">
+            移動
+          </button>
+          <span>/ {{ totalPages }}</span>
+        </div>
+
+        <button
+          class="btn btn-outline-primary btn-sm"
+          :disabled="currentPage === totalPages"
+          @click="changePage(currentPage + 1)"
+        >
+          次へ
+        </button>
+        <button
+          class="btn btn-outline-primary btn-sm"
+          :disabled="currentPage === totalPages"
+          @click="changePage(totalPages)"
+        >
+          最後
+        </button>
       </nav>
 
       <!-- モーダル -->
@@ -82,7 +108,6 @@
                 <strong>日付:</strong>
                 {{ formatDate(selectedRecord.record_date) }}
               </p>
-
               <p>
                 <strong>体調:</strong>
                 <span
@@ -94,7 +119,6 @@
                   {{ selectedRecord.physical_condition }}
                 </span>
               </p>
-
               <p>
                 <strong>メンタル:</strong>
                 <span
@@ -105,11 +129,9 @@
                   {{ selectedRecord.mental_state }}
                 </span>
               </p>
-
               <p><strong>今日の振り返り:</strong></p>
               <p class="border p-2">{{ selectedRecord.daily_reflection }}</p>
             </div>
-
             <div class="modal-footer">
               <button class="btn btn-secondary" @click="closeModal">
                 閉じる
@@ -129,6 +151,9 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+import axios from "axios";
+
 export default {
   name: "RenrakuchoList",
   props: ["records"],
@@ -139,6 +164,7 @@ export default {
       showModal: false,
       currentPage: 1,
       perPage: 10,
+      jumpPage: 1,
     };
   },
   computed: {
@@ -149,6 +175,10 @@ export default {
       const start = (this.currentPage - 1) * this.perPage;
       return this.records.slice(start, start + this.perPage);
     },
+  },
+  setup() {
+    const router = useRouter();
+    return { router };
   },
   methods: {
     openModal(record) {
@@ -162,7 +192,15 @@ export default {
     changePage(page) {
       if (page < 1 || page > this.totalPages) return;
       this.currentPage = page;
+      this.jumpPage = page;
       window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    jumpToPage() {
+      if (this.jumpPage >= 1 && this.jumpPage <= this.totalPages) {
+        this.changePage(this.jumpPage);
+      } else {
+        this.jumpPage = this.currentPage;
+      }
     },
     formatDate(dateStr) {
       if (!dateStr) return "-";
@@ -196,6 +234,9 @@ export default {
     },
     isCritical(record) {
       return record.physical_condition <= 2 || record.mental_state <= 2;
+    },
+    goBack() {
+      this.router.back(); // Vue Routerで前のページへ
     },
   },
 };

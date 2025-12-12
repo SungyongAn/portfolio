@@ -10,7 +10,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-primary w-100"
-              @click.prevent="navigate('EntryForm')"
+              @click.prevent="navigate('entry-form')"
             >
               <i class="fas fa-calendar-day me-2"></i>連絡帳の提出
             </button>
@@ -18,7 +18,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-primary w-100"
-              @click.prevent="navigate('PastRenrakuchoSearch')"
+              @click.prevent="navigate('past-search')"
             >
               <i class="fas fa-history me-2"></i>過去の連絡帳(閲覧のみ)
             </button>
@@ -26,7 +26,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-success w-100"
-              @click.prevent="navigate('ChatRoomList')"
+              @click.prevent="navigate('chat-room-list')"
             >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
@@ -40,7 +40,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-secondary w-100"
-              @click.prevent="navigate('SubmissionStatus')"
+              @click.prevent="navigate('submission-status')"
             >
               <i class="fas fa-file-alt me-2"></i>連絡帳提出状況
             </button>
@@ -48,7 +48,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-secondary w-100"
-              @click.prevent="navigate('ClassEntryRenrakucho')"
+              @click.prevent="navigate('class-entry-renrakucho')"
             >
               <i class="fas fa-file-alt me-2"></i>未確認の連絡帳
             </button>
@@ -56,7 +56,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-secondary w-100"
-              @click.prevent="navigate('ClassPastRenrakucho')"
+              @click.prevent="navigate('class-past-renrakucho')"
             >
               <i class="fas fa-folder-open me-2"></i>過去の連絡帳
             </button>
@@ -64,7 +64,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-success w-100"
-              @click.prevent="navigate('ChatRoomList')"
+              @click.prevent="navigate('chat-room-list')"
             >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
@@ -78,7 +78,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-secondary w-100"
-              @click.prevent="navigate('SubmissionStatus')"
+              @click.prevent="navigate('submission-status')"
             >
               <i class="fas fa-file-alt me-2"></i>連絡帳提出状況
             </button>
@@ -86,7 +86,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-secondary w-100"
-              @click.prevent="navigate('ClassEntryRenrakucho')"
+              @click.prevent="navigate('class-entry-renrakucho')"
             >
               <i class="fas fa-file-alt me-2"></i>未確認の連絡帳
             </button>
@@ -94,7 +94,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-secondary w-100"
-              @click.prevent="navigate('ClassPastRenrakucho')"
+              @click.prevent="navigate('class-past-renrakucho')"
             >
               <i class="fas fa-folder-open me-2"></i>過去の連絡帳
             </button>
@@ -102,7 +102,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-success w-100"
-              @click.prevent="navigate('ChatRoomList')"
+              @click.prevent="navigate('chat-room-list')"
             >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
@@ -116,7 +116,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-success w-100"
-              @click.prevent="navigate('ChatRoomList')"
+              @click.prevent="navigate('chat-room-list')"
             >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
@@ -130,7 +130,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-success w-100"
-              @click.prevent="navigate('ChatRoomList')"
+              @click.prevent="navigate('chat-room-list')"
             >
               <i class="fas fa-comments me-2"></i>報連相部屋(仮)
             </button>
@@ -138,7 +138,7 @@
           <li class="nav-item mb-2">
             <button
               class="btn btn-outline-success w-100"
-              @click.prevent="navigate('SchoolNurseDashboard')"
+              @click.prevent="navigate('school-nurse-dashboard')"
             >
               <i class="fas fa-comments me-2"></i>生徒の状況確認(仮)
             </button>
@@ -153,7 +153,7 @@
 export default {
   name: "MainMenu",
   props: ["currentUser", "isLoggedIn"],
-  emits: ["logout"],
+  emits: ["logout", "updateTitle"], // ← updateTitleを追加
 
   methods: {
     handleLogout() {
@@ -191,6 +191,24 @@ export default {
     isSubjectTeacher() {
       return this.currentUser?.teacherRole === "subject_teacher";
     },
+  },
+
+  // ← これを追加
+  mounted() {
+    this.$emit("updateTitle", {
+      title: "メインメニュー",
+      icon: "fas fa-home",
+      showBackButton: false,
+    });
+  },
+
+  // ← これも追加（念のため）
+  beforeUnmount() {
+    this.$emit("updateTitle", {
+      title: "",
+      icon: "",
+      showBackButton: false,
+    });
   },
 };
 </script>

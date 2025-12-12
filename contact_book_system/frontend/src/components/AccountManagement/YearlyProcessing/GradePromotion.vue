@@ -58,10 +58,21 @@
 
 <script>
 import axios from "axios";
+import { useRouter } from "vue-router";
 
 export default {
   name: "GradePromotion",
   emits: ["updateTitle", "back-to-yearly"],
+  setup(_, { emit }) {
+    const router = useRouter();
+
+    const backToMenu = () => {
+      router.push({ name: "yearly-processing-menu" }); // ルーター名に応じて変更
+      emit("back-to-yearly");
+    };
+
+    return { backToMenu };
+  },
   data() {
     return {
       isLoading: true,
@@ -113,10 +124,6 @@ export default {
       }
 
       this.isLoading = false;
-    },
-
-    backToMenu() {
-      this.$emit("back-to-yearly");
     },
   },
 };

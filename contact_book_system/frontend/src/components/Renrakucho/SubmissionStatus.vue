@@ -122,10 +122,13 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+import axios from "axios";
+
 export default {
   name: "SubmissionStatus",
   props: ["currentUser"],
-  emits: ["new-entry", "back", "updateTitle"],
+  emits: ["new-entry", "updateTitle"],
   data() {
     const today = new Date();
     return {
@@ -135,6 +138,10 @@ export default {
       errorMessage: "",
       displayMode: "all", // 'all', 'submitted', 'not_submitted'
     };
+  },
+  setup() {
+    const router = useRouter();
+    return { router };
   },
   computed: {
     todayDate() {
@@ -257,6 +264,10 @@ export default {
       if (this.displayMode === "submitted") return "提出済み";
       if (this.displayMode === "not_submitted") return "未提出";
       return student.is_submitted ? "提出済み" : "未提出";
+    },
+    backToMenu() {
+      // Vue Router の戻る操作
+      this.router.back();
     },
   },
 };

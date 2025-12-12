@@ -60,9 +60,35 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+
 export default {
   name: "YearlyProcessingMenu",
-  emits: ["navigate-yearly", "back-to-menu", "updateTitle"],
+  emits: ["updateTitle"],
+  setup(_, { emit }) {
+    const router = useRouter();
+
+    // カードクリックでページ遷移
+    const navigateTo = (page) => {
+      const pageMap = {
+        GradePromotion: "grade-promotion",
+        GraduationManagement: "graduation-management",
+        ClassReassignment: "class-reassignment",
+      };
+      const routeName = pageMap[page] || page;
+      router.push({ name: routeName });
+
+      // 必要に応じて emit も呼ぶ
+      emit("navigate-yearly", routeName);
+    };
+
+    // 戻るボタン
+    const backToAccountMenu = () => {
+      router.push({ name: "account-menu" });
+    };
+
+    return { navigateTo, backToAccountMenu };
+  },
   mounted() {
     this.$emit("updateTitle", {
       title: "年度処理",
@@ -76,19 +102,6 @@ export default {
       icon: "",
       showBackButton: false,
     });
-  },
-  methods: {
-    navigateTo(page) {
-      const pageMap = {
-        GradePromotion: "grade-promotion",
-        GraduationManagement: "graduation-management",
-        ClassReassignment: "class-reassignment",
-      };
-      this.$emit("navigate-yearly", pageMap[page] || page);
-    },
-    backToAccountMenu() {
-      this.$emit("back-to-menu");
-    },
   },
 };
 </script>

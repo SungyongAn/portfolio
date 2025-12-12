@@ -7,7 +7,7 @@
           <div class="col-md-6">
             <div
               class="card h-100 shadow-sm hover-card"
-              @click="navigateTo('AccountForm')"
+              @click="navigateTo('account-form')"
               style="cursor: pointer"
             >
               <div class="card-body text-center p-4">
@@ -24,7 +24,7 @@
           <div class="col-md-6">
             <div
               class="card h-100 shadow-sm hover-card"
-              @click="navigateTo('AccountSearch')"
+              @click="navigateTo('account-search')"
               style="cursor: pointer"
             >
               <div class="card-body text-center p-4">
@@ -41,7 +41,7 @@
           <div class="col-md-6">
             <div
               class="card h-100 shadow-sm hover-card"
-              @click="navigateTo('ArchiveManagement')"
+              @click="navigateTo('archive-management')"
               style="cursor: pointer"
             >
               <div class="card-body text-center p-4">
@@ -54,15 +54,15 @@
             </div>
           </div>
 
-          <!-- 年度処理 -->
+          <!-- 年度処理カード -->
           <div class="col-md-6">
             <div
               class="card h-100 shadow-sm hover-card"
-              @click="navigateTo('YearlyProcessingMenu')"
+              @click="navigateTo('yearly-processing-menu')"
               style="cursor: pointer"
             >
               <div class="card-body text-center p-4">
-                <i class="fas fa-database fa-3x text-warning mb-3"></i>
+                <i class="fas fa-calendar-alt fa-3x text-warning mb-3"></i>
                 <h5 class="card-title">年次処理</h5>
                 <p class="card-text text-muted small"></p>
               </div>
@@ -75,10 +75,33 @@
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+
 export default {
   name: "AccountManagementMenu",
-  emits: ["navigate-account", "back-to-menu", "updateTitle"],
+  emits: ["updateTitle"],
+  setup() {
+    const router = useRouter();
+    const navigateTo = (routeName) => {
+      console.log("🔍 navigateTo called with:", routeName);
+      console.log("📋 Current route:", router.currentRoute.value.path);
+
+      router
+        .push({ name: routeName })
+        .then(() => {
+          console.log(
+            "✅ Navigation successful to:",
+            router.currentRoute.value.path
+          );
+        })
+        .catch((error) => {
+          console.error("❌ Navigation error:", error);
+        });
+    };
+    return { navigateTo };
+  },
   mounted() {
+    console.log("🎬 AccountManagementMenu mounted");
     this.$emit("updateTitle", {
       title: "アカウント管理",
       icon: "fas fa-users-cog",
@@ -86,35 +109,12 @@ export default {
     });
   },
   beforeUnmount() {
+    console.log("👋 AccountManagementMenu unmounting");
     this.$emit("updateTitle", {
       title: "",
       icon: "",
       showBackButton: false,
     });
   },
-  methods: {
-    navigateTo(page) {
-      const pageMap = {
-        AccountForm: "account-form",
-        AccountSearch: "account-search",
-        ArchiveManagement: "archive-management",
-        YearlyProcessingMenu: "yearly-processing-menu",
-      };
-      this.$emit("navigate-account", pageMap[page] || page);
-    },
-  },
 };
 </script>
-
-<style scoped>
-.hover-card {
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-}
-
-.hover-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-</style>

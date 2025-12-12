@@ -52,16 +52,40 @@
       </div>
     </div>
 
-    <!-- 閉じるボタンを下部にも追加 -->
-    <div class="mt-3 text-end">
-      <button type="button" class="btn btn-secondary" @click="closeResult">
+    <!-- 下部ボタン -->
+    <div class="mt-3 text-end d-flex justify-content-end gap-2">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        @click="closeResult"
+      >
         <i class="fas fa-times me-2"></i>閉じる
+      </button>
+
+      <button
+        v-if="goToSearch"
+        type="button"
+        class="btn btn-primary"
+        @click="navigateToSearch"
+      >
+        <i class="fas fa-search me-2"></i>検索画面へ
+      </button>
+
+      <button
+        v-if="goToResults"
+        type="button"
+        class="btn btn-outline-primary"
+        @click="navigateToResults"
+      >
+        <i class="fas fa-arrow-left me-2"></i>検索結果へ
       </button>
     </div>
   </div>
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+
 export default {
   name: "ResultDisplay",
   props: {
@@ -91,8 +115,30 @@ export default {
       type: String,
       default: "",
     },
+    // ページ移動ボタン表示制御
+    goToSearch: {
+      type: Boolean,
+      default: false,
+    },
+    goToResults: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ["close"],
+  setup() {
+    const router = useRouter();
+
+    const navigateToSearch = () => {
+      router.push({ name: "account-search" });
+    };
+
+    const navigateToResults = () => {
+      router.push({ name: "account-search-results" });
+    };
+
+    return { navigateToSearch, navigateToResults };
+  },
   computed: {
     alertClass() {
       const classMap = {
@@ -114,19 +160,12 @@ export default {
     },
     displayData() {
       if (!this.data) return [];
-
-      if (Array.isArray(this.data)) {
-        return this.data;
-      }
-
-      return [this.data];
+      return Array.isArray(this.data) ? this.data : [this.data];
     },
   },
   watch: {
     show(newVal) {
-      console.log("🟢 ResultDisplay: showが変更されました:", newVal);
       if (newVal) {
-        // 結果表示が表示されたときにスクロール
         this.$nextTick(() => {
           const element = this.$el;
           if (element && element.scrollIntoView) {
@@ -138,15 +177,12 @@ export default {
   },
   methods: {
     closeResult() {
-      console.log("🟢 ResultDisplay: closeボタンがクリックされました");
       this.$emit("close");
     },
     formatValue(item, field) {
       let value = item[field.key];
 
-      if (value === null || value === undefined) {
-        return "-";
-      }
+      if (value === null || value === undefined) return "-";
 
       if (field.formatter && typeof field.formatter === "function") {
         return field.formatter(value, item);

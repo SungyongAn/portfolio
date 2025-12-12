@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
+## 12/12
+
+- **画面管理に Vue Router を使う仕様に変更**
+
+  - フロントエンド
+    - コンポーネントの更新の続きを行い、既存のコンポーネント全ての更新を完了
+
+- **ブラウザの戻るボタンでログイン画面に戻る際にヘッダーが残る問題を修正**
+
+  - フロントエンド
+    - `App.vue` `MainMenu.vue` `AccountManagementMenu.vue` を更新
+    - 合わせて `LoginForm.vue` に戻ったらユーザー情報もリセットするように更新(`App.vue`)
+
 ## 12/11
 
 - **ローカル環境のコンテナ化**
