@@ -28,7 +28,7 @@ export default {
   },
 
   props: ["currentUser"],
-  emits: ["updateTitle"], // ★ back は不要になった
+  emits: ["updateTitle"],
 
   data() {
     return {
@@ -42,7 +42,6 @@ export default {
       title: "未確認の連絡帳",
       icon: "fas fa-calendar-day",
       showBackButton: true,
-      onBack: this.backToMenu, // ★ Router の戻る動作を渡す
     });
   },
 
@@ -51,7 +50,7 @@ export default {
     this.$emit("updateTitle", {
       title: "",
       icon: "",
-      showBackButton: false,
+      showBackButton: false, // ← false に修正
     });
   },
 
@@ -64,13 +63,6 @@ export default {
       if (this.$refs.searchComp?.fetchUnviewedRecords) {
         await this.$refs.searchComp.fetchUnviewedRecords();
       }
-    },
-
-    /**
-     * Vue Router で戻る
-     */
-    backToMenu() {
-      this.$router.back(); // ★ Vue Router の戻る機能でページ遷移
     },
   },
 };

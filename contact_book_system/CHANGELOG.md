@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 ## 12/12
 
+- **一部機能の更新、修正**
+  - フロントエンド
+    - `UserHeader.vue` の戻るボタンを、`Vue Router` の履歴管理機能を利用する実装に変更
+    - `AccountForm.vue` の `template` の欠損を復元
+
+## 12/12
+
 - **画面管理に Vue Router を使う仕様に変更**
 
   - フロントエンド

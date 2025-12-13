@@ -326,6 +326,12 @@ export default {
   },
   mounted() {
     document.title = "過去の連絡帳検索";
+    this.$emit("updateTitle", {
+      title: "過去の連絡帳",
+      icon: "fas fa-history",
+      showBackButton: true,
+      onBack: this.backToMenu,
+    });
   },
   methods: {
     async fetchRecords() {

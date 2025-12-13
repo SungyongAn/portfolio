@@ -35,8 +35,235 @@
           {{ errorMessage }}
         </div>
         <form @submit.prevent="handleCreateAccount">
-          <!-- 以下フォーム内容は元のまま -->
-          <!-- 省略 -->
+          <!-- 1行目: 生徒・職員番号 + 登録年 -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label"
+                >生徒・職員ID <span class="text-danger">*</span></label
+              >
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  v-model="accountForm.studentNumber"
+                  :disabled="isLoading"
+                  placeholder="例: tanaka.taro"
+                  required
+                />
+                <span class="input-group-text">@school.com</span>
+              </div>
+              <small class="text-muted"
+                >ローカルパートがログイン時のIDとして使用されます</small
+              >
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">登録年</label>
+              <input
+                type="text"
+                class="form-control"
+                v-model="accountForm.enrollment_year"
+                disabled
+              />
+            </div>
+          </div>
+
+          <!-- 2行目: 氏名 + 役割 -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <label class="form-label"
+                >姓 <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                v-model="accountForm.last_name"
+                :disabled="isLoading"
+                required
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label"
+                >名 <span class="text-danger">*</span></label
+              >
+              <input
+                type="text"
+                class="form-control"
+                v-model="accountForm.first_name"
+                :disabled="isLoading"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label"
+                >役割 <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select"
+                v-model="accountForm.role"
+                :disabled="isLoading"
+              >
+                <option value="生徒">生徒</option>
+                <option value="教師">教師</option>
+                <option value="養護教諭">養護教諭</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 3行目: 教員区分 + 担当科目（教師のみ表示） -->
+          <div class="row mb-3" v-if="isTeacher">
+            <div class="col-md-6">
+              <label class="form-label"
+                >教員区分 <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select"
+                v-model="accountForm.teacher_role"
+                :disabled="isLoading"
+              >
+                <option value="">選択してください</option>
+                <option
+                  v-for="role in teacherRoles"
+                  :key="role.code"
+                  :value="role.code"
+                >
+                  {{ role.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">担当科目</label>
+              <select
+                class="form-select"
+                v-model="accountForm.subject"
+                :disabled="isLoading"
+              >
+                <option value="">選択してください</option>
+                <option
+                  v-for="subject in subjects"
+                  :key="subject.code"
+                  :value="subject.code"
+                >
+                  {{ subject.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 学年 + クラス（生徒・担任・副担任のみ表示） -->
+          <div
+            class="row mb-3"
+            v-if="
+              (accountForm.role !== '養護教諭' && !isTeacher) ||
+              (isTeacher &&
+                accountForm.teacher_role &&
+                teacherRoles.find((r) =>
+                  [
+                    'grade_leader',
+                    'homeroom_teacher',
+                    'assistant_teacher',
+                  ].includes(r.code)
+                ))
+            "
+          >
+            <div class="col-md-6">
+              <label class="form-label"
+                >学年 <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select"
+                v-model.number="accountForm.grade"
+                :disabled="isLoading"
+              >
+                <option :value="null">選択してください</option>
+                <option :value="1">1年</option>
+                <option :value="2">2年</option>
+                <option :value="3">3年</option>
+              </select>
+            </div>
+            <div
+              class="col-md-6"
+              v-if="
+                (accountForm.role !== '養護教諭' && !isTeacher) ||
+                (isTeacher &&
+                  ['homeroom_teacher', 'assistant_teacher'].includes(
+                    accountForm.teacher_role
+                  ))
+              "
+            >
+              <label class="form-label"
+                >クラス <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select"
+                v-model="accountForm.class_name"
+                :disabled="isLoading"
+              >
+                <option value="">選択してください</option>
+                <option value="A">A組</option>
+                <option value="B">B組</option>
+                <option value="C">C組</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- パスワード入力 -->
+          <div class="mb-3">
+            <label class="form-label"
+              >パスワード <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                class="form-control"
+                v-model="accountForm.password"
+                :disabled="isLoading"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                @click="showPassword = !showPassword"
+              >
+                <i
+                  :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                ></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"
+              >パスワード(確認) <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <input
+                :type="showConfirmPassword ? 'text' : 'password'"
+                class="form-control"
+                v-model="accountForm.confirmPassword"
+                :disabled="isLoading"
+              />
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <i
+                  :class="
+                    showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'
+                  "
+                ></i>
+              </button>
+            </div>
+            <small
+              v-if="
+                accountForm.confirmPassword &&
+                accountForm.password !== accountForm.confirmPassword
+              "
+              class="text-danger"
+            >
+              パスワードが一致しません
+            </small>
+          </div>
           <div class="d-flex justify-content-end gap-2 flex-wrap">
             <button
               class="btn btn-secondary"

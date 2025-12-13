@@ -63,7 +63,7 @@ import { useRouter } from "vue-router";
 export default {
   name: "UserHeader",
   props: ["currentUser", "pageTitle", "pageIcon", "showBackButton"],
-  emits: ["logout", "back"],
+  emits: ["logout"],
 
   setup() {
     const router = useRouter();
@@ -75,12 +75,7 @@ export default {
       this.$emit("logout");
     },
 
-    // ★ Router バージョンの戻る処理
     handleBack() {
-      // 親（App.vue）が独自処理したい場合は emitも残す
-      this.$emit("back");
-
-      // ブラウザの戻る
       this.router.back();
     },
 
