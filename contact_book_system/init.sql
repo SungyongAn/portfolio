@@ -429,3 +429,16 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+CREATE TABLE password_reset_tokens (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'トークンID',
+    account_id INT NOT NULL COMMENT 'アカウントID',
+    token VARCHAR(255) UNIQUE NOT NULL COMMENT 'リセットトークン',
+    used BOOLEAN DEFAULT FALSE NOT NULL COMMENT '使用済みフラグ',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
+    expires_at TIMESTAMP NOT NULL COMMENT '有効期限',
+    FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+    INDEX idx_token (token),
+    INDEX idx_account_id (account_id),
+    INDEX idx_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='パスワードリセットトークン';

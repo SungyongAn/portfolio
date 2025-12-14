@@ -11,7 +11,12 @@
               {{ errorMessage }}
             </div>
 
-            <form @submit.prevent="handleLogin">
+            <div v-if="successMessage" class="alert alert-success">
+              {{ successMessage }}
+            </div>
+
+            <!-- ログインフォーム -->
+            <form v-if="!showResetForm" @submit.prevent="handleLogin">
               <!-- ID入力（ローカルパート） -->
               <div class="mb-3">
                 <label for="id" class="form-label">ID</label>
@@ -65,6 +70,58 @@
                 ></span>
                 ログイン
               </button>
+
+              <!-- パスワードリセットリンク -->
+              <div class="text-center mt-3">
+                <a
+                  href="#"
+                  class="text-decoration-none"
+                  @click.prevent="toggleResetForm"
+                >
+                  パスワードをお忘れですか？
+                </a>
+              </div>
+            </form>
+
+            <!-- パスワードリセットフォーム -->
+            <form v-else @submit.prevent="handlePasswordReset">
+              <div class="mb-3">
+                <label for="resetId" class="form-label">ID</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="resetId"
+                  v-model="resetData.id"
+                  required
+                  :disabled="isLoading"
+                  placeholder="登録されているIDを入力してください"
+                />
+                <small class="text-muted">
+                  登録されているメールアドレスにパスワードリセット用のリンクを送信します
+                </small>
+              </div>
+
+              <button
+                type="submit"
+                class="btn btn-primary w-100"
+                :disabled="isLoading"
+              >
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm me-2"
+                ></span>
+                リセットメールを送信
+              </button>
+
+              <div class="text-center mt-3">
+                <a
+                  href="#"
+                  class="text-decoration-none"
+                  @click.prevent="toggleResetForm"
+                >
+                  ← ログイン画面に戻る
+                </a>
+              </div>
             </form>
           </div>
         </div>
@@ -85,14 +142,27 @@ export default {
         id: "",
         password: "",
       },
+      resetData: {
+        id: "",
+      },
       errorMessage: "",
+      successMessage: "",
       isLoading: false,
       showPassword: false,
+      showResetForm: false,
     };
   },
   methods: {
+    toggleResetForm() {
+      this.showResetForm = !this.showResetForm;
+      this.errorMessage = "";
+      this.successMessage = "";
+      this.resetData.id = "";
+    },
+
     async handleLogin() {
       this.errorMessage = "";
+      this.successMessage = "";
       this.isLoading = true;
 
       const payload = {
@@ -151,6 +221,44 @@ export default {
         this.errorMessage =
           error.response?.data?.detail ||
           "ログイン処理中にエラーが発生しました";
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async handlePasswordReset() {
+      this.errorMessage = "";
+      this.successMessage = "";
+      this.isLoading = true;
+
+      const payload = {
+        email: this.resetData.id + "@school.com",
+      };
+      console.log(
+        "Sending request to:",
+        "http://127.0.0.1:8000/auth/password-reset-request"
+      );
+      console.log("Payload:", payload);
+
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/auth/password-reset-request",
+          payload
+        );
+
+        if (response.data.success) {
+          this.successMessage =
+            "パスワードリセット用のメールを送信しました。下のリンクからログイン画面にお戻りください。";
+          this.resetData.id = "";
+        } else {
+          this.errorMessage =
+            response.data.message || "メール送信に失敗しました";
+        }
+      } catch (error) {
+        console.error("Password reset error:", error);
+        this.successMessage =
+          "登録されているメールアドレスにパスワードリセット用のリンクを送信しました。下のリンクからログイン画面にお戻りください。";
+        this.resetData.id = "";
       } finally {
         this.isLoading = false;
       }

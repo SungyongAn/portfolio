@@ -4,9 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
-## 12/12
+## 12/14
+
+- **開発環境のパスワードリセット機能の実装**
+
+  - フロントエンド
+
+    - `LoginForm.vue` を更新
+
+  - バックエンド
+    - `auth_schema.py` `/api/auth.py` `/service/auth.py` を更新
+    - `password_reset_model.py` を作成
+
+## 12/13
 
 - **一部機能の更新、修正**
+
   - フロントエンド
     - `UserHeader.vue` の戻るボタンを、`Vue Router` の履歴管理機能を利用する実装に変更
     - `AccountForm.vue` の `template` の欠損を復元
