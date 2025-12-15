@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from routes.db.db import get_db
-from routes.services import auth
-from routes.schemas.auth_schema import (
+from app.db.db import get_db
+from app.services import auth
+from app.schemas.auth_schema import (
     LoginRequest,
     LoginResponse,
     PasswordResetRequest,

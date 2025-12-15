@@ -4,13 +4,25 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
+## 12/15
+
+- **Docker Desktop 起動時のコンテナ自動機能を停止**
+
+  - `docker-compose.yml` の全ての `restart:` を `always` から `no` に変更
+
+- **FastAPI の設計思想に合わせ、バックエンド構成を明確化するため `routes` ディレクトリを `app` に名称変更**
+
+  - バックエンド
+    - ディレクトリ名を `routes` から `app` に変更
+    - 上記に伴い `/app` に `__init__.py` を作成
+    - 上記に伴い、import 文を `from routes.*` から `from app.*` に修正
+
 ## 12/14
 
 - **開発環境のパスワードリセット機能の実装**
 
   - フロントエンド
-
-    - `LoginForm.vue` を更新
+  - `LoginForm.vue` を更新
 
   - バックエンド
     - `auth_schema.py` `/api/auth.py` `/service/auth.py` を更新

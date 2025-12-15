@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import Optional, List
-from routes.models.accounts_model import Account, TeacherRole, Subject, RoleEnum, StatusEnum
+from app.models.accounts_model import Account, TeacherRole, Subject, RoleEnum, StatusEnum
 
 
 # アカウント関連のデータアクセスを担当するリポジトリクラス

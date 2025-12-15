@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from typing import Optional, List, Tuple
 from datetime import date
-from routes.models.renrakucho_model import RenrakuchoEntryModel
-from routes.models.accounts_model import Account
+from app.models.renrakucho_model import RenrakuchoEntryModel
+from app.models.accounts_model import Account
 
 
 # 連絡帳関連のデータアクセスを担当するリポジトリクラス

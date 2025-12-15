@@ -2,13 +2,13 @@ from datetime import datetime
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from routes.models.accounts_model import Account, RoleEnum, StatusEnum
-from routes.schemas.accounts_schema import (
+from app.models.accounts_model import Account, RoleEnum, StatusEnum
+from app.schemas.accounts_schema import (
     AccountRegisterRequest,
     AccountSearchPayload,
     AccountUpdatePayload
 )
-from routes.repositories.account_repository import (
+from app.repositories.account_repository import (
     AccountRepository,
     TeacherRoleRepository,
     SubjectRepository

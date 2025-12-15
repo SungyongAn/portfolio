@@ -1,14 +1,14 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from routes.models.renrakucho_model import RenrakuchoEntryModel
-from routes.schemas.renrakucho_schema import (
+from app.models.renrakucho_model import RenrakuchoEntryModel
+from app.schemas.renrakucho_schema import (
     RenrakuchoEntryRequest,
     PastRenrakuchoRecord,
 )
 from datetime import date
-from routes.websocket.notifications import notify_critical_entry_async
-from routes.repositories.renrakucho_repository import RenrakuchoRepository
-from routes.repositories.account_repository import AccountRepository
+from app.websocket.notifications import notify_critical_entry_async
+from app.repositories.renrakucho_repository import RenrakuchoRepository
+from app.repositories.account_repository import AccountRepository
 from fastapi import BackgroundTasks
 import logging
 

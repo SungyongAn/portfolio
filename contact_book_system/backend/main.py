@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from routes.api import (
+from app.api import (
     auth,
     account_management,
     renrakucho_management,
     chat,
     archive_management
     )
-from routes.websocket import notifications
+from app.websocket import notifications
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()

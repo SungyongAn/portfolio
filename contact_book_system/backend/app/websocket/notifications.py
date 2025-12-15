@@ -1,8 +1,8 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
-from routes.db.db import SessionLocal
+from app.db.db import SessionLocal
 from sqlalchemy.orm import Session
-from routes.models.accounts_model import Account
-from routes.models.chat_model import ChatRoom, ChatParticipant, ChatMessage
+from app.models.accounts_model import Account
+from app.models.chat_model import ChatRoom, ChatParticipant, ChatMessage
 from datetime import datetime
 import json
 import asyncio

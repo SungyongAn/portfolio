@@ -2,7 +2,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: renrakucho_mysql
-    restart: always
+    restart: no
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: renrakucho_db
@@ -22,7 +22,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: renrakucho_backend
-    restart: always
+    restart: no
     ports:
       - "8000:8000"
     environment:
@@ -41,7 +41,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: renrakucho_frontend
-    restart: always
+    restart: no
     ports:
       - "5173:5173"
     depends_on:

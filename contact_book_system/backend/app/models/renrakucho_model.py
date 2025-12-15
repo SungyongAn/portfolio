@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Date, Text, ForeignKey, DateTime, Boolean, func
 from sqlalchemy.dialects.mysql import TINYINT
-from routes.db.base import Base
+from app.db.base import Base
 
 
 class RenrakuchoEntryModel(Base):

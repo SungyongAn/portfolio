@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Enum as SQLEnum, TIMESTAMP, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from routes.db.base import Base
+from app.db.base import Base
 import enum
 
 

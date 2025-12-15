@@ -7,16 +7,16 @@ from datetime import datetime, timedelta
 from typing import Optional
 import secrets
 
-from routes.models.accounts_model import Account, TeacherRole, Subject
-from routes.models.password_reset_model import PasswordResetToken
-from routes.schemas.auth_schema import (
+from app.models.accounts_model import Account, TeacherRole, Subject
+from app.models.password_reset_model import PasswordResetToken
+from app.schemas.auth_schema import (
     LoginRequest, 
     LoginResponse,
     PasswordResetRequest,
     PasswordResetResponse,
     PasswordResetConfirm
 )
-from routes.db.db import get_db
+from app.db.db import get_db
 
 # パスワードハッシュ化の設定
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -3,9 +3,9 @@ from sqlalchemy import and_, or_, func
 from typing import Any, Optional
 from datetime import datetime
 
-from routes.models.chat_model import ChatRoom, ChatParticipant, ChatMessage, ChatReadStatus
-from routes.models.accounts_model import Account, RoleEnum
-from routes.schemas.chat_schema import (
+from app.models.chat_model import ChatRoom, ChatParticipant, ChatMessage, ChatReadStatus
+from app.models.accounts_model import Account, RoleEnum
+from app.schemas.chat_schema import (
     ChatRoomCreate, ChatRoomUpdate, MessageCreate,
     ChatRoomResponse, ChatRoomDetail, MessageResponse, ParticipantInfo
 )

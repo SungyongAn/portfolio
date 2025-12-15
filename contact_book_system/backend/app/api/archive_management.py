@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from routes.db.db import get_db
-from routes.services.archive_service import ArchiveService
-from routes.schemas.archive_schema import (
+from app.db.db import get_db
+from app.services.archive_service import ArchiveService
+from app.schemas.archive_schema import (
     ArchiveExecutionRequest,
     DeleteExecutionRequest
 )
-from routes.services.auth import get_current_user
-from routes.models.accounts_model import Account, RoleEnum
+from app.services.auth import get_current_user
+from app.models.accounts_model import Account, RoleEnum
 
 
 router = APIRouter(prefix="/archive-management", tags=["Archive Management"])
