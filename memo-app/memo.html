@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Memo</title>
+    <!-- 外部CSS読み込み -->
+    <link rel="stylesheet" href="memo.css" />
+  </head>
+  <body>
+    <!-- ドラッグ可能エリア -->
+    <div id="drag-area"></div>
+
+    <!-- メモ入力エリア -->
+    <textarea id="memoText"></textarea>
+
+    <!-- 隠しカラー選択 -->
+    <input type="color" id="colorPicker" />
+
+    <script>
+      const textArea = document.getElementById("memoText");
+      const colorInput = document.getElementById("colorPicker");
+      let currentType = "bg"; // bg or font
+
+      // テキスト反映
+      window.memoAPI.onSetText((text) => (textArea.value = text));
+      textArea.addEventListener("input", () =>
+        window.memoAPI.saveText(textArea.value)
+      );
+
+      // 色反映（bodyとtextAreaの両方に適用）
+      window.memoAPI.onSetColors(({ bgColor, fontColor }) => {
+        if (bgColor) {
+          document.body.style.backgroundColor = bgColor;
+          textArea.style.backgroundColor = bgColor;
+        }
+        if (fontColor) {
+          textArea.style.color = fontColor;
+        }
+      });
+
+      // カラー選択指示
+      window.memoAPI.onOpenColorPicker(({ type }) => {
+        currentType = type;
+        colorInput.click();
+      });
+
+      // 色選択完了（bodyとtextAreaの両方に適用）
+      colorInput.addEventListener("input", () => {
+        if (currentType === "bg") {
+          const color = colorInput.value;
+          document.body.style.backgroundColor = color;
+          textArea.style.backgroundColor = color;
+          window.memoAPI.sendColorUpdate({ bgColor: color });
+        } else {
+          textArea.style.color = colorInput.value;
+          window.memoAPI.sendColorUpdate({ fontColor: colorInput.value });
+        }
+      });
+
+      // Deleteキーで削除（テキストエリア外でのみ動作）
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Delete" && document.activeElement !== textArea) {
+          window.memoAPI.requestDelete();
+        }
+      });
+    </script>
+  </body>
+</html>
