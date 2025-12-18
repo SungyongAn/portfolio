@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## 2025-12
 
+## 12/18
+
+- frontend, backend に `README.md`を作成
+
+  - 役割・責務・読む人が違う情報を、迷わず読める場所に置くために作成
+
+- 上記の作成、 更新内容の反映のためルートディレクトリの `README.md` を更新
+
 ## 12/15
 
 - **Docker Desktop 起動時のコンテナ自動機能を停止**
