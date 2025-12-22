@@ -6,6 +6,15 @@
 
 - 初期 admin アカウント登録のため、 `4cd0c6be197e_add_initial_admin_user.py` を作成の上、反映
 - `init.sql` にて作成した `renrakucho_db` を削除
+- admin アカウント情報 メールアドレス:`admin@school.ac.jp` パスワード: `password123`
+- `models` 配下に `journal.py` `user.py` を作成
+- `schemas` 配下に `journal.py` `user.py` を作成
+- `routers` 配下に `journal.py` `user.py` を作成
+- `services` 配下に `journal_service.py` `user_service.py` を作成
+- `app` 配下に `db.py` `dependencies.py` を作成、`main.py` を更新
+- `email-validator` の導入を開始
+  - 12/22 現在、以下のエラーが表示される状態で原因調査中
+    ImportError: email-validator is not installed, run `pip install pydantic[email]`
 
 ## 2025/12/20
 
