@@ -1,5 +1,6 @@
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import text
 
 
 revision = "xxxx_initial_tables"

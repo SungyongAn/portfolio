@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025/12/22
+
+### Backend
+
+- 初期 admin アカウント登録のため、 `4cd0c6be197e_add_initial_admin_user.py` を作成の上、反映
+- `init.sql` にて作成した `renrakucho_db` を削除
+
 ## 2025/12/20
 
 ### Added
