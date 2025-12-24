@@ -1,5 +1,34 @@
 # Changelog
 
+## 2025/12/24
+
+### Backend
+
+- `requirements.txt` を重複や不足を確認したため、更新
+
+- ターミナルからのログイン認証が成功しないため、パスワードハッシュおよび認証処理の調査を実施中。
+
+## Fixed
+
+- Python 3.12 環境において passlib + bcrypt の組み合わせで発生していた認証エラーを修正
+- Python バージョンを 3.11 に変更
+- bcrypt を 3.2.2、passlib を 1.7.4 に固定し、互換性問題を解消
+
+## 2025/12/23
+
+### Backend
+
+- `email-validator` の導入時のエラーを対処
+
+  - `pip install email-validator` の再実行で解決
+
+- Pydantic モデルを集約し、import を簡潔にしつつ、パッケージの公開インターフェースを明確にするため、`app/` 配下にある `__init__.py` を全て更新
+- `models` 配下の `journal.py` `user.py` を更新、 `class_model.py` を作成
+- `schemas` 配下の `journal.py` `user.py` を更新
+- `routers` 配下の `journal.py` `user.py` を更新、 `teachers.py` `users.py` を作成
+- `services` 配下の `journal_service.py` `user_service.py` を更新、 `teacher_service.py` `user_service.py` を作成
+- `app` 配下の `db.py` `dependencies.py` `main.py` を更新
+
 ## 2025/12/22
 
 ### Backend
