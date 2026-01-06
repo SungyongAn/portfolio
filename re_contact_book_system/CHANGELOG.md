@@ -1,5 +1,55 @@
 # Changelog
 
+## 2026/01/06
+
+### Backend
+#### Changed
+- 仮想環境の作成方法を `python -m venv venv` から `uv venv .venv` に変更
+
+
+## 2025/12/30
+
+- API通信の基盤整備
+  - `src/services/api.js`: Axios設定、APIエンドポイント定義
+  - リクエストインターセプター（JWTトークン自動付与）
+  - レスポンスインターセプター（401エラー時の自動ログアウト）
+- 状態管理の実装
+  - `src/stores/auth.js`: Pinia認証ストアを作成
+  - ログイン/ログアウト処理
+  - LocalStorageとの連携
+- ルーティングの実装
+  - `src/router/index.js`: Vue Routerの設定
+  - 認証ガード（ロール別アクセス制御）
+  - 生徒/教師/管理者ごとのルート定義
+- UI実装
+  - `src/views/LoginView.vue`: ログイン画面の作成
+    - Bootstrapによるレスポンシブデザイン
+    - パスワード表示/非表示トグル
+    - ローディング状態の表示
+    - エラーメッセージ表示
+  - 各ロール用の仮ダッシュボード作成
+    - `src/views/student/DashboardView.vue`: 生徒用
+    - `src/views/teacher/DashboardView.vue`: 教師用
+    - `src/views/admin/UserManagementView.vue`: 管理者用
+  - その他のビューファイル作成
+    - `src/views/student/SubmitView.vue`: 連絡帳提出
+    - `src/views/student/HistoryView.vue`: 履歴表示
+    - `src/views/teacher/SubmissionsView.vue`: 提出状況
+    - `src/views/teacher/UnreadView.vue`: 未読一覧
+    - `src/views/NotFoundView.vue`: 404ページ
+- 環境変数設定（`.env`ファイル作成、`VITE_API_URL`設定）
+- フロントエンド・バックエンド連携の動作確認完了
+  - ログイン → トークン取得 → ダッシュボード遷移の動作確認
+
+### Fixed
+
+- `requirements.txt`の不足パッケージを追加
+  - `uvicorn[standard]`: サーバー起動に必須
+  - `pymysql`: MySQLドライバ
+  - `email-validator`: Pydanticのメールバリデーション
+  - `python-multipart`: FastAPIのフォーム処理
+- Viteの import エラーを解決（ビューファイルの不足を修正）
+
 ## 2025/12/24
 
 ### Backend
