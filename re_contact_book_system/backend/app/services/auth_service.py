@@ -6,7 +6,7 @@ from jose import jwt
 import os
 
 # パスワードハッシュ化
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # JWT設定
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")

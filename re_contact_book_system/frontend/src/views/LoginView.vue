@@ -119,7 +119,7 @@ const handleLogin = async () => {
 
   if (result.success) {
     // ロールに応じてリダイレクト
-    router.push(`/${result.role}/dashboard`)
+    router.push('/')
   } else {
     errorMessage.value = result.message
   }

@@ -6,7 +6,9 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
+      name: 'home',
+      meta: { requiresAuth: true },
+      component: { render: () => null }
     },
     {
       path: '/login',
@@ -88,27 +90,24 @@ const router = createRouter({
 // ナビゲーションガード
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  const isAuthenticated = authStore.isAuthenticated
-  const userRole = authStore.role
 
-  // 認証が必要なページ
-  if (to.meta.requiresAuth) {
-    if (!isAuthenticated) {
-      next('/login')
-      return
-    }
-
-    // ロールチェック
-    if (to.meta.role && userRole !== to.meta.role) {
-      // 権限がない場合、自分のダッシュボードへリダイレクト
-      next(`/${userRole}/dashboard`)
-      return
-    }
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next({ name: 'login' })
+    return
   }
 
-  // ゲスト専用ページ（ログイン済みユーザーはアクセス不可）
-  if (to.meta.requiresGuest && isAuthenticated) {
-    next(`/${userRole}/dashboard`)
+  if (to.path === '/') {
+    const role = authStore.role
+
+    if (role === 'admin') {
+      next('/admin/users')
+    } else if (role === 'teacher') {
+      next('/teacher/dashboard')
+    } else if (role === 'student') {
+      next('/student/dashboard')
+    } else {
+      next('/login')
+    }
     return
   }
 

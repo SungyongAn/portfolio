@@ -2,6 +2,25 @@
 
 ## 2026/01/06
 
+### Frontend
+#### Changed
+- ログイン後の画面遷移設計を見直し
+  - LoginView.vue からロール依存の遷移処理を削除
+  - ログイン成功時は `/` へ遷移し、画面振り分けを Router に集約
+- Vue Router のルーティング設計を改善
+  - `/` をロール別リダイレクト用のハブルートとして定義
+  - `beforeEach` ナビゲーションガードでユーザーロールに応じた初期遷移を制御
+    - admin → `/admin/users`
+    - teacher → `/teacher/dashboard`
+    - student → `/student/dashboard`
+- 管理者ログイン時に `/admin/dashboard` が存在せず 404 になる問題を修正
+
+### Backend
+- 再びython 3.12 環境において passlib + bcrypt の組み合わせで発生していた認証エラーを確認したため修正
+  - ハッシュ化を bcrypt から argon2 に変更
+
+## 2026/01/06
+
 ### Backend
 #### Changed
 - 仮想環境の作成方法を `python -m venv venv` から `uv venv .venv` に変更
