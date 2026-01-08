@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026/01/07
+
+### Frontend
+#### Changed
+- Docker を用いた開発環境でホットリロードを適用するため、`docker-compose.yml` を更新
+  - フロントエンドとバックエンド間の通信設定を整理
+  - 環境変数（API URL 等）の設定方法を見直し、開発時の疎通を安定化
+
 ## 2026/01/06
 
 ### Frontend
@@ -16,7 +24,7 @@
 - 管理者ログイン時に `/admin/dashboard` が存在せず 404 になる問題を修正
 
 ### Backend
-- 再びython 3.12 環境において passlib + bcrypt の組み合わせで発生していた認証エラーを確認したため修正
+- 再びPython 3.12 環境において passlib + bcrypt の組み合わせで発生していた認証エラーを確認したため修正
   - ハッシュ化を bcrypt から argon2 に変更
 
 ## 2026/01/06

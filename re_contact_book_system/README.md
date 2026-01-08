@@ -9,8 +9,9 @@
 - **Database**: MySQL 8.0 (Docker)
 - **ORM**: SQLAlchemy 2.0.36
 - **Migration**: Alembic 1.14.0
-- **Authentication**: JWT (python-jose 3.3.0 + passlib 1.7.4 + bcrypt 5.0.0)
-- **Python**: 3.11.9
+- **Authentication**: JWT (python-jose) + Password Hashing (passlib + argon2)
+  - bcrypt の Python 3.12 互換問題を回避するため argon2 を採用
+- **Python**: 3.11 / 3.12（Docker開発環境）
 - **Package Manager**: uv
 
 ### Frontend
@@ -24,6 +25,7 @@
 ### Infrastructure
 - **Containerization**: Docker, Docker Compose
 - **Development**: Windows (VSCode)
+- **Hot Reload**: Docker volume mount + Uvicorn / Vite dev server
 
 ## プロジェクト構造
 ```
@@ -38,7 +40,6 @@ re_contact_book_system/
 │   │   ├── dependencies.py  # 認証・依存性注入
 │   │   └── main.py          # FastAPIアプリ
 │   ├── alembic/             # マイグレーション
-│   ├── .venv/               # 仮想環境 (uv)
 │   ├── requirements.txt     # Python依存関係
 │   └── .env                 # 環境変数
 ├── frontend/
@@ -56,118 +57,99 @@ re_contact_book_system/
 └── docs/
     └── ER図.png
 ```
+※ 開発環境では Docker を使用しており、ローカルの仮想環境（.venv）はリポジトリには含めていません。
 
 ## セットアップ
 
+本プロジェクトは **Docker / Docker Compose を前提とした開発環境** を採用しています。  
+バックエンド（FastAPI）・フロントエンド（Vue.js）ともに Docker コンテナ上で起動し、  
+ホットリロードが有効な状態で開発できます。
+
+---
+
 ### 前提条件
 
-- **Python**: 3.11.9
-- **Node.js**: 18+
-- **Docker Desktop**: 最新版
-- **uv**: Python package manager（高速な依存関係管理）
+以下がローカル環境にインストールされていることを確認してください。
 
-#### uvのインストール
-```bash
-# Windows (PowerShell)
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+- **Docker Desktop**：最新版
+- **Node.js**：18 以上（※フロントエンドを Docker 外で作業する場合）
+- **Git**
 
-# Mac/Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
+※ Python や uv をローカルにインストールする必要はありません。
 
-# 確認
-uv --version
-```
+---
 
 ### 1. リポジトリのクローン
+
 ```bash
 git clone <repository-url>
 cd re_contact_book_system
 ```
 
-### 2. バックエンドのセットアップ
+### 2. 環境変数ファイルの作成
+
+#### バックエンド
+
 ```bash
 cd backend
-
-# Python 3.11.9 で仮想環境を作成
-uv venv --python 3.11.9
-
-# 仮想環境を有効化
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
-# Windows CMD:
-.venv\Scripts\activate.bat
-# Mac/Linux:
-source .venv/bin/activate
-
-# 依存関係をインストール (uvを使用)
-uv pip install -r requirements.txt
-
-# インストール確認
-uv pip list
-
-# 環境変数ファイルを作成
 cp .env.example .env
-# .env を編集して環境に合わせた設定を記入
 ```
+.env を編集し、データベース接続情報などを環境に合わせて設定してください。
 
-**インストールされる主要パッケージ (44パッケージ)**:
-- FastAPI 0.115.5
-- Uvicorn 0.32.1
-- SQLAlchemy 2.0.36
-- PyMySQL 1.1.1
-- Alembic 1.14.0
-- Pydantic 2.10.4
-- python-jose 3.3.0
-- passlib 1.7.4
-- bcrypt 5.0.0
-- email-validator 2.2.0
+#### フロントエンド
 
-### 3. データベースのセットアップ
-```bash
-# MySQLコンテナを起動
-docker-compose up -d
-
-# 起動確認
-docker ps
-
-# データベースを初期化
-docker exec -i journal_db mysql -uroot -prootpassword < init.sql
-
-# 接続確認
-python test_db_connection.py
-```
-
-### 4. バックエンドの起動
-```bash
-cd backend
-
-# 仮想環境が有効化されていることを確認
-# プロンプトに (.venv) が表示されていればOK
-
-# サーバー起動
-uvicorn app.main:app --reload
-```
-
-**起動確認**:
-- サーバー: http://localhost:8000
-- API ドキュメント (Swagger UI): http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-### 5. フロントエンドのセットアップ
 ```bash
 cd frontend
-
-# 依存関係をインストール
-npm install
-
-# 環境変数ファイルを作成
-echo "VITE_API_URL=http://localhost:8000" > .env
-
-# 開発サーバーを起動
-npm run dev
+cp .env.example .env
 ```
 
-フロントエンドは http://localhost:5173 で起動します。
+例：
+```bash
+VITE_API_URL=http://localhost:8000
+```
+
+### 3. Docker コンテナの起動（開発環境）
+
+プロジェクトルートで以下を実行します。
+```bash
+docker compose up -d
+```
+
+起動中のコンテナを確認：
+```bash
+docker ps
+```
+
+### 4. データベースの初期化（初回のみ）
+
+```bash
+docker exec -i journal_db mysql -uroot -prootpassword < init.sql
+```
+
+### 5. 起動確認
+
+- **バックエンド（FastAPI）**  
+  http://localhost:8000  
+  - Swagger UI: http://localhost:8000/docs  
+  - ReDoc: http://localhost:8000/redoc  
+
+- **フロントエンド（Vue + Vite）**  
+  http://localhost:5173  
+
+コードを編集すると、バックエンド・フロントエンドともに  
+**ホットリロードにより自動で再読み込み**されます。
+
+### 6. コンテナの停止
+```bash
+docker compose down
+```
+### 補足
+
+- 開発環境では Docker volume を利用して、ホスト側のソースコードをコンテナにマウントしています
+- バックエンドは `uvicorn --reload`、フロントエンドは Vite の開発サーバーを使用しています
+- 本プロジェクトでは Docker 開発を前提としており、Python の仮想環境（`.venv`）は使用しません
+
+
 
 ## テストアカウント
 
@@ -239,74 +221,6 @@ npm run dev
 - `DELETE /api/users/{id}` - ユーザー削除
 
 詳細なAPI仕様は http://localhost:8000/docs を参照してください。
-
-## トラブルシューティング
-
-### バックエンドが起動しない
-```bash
-# 仮想環境が有効化されているか確認
-# プロンプトに (.venv) が表示されているか確認
-
-# Windowsの場合
-where python
-# 出力: C:\...\backend\.venv\Scripts\python.exe
-
-# uvでパッケージを再インストール
-uv pip install -r requirements.txt
-
-# データベース接続を確認
-python test_db_connection.py
-```
-
-### uvコマンドが見つからない
-```bash
-# uvを再インストール
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# パスが通っているか確認
-uv --version
-```
-
-### フロントエンドでCORSエラー
-
-`backend/app/main.py` のCORS設定を確認：
-```python
-allow_origins=[
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-```
-
-バックエンドを再起動してください。
-
-### データベース接続エラー
-```bash
-# Dockerコンテナが起動しているか確認
-docker ps
-
-# journal_db が表示されない場合
-docker-compose up -d
-
-# MySQLに直接接続して確認
-docker exec -it journal_db mysql -uroot -prootpassword journal_system
-
-# ユーザーが存在するか確認
-SELECT email, name, role FROM users;
-```
-
-### bcryptのバージョン問題
-
-Python 3.11.9 + bcrypt 5.0.0 の組み合わせで正常動作を確認済み。
-もしエラーが出る場合は仮想環境を再作成してください：
-```bash
-# 仮想環境を削除
-Remove-Item -Recurse -Force .venv
-
-# 再作成
-uv venv --python 3.11.9
-.venv\Scripts\Activate.ps1
-uv pip install -r requirements.txt
-```
 
 ## 変更履歴
 
