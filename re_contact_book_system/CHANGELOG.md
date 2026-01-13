@@ -1,14 +1,27 @@
 # Changelog
 
-## 2026/01/07
+## 2026/01/09
+
+#### Changed
+- Dockerコンテナ起動時に DB の起動を待って backend を起動するように `docker-compose.yml` を更新
+  - DB 起動確認用のスクリプト `/backend/wait_for_db.py` を作成
+
+- `docker-compose.yml` を開発環境用、本番用と分けてコンテナ化できるように分割
+  - `docker-compose.dev.yml` `docker-compose.prod.yml` を作成
 
 ### Frontend
+- 本番環境用の `Dockerfile` を仮作成
+
+## 2026/01/08
+
 #### Changed
 - Docker を用いた開発環境でホットリロードを適用するため、`docker-compose.yml` を更新
   - フロントエンドとバックエンド間の通信設定を整理
   - 環境変数（API URL 等）の設定方法を見直し、開発時の疎通を安定化
 
-## 2026/01/06
+- `READEME.md` を更新
+
+## 2026/01/07
 
 ### Frontend
 #### Changed

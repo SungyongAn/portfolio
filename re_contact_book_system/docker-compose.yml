@@ -5,8 +5,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: journal_system
-    ports:
-      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -14,27 +12,12 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     environment:
       DATABASE_URL: mysql+pymysql://root:root@db:3306/journal_system
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: npm run dev -- --host
-    depends_on:
-      - backend
+    build: ./frontend
 
 volumes:
   mysql_data:

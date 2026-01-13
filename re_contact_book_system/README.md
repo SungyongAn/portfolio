@@ -110,12 +110,31 @@ VITE_API_URL=http://localhost:8000
 
 ### 3. Docker コンテナの起動（開発環境）
 
-プロジェクトルートで以下を実行します。
+本プロジェクトでは、  
+共通設定（`docker-compose.yml`）と  
+開発環境用設定（`docker-compose.dev.yml`）を組み合わせて起動します。
+
 ```bash
-docker compose up -d
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up -d --build
+```
+
+### 補足（本番環境について）
+
+本番環境では `docker-compose.prod.yml` を使用して起動します。
+開発環境とは異なり、ホットリロードやソースコードの volume マウントは行いません。
+
+```bash
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  up -d --build
 ```
 
 起動中のコンテナを確認：
+
 ```bash
 docker ps
 ```
