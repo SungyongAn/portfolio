@@ -67,14 +67,32 @@ const router = createRouter({
     // === 管理者用ルート ===
     {
       path: '/admin',
-      name: 'admin',
-      redirect: '/admin/users',
       meta: { requiresAuth: true, role: 'admin' },
       children: [
         {
           path: 'users',
           name: 'admin-users',
-          component: () => import('@/views/admin/UserManagementView.vue')
+          component: () => import('@/views/admin/UsersView.vue')
+        },
+        {
+          path: 'users/create',
+          name: 'admin-users-create',
+          component: () => import('@/views/admin/UserCreateView.vue')
+        },
+        {
+          path: 'users/:id/edit',
+          name: 'admin-users-edit',
+          component: () => import('@/views/admin/UserEditView.vue')
+        },
+        {
+          path: 'grades',
+          name: 'admin-grades',
+          component: () => import('@/views/admin/GradesView.vue')
+        },
+        {
+          path: 'classes',
+          name: 'admin-classes',
+          component: () => import('@/views/admin/ClassesView.vue')
         }
       ]
     },

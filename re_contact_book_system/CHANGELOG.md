@@ -3,6 +3,19 @@
 ## 2026/01/09
 
 #### Changed
+- Docker 開発環境において Frontend のホットリロードが機能していなかったため、
+  Vite のファイル監視方式をポーリングに変更する設定を `vite.config.js` に追加
+
+### Frontend
+- 管理者用コンポーネントの作成を開始
+    - `UsersView.vue` `UserCreateView.vue` を作成
+    - 空ファイルの　`UserEditView.vue` `GradesView.vue` `ClassesView.vue` を作成
+    - `UserManagementView.vue` を削除
+    - `api.js` `index.js` を更新
+
+## 2026/01/09
+
+#### Changed
 - Dockerコンテナ起動時に DB の起動を待って backend を起動するように `docker-compose.yml` を更新
   - DB 起動確認用のスクリプト `/backend/wait_for_db.py` を作成
 

@@ -31,7 +31,7 @@ def upgrade():
         mysql_collate="utf8mb4_unicode_ci",
     )
 
-    # grades
+    # grades(学年)
     op.create_table(
         "grades",
         sa.Column("id", sa.Integer, primary_key=True),

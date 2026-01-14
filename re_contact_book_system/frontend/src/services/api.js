@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http:////127.0.0.1:8000'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -31,6 +31,8 @@ api.interceptors.response.use(
       // 認証エラー時はログアウト
       localStorage.removeItem('token')
       localStorage.removeItem('role')
+      localStorage.removeItem('userName')
+      localStorage.removeItem('userId')
       window.location.href = '/login'
     }
     return Promise.reject(error)
@@ -66,15 +68,39 @@ export const teacherAPI = {
   getUnreadJournals: () => api.get('/api/teachers/unread-journals')
 }
 
-// === ユーザー管理API ===
+// ===管理者API===
+export const adminAPI = {
+  // ユーザー管理
+  getUsers: (params) => api.get('/api/users/', { params }),
+  getUserById: (id) => api.get(`/api/users/${id}`),
+  createUser: (data) => api.post('/api/users/', data),
+  updateUser: (id, data) => api.put(`/api/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/api/users/${id}`),
+  getStudentsByClass: (classId) => api.get(`/api/users/students/by-class/${classId}`),
+  
+  // クラス・学年管理
+  getGrades: () => api.get('/api/admin/grades'),
+  getClasses: (gradeId) => api.get(`/api/admin/grades/${gradeId}/classes`),
+  getAllClasses: () => api.get('/api/admin/classes'),
+  createClass: (data) => api.post('/api/admin/classes', data),
+  updateClass: (id, data) => api.put(`/api/admin/classes/${id}`, data),
+  deleteClass: (id) => api.delete(`/api/admin/classes/${id}`),
+  
+  // クラス割当
+  assignStudentToClass: (data) => api.post('/api/admin/assign-student', data),
+  assignTeacherToClass: (data) => api.post('/api/admin/assign-teacher', data),
+  
+  // 統計情報
+  getStats: () => api.get('/api/admin/stats')
+}
+
 export const userAPI = {
-  create: (data) => api.post('/api/users/', data),
-  getAll: (role, limit = 100, offset = 0) => 
-    api.get('/api/users/', { params: { role, limit, offset } }),
-  getById: (id) => api.get(`/api/users/${id}`),
-  update: (id, data) => api.put(`/api/users/${id}`, data),
-  delete: (id) => api.delete(`/api/users/${id}`),
-  getStudentsByClass: (classId) => api.get(`/api/users/students/by-class/${classId}`)
+  create: (data) => adminAPI.createUser(data),
+  getAll: (params) => adminAPI.getUsers(params),
+  getById: (id) => adminAPI.getUserById(id),
+  update: (id, data) => adminAPI.updateUser(id, data),
+  delete: (id) => adminAPI.deleteUser(id),
+  getStudentsByClass: (classId) => adminAPI.getStudentsByClass(classId)
 }
 
 export default api

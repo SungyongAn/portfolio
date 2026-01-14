@@ -115,10 +115,7 @@ VITE_API_URL=http://localhost:8000
 開発環境用設定（`docker-compose.dev.yml`）を組み合わせて起動します。
 
 ```bash
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.dev.yml \
-  up -d --build
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
 ### 補足（本番環境について）
@@ -127,10 +124,7 @@ docker compose \
 開発環境とは異なり、ホットリロードやソースコードの volume マウントは行いません。
 
 ```bash
-docker compose \
-  -f docker-compose.yml \
-  -f docker-compose.prod.yml \
-  up -d --build
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
 起動中のコンテナを確認：
