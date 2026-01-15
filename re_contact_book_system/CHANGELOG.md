@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026/01/16
+
+## Fixed
+- MySQLコンテナの文字コード設定を修正
+  - PowerShell の `Get-Content` は UTF-8 BOM付きで出力する場合があり、MySQL が BOM を解釈できず文字化けする問題を回避
+  - コマンドプロンプトから以下を実行することで正常に初期データを投入可能：
+    ```cmd
+    docker compose exec -T db mysql -u root -proot --default-character-set=utf8mb4 journal_system < seed.sql
+    ```
+
 ## 2026/01/15
 
 ## Changed
