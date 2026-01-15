@@ -1,6 +1,22 @@
 # Changelog
 
-## 2026/01/09
+## 2026/01/15
+
+## Changed
+- init.sql とマイグレーションの役割を整理し、テーブル定義の重複を解消
+- テストデータ投入専用として seed.sql を新規作成
+- 表記上の問題で ER図.pdf を削除、er_diagram.mmd に変更
+
+## Fixed
+- seed.sql 実行時に発生していた外部キー制約エラーを修正
+- AUTO_INCREMENT ID の直指定を廃止し、サブクエリによる参照方式に変更
+- MySQLコンテナの文字コード設定を修正
+  - seed.sql実行時の文字化けを解消するため、MySQL設定ファイル(my.cnf)でutf8mb4を指定
+  - `mysql/Dockerfile`と`mysql/conf.d/my.cnf`を新規作成
+  - `docker-compose.yml`のdbサービスをbuild方式に変更
+  - ※現在もseed.sql実行時に文字化けが発生しており、原因調査中
+
+## 2026/01/14
 
 #### Changed
 - Docker 開発環境において Frontend のホットリロードが機能していなかったため、

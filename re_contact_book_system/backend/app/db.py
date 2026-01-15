@@ -11,7 +11,7 @@ load_dotenv()
 # 環境変数から取得、なければデフォルト値を使用
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://root:root@localhost:3307/journal_system"
+    "mysql+pymysql://root:root@db:3306/journal_system?charset=utf8mb4"
 )
 
 # SQLAlchemyエンジンの作成
