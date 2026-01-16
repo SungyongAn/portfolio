@@ -2,10 +2,30 @@
 
 ## 2026/01/16
 
+## Changed
+- **ログイン期間管理機能の実装（アクセストークン / リフレッシュトークン）**
+  - アクセストークンはメモリに保持、リフレッシュトークンは HttpOnly Cookie で管理
+  - フロントエンドから直接アクセス不可となり、XSS 攻撃に対して安全性が向上
+
+### Frontend
+- 認証ストア（Pinia）を更新し、アクセストークンをメモリ上で管理
+- `auth.js` / `api.js` を更新
+  - `refreshToken` の localStorage 保存を削除
+  - axios の `withCredentials` を設定し、Cookie 経由でリフレッシュトークンを送信
+- `main.js` / `LoginView.vue` を更新
+
+### Backend
+- `auth_service.py` を更新し、アクセストークンおよびリフレッシュトークンを発行
+- 認証ルーター（`auth.py`）を更新
+  - ログイン時に refresh_token を HttpOnly Cookie に設定
+  - ログアウト時に refresh_token Cookie を削除
+- `user.py`（ユーザーモデル）関連を更新
+  - リフレッシュトークン対応に伴うアクセストークン生成ロジックを修正
+
 ## Fixed
 - MySQLコンテナの文字コード設定を修正
-  - PowerShell の `Get-Content` は UTF-8 BOM付きで出力する場合があり、MySQL が BOM を解釈できず文字化けする問題を回避
-  - コマンドプロンプトから以下を実行することで正常に初期データを投入可能：
+  - PowerShell の `Get-Content` で UTF-8 BOM付き出力した場合の文字化けを回避
+  - 初期データ投入コマンド：
     ```cmd
     docker compose exec -T db mysql -u root -proot --default-character-set=utf8mb4 journal_system < seed.sql
     ```

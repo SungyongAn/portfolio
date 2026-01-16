@@ -113,15 +113,14 @@ const handleLogin = async () => {
   loading.value = true
   errorMessage.value = ''
 
-  const result = await authStore.login(email.value, password.value)
-
-  loading.value = false
-
-  if (result.success) {
-    // ロールに応じてリダイレクト
+  try {
+    await authStore.login(email.value, password.value)
     router.push('/')
-  } else {
-    errorMessage.value = result.message
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = 'ログインに失敗しました'
+  } finally {
+    loading.value = false
   }
 }
 </script>

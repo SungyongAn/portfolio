@@ -10,10 +10,19 @@ class LoginRequest(BaseModel):
 
 # ログインレスポンス
 class LoginResponse(BaseModel):
-    token: str = Field(..., description="JWTトークン")
+    access_token: str = Field(..., description="アクセストークン（短命）")
+    token_type: str = Field(default="bearer", description="トークンタイプ")
+    expires_in: int = Field(..., description="有効期限（秒）")
     role: str = Field(..., description="ユーザーロール")
     name: str = Field(..., description="ユーザー名")
     user_id: int = Field(..., description="ユーザーID")
+
+
+# トークンリフレッシュレスポンス
+class TokenRefreshResponse(BaseModel):
+    access_token: str = Field(..., description="新しいアクセストークン")
+    token_type: str = Field(default="bearer", description="トークンタイプ")
+    expires_in: int = Field(..., description="有効期限（秒）")
 
 
 # ユーザー作成リクエスト

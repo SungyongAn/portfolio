@@ -10,6 +10,8 @@
 - **ORM**: SQLAlchemy 2.0.36
 - **Migration**: Alembic 1.14.0
 - **Authentication**: JWT (python-jose) + Password Hashing (passlib + argon2)
+  - アクセストークンはメモリで管理
+  - リフレッシュトークンは HttpOnly Cookie で管理（XSS 攻撃に対する安全性向上）
   - bcrypt の Python 3.12 互換問題を回避するため argon2 を採用
 - **Python**: 3.11 / 3.12（Docker開発環境）
 - **Package Manager**: uv
@@ -169,7 +171,7 @@ docker compose down
 | ロール | メールアドレス | パスワード |
 |--------|---------------|-----------|
 | 管理者 | admin@school.ac.jp | password123 |
-| 教師（担任） | tanaka.teacher@school.ac.jp | password123 |
+| 教師（担任） | tanaka.teacher@school.ac.jcp | password123 |
 | 教師（学年主任） | suzuki.teacher@school.ac.jp | password123 |
 | 生徒 | yamada.taro@school.ac.jp | password123 |
 
@@ -209,9 +211,9 @@ docker compose down
 ## API エンドポイント
 
 ### 認証
-- `POST /api/auth/login` - ログイン（JWT発行）
+- `POST /api/auth/login` - ログイン（アクセストークンを返却、リフレッシュトークンは HttpOnly Cookie に保存）
 - `GET /api/auth/me` - 現在のユーザー情報取得
-- `POST /api/auth/logout` - ログアウト
+- `POST /api/auth/logout` - ログアウト（リフレッシュトークン Cookie を削除）
 
 ### 連絡帳
 - `POST /api/journals/` - 連絡帳提出
