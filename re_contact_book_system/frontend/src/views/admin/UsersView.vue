@@ -77,7 +77,7 @@
                     <td>{{ user.email }}</td>
                     <td>
                       <span class="badge" :class="getRoleBadgeClass(user.role)">
-                        {{ getRoleLabel(user.role) }}
+                        {{ user.role }}
                       </span>
                     </td>
                     <td>
@@ -239,21 +239,14 @@ const debounceSearch = () => {
 const getRoleBadgeClass = (role) => {
   const classes = {
     admin: 'bg-danger',
-    teacher: 'bg-primary',
-    student: 'bg-success'
+    担任: 'bg-primary',
+    教科担当: 'bg-primary',
+    学年主任: 'bg-primary',
+    生徒: 'bg-success'
   }
   return classes[role] || 'bg-secondary'
 }
 
-// ロール名
-const getRoleLabel = (role) => {
-  const labels = {
-    admin: '管理者',
-    teacher: '教師',
-    student: '生徒'
-  }
-  return labels[role] || role
-}
 
 // 日付フォーマット
 const formatDate = (dateString) => {

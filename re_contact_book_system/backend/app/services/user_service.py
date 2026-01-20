@@ -1,22 +1,14 @@
 
 from sqlalchemy.orm import Session
 from app.models.user import User, RoleEnum
+from app.models.class_model import Class, Grade, StudentClassAssignment, TeacherAssignment
 from app.schemas.user import UserCreate, UserUpdate
 from app.services.auth_service import get_password_hash
-from typing import Optional, List
+from app.schemas.user import AdminUserListResponse
 
 
+# ユーザーを作成
 def create_user(db: Session, user_data: UserCreate) -> User:
-    """
-    ユーザーを作成
-    
-    Args:
-        db: データベースセッション
-        user_data: ユーザー作成データ
-    
-    Returns:
-        User: 作成されたユーザー
-    """
     # メールアドレスを小文字に統一
     email = user_data.email.lower()
     
@@ -36,61 +28,87 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     return user
 
 
-def get_user_by_email(db: Session, email: str) -> Optional[User]:
-    """
-    メールアドレスでユーザーを取得
-    
-    Args:
-        db: データベースセッション
-        email: メールアドレス
-    
-    Returns:
-        User: ユーザー（見つからない場合はNone）
-    """
+# メールアドレスでユーザーを取得
+def get_user_by_email(db: Session, email: str) -> User | None:
     return db.query(User).filter(User.email == email.lower()).first()
 
 
-def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
-    """
-    IDでユーザーを取得
-    
-    Args:
-        db: データベースセッション
-        user_id: ユーザーID
-    
-    Returns:
-        User: ユーザー（見つからない場合はNone）
-    """
+# IDでユーザーを取得
+def get_user_by_id(db: Session, user_id: int) -> User | None:
     return db.query(User).filter(User.id == user_id).first()
 
 
-def get_all_users(
+# ユーザー一覧を取得
+def get_admin_user_list(
     db: Session,
-    role: Optional[str] = None,
-    limit: int = 100,
-    offset: int = 0
-) -> List[User]:
-    """
-    ユーザー一覧を取得
-    
-    Args:
-        db: データベースセッション
-        role: ロールでフィルタ（省略時は全ユーザー）
-        limit: 取得件数
-        offset: オフセット
-    
-    Returns:
-        List[User]: ユーザーリスト
-    """
-    query = db.query(User)
-    
+    role: str | None = None,
+    limit: int = 500,
+    offset: int = 0,
+) -> list[AdminUserListResponse]:
+    query = (
+        db.query(
+            User.id,
+            User.name,
+            User.email,
+            User.role,
+            Class.class_name,
+            Grade.grade_number,
+            TeacherAssignment.assignment_type
+        )
+        .outerjoin(
+            StudentClassAssignment,
+            (StudentClassAssignment.student_id == User.id)
+            & (StudentClassAssignment.is_current == True)
+        )
+        .outerjoin(Class, Class.id == StudentClassAssignment.class_id)
+        .outerjoin(Grade, Grade.id == Class.grade_id)
+        .outerjoin(
+            TeacherAssignment,
+            TeacherAssignment.teacher_id == User.id
+        )
+        .filter(User.role != RoleEnum.admin)
+    )
+
     if role:
         query = query.filter(User.role == role)
-    
-    return query.order_by(User.created_at.desc()).limit(limit).offset(offset).all()
+
+    results = query.limit(limit).offset(offset).all()
+
+    base_role_map = {
+        'student': '生徒',
+        'teacher': '教師',
+        'admin': '管理者'
+    }
+
+    assignment_map = {
+        'homeroom': '担任',
+        'vice_homeroom': '副担任',
+        'grade_head': '学年主任',
+        'subject': '教科担当'
+    }
+
+    # ここで role を置き換えてスキーマに整形 
+    user_list = []
+    for u in results:
+        # 教師の場合、assignment_type があれば置き換え
+        if u.role == RoleEnum.teacher and u.assignment_type:
+            display_role = assignment_map.get(u.assignment_type, '教師')
+        else:
+            display_role = base_role_map.get(u.role.value, u.role.value)  # student/admin
+
+        user_list.append(AdminUserListResponse(
+            id=u.id,
+            name=u.name,
+            email=u.email,
+            role=display_role,
+            grade_number=u.grade_number,
+            class_name=u.class_name
+        ))
+
+    return user_list
 
 
-def update_user(db: Session, user_id: int, user_data: UserUpdate) -> Optional[User]:
+def update_user(db: Session, user_id: int, user_data: UserUpdate) ->  User | None:
     """
     ユーザー情報を更新
     
@@ -137,7 +155,7 @@ def delete_user(db: Session, user_id: int) -> bool:
     return True
 
 
-def get_students_by_class(db: Session, class_id: int) -> List[User]:
+def get_students_by_class(db: Session, class_id: int) -> list[User]:
     """
     クラスに所属する生徒一覧を取得
     

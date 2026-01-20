@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db import get_db
-from app.schemas.user import UserCreate, UserResponse, UserUpdate, UserWithClassResponse
+from app.schemas.user import UserCreate, UserResponse, UserUpdate, UserWithClassResponse, AdminUserListResponse
 from app.services.user_service import (
     create_user,
     get_user_by_email,
     get_user_by_id,
-    get_all_users,
+    get_admin_user_list,
     update_user,
     delete_user,
     get_students_by_class
@@ -14,22 +14,18 @@ from app.services.user_service import (
 from app.dependencies import get_current_admin, get_current_user
 from app.models.user import User, RoleEnum
 from app.models.class_model import StudentClassAssignment
-from typing import List
 
 router = APIRouter(prefix="/api/users", tags=["ユーザー管理"])
 
 
+# ユーザーを作成
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_new_user(
     user_data: UserCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin)
 ):
-    """
-    ユーザーを作成
-    
-    管理者のみが実行可能。生徒、教師、管理者を作成できる。
-    """
+
     # メールアドレスの重複チェック
     existing_user = get_user_by_email(db, user_data.email)
     if existing_user:
@@ -52,34 +48,28 @@ def create_new_user(
     return user
 
 
-@router.get("/", response_model=List[UserResponse])
-def get_users(
+# ユーザー一覧を取得
+@router.get("/", response_model=list[AdminUserListResponse])
+def get_user_list(
     role: str = None,
-    limit: int = 100,
+    limit: int = 500,
     offset: int = 0,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin)
 ):
-    """
-    ユーザー一覧を取得
-    
-    管理者のみが実行可能。ロールでフィルタリング可能。
-    """
-    users = get_all_users(db, role=role, limit=limit, offset=offset)
+
+    users = get_admin_user_list(db, role=role, limit=limit, offset=offset)
     return users
 
 
-@router.get("/students/by-class/{class_id}", response_model=List[UserWithClassResponse])
+# クラスの生徒一覧を取得
+@router.get("/students/by-class/{class_id}", response_model=list[UserWithClassResponse])
 def get_students_in_class(
     class_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    クラスの生徒一覧を取得
-    
-    教師、管理者が実行可能。
-    """
+
     if current_user.role not in [RoleEnum.teacher, RoleEnum.admin]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -111,17 +101,15 @@ def get_students_in_class(
     return result
 
 
+
+# ユーザー情報を取得
 @router.get("/{user_id}", response_model=UserResponse)
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    ユーザー情報を取得
-    
-    自分自身または管理者のみが実行可能。
-    """
+
     user = get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(
@@ -139,6 +127,7 @@ def get_user(
     return user
 
 
+# ユーザー情報を更新
 @router.put("/{user_id}", response_model=UserResponse)
 def update_user_info(
     user_id: int,
@@ -146,11 +135,7 @@ def update_user_info(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    ユーザー情報を更新
-    
-    自分自身または管理者のみが実行可能。
-    """
+
     # 権限チェック: 自分自身または管理者のみ
     if current_user.id != user_id and current_user.role != RoleEnum.admin:
         raise HTTPException(
@@ -168,17 +153,14 @@ def update_user_info(
     return user
 
 
+# ユーザーを削除
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_account(
     user_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin)
 ):
-    """
-    ユーザーを削除
-    
-    管理者のみが実行可能。
-    """
+
     success = delete_user(db, user_id)
     if not success:
         raise HTTPException(

@@ -1,3 +1,5 @@
+from app.models.class_model import AssignmentTypeEnum, PermissionLevelEnum
+from app.models.user import RoleEnum
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 
@@ -73,3 +75,26 @@ class UserWithClassResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# 管理者権限でのユーザー検索時の教師情報
+class TeacherAssignmentSummary(BaseModel):
+    assignment_type: AssignmentTypeEnum
+
+    is_primary: bool
+    permission_level: PermissionLevelEnum
+
+    class Config:
+        from_attributes = True
+
+
+# 管理者権限でのユーザー検索
+class AdminUserListResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    role: str
+    grade_number: int | None
+    class_name: str | None
+
+

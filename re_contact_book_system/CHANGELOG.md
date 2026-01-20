@@ -2,6 +2,18 @@
 
 ## 2026/01/16
 
+### Backend
+- `get_admin_user_list` API のユーザー一覧取得ロジックを修正
+  - 教師の `role` を `assignment_type` に基づき担任、副担任、学年主任、教科担当などに変換して返すよう変更
+- `AdminUserListResponse` スキーマの `role` フィールドを `str` に修正
+
+### Frontend
+- ユーザー一覧表示で `role` をそのまま表示するよう修正
+- 不要となった `getRoleLabel` 関数を削除
+- 教師の表示が `teacher` から適切なラベル（担任・副担任等）になるよう変更
+
+## 2026/01/16
+
 ## Changed
 - **ログイン期間管理機能の実装（アクセストークン / リフレッシュトークン）**
   - アクセストークンはメモリに保持、リフレッシュトークンは HttpOnly Cookie で管理
