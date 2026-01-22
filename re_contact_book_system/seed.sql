@@ -69,7 +69,7 @@ INSERT INTO teacher_assignments (teacher_id, assignment_type, class_id, is_prima
 INSERT INTO teacher_assignments (teacher_id, assignment_type, grade_id, permission_level) VALUES
 ((SELECT id FROM users WHERE email = 'suzuki.teacher@school.ac.jp'), 'grade_head', 1, 'admin');
 
-INSERT INTO teacher_assignments (teacher_id, assignment_type, grade_id, subject_name, permission_level) VALUES
+INSERT INTO teacher_assignments (teacher_id, assignment_type, grade_id, subject_id, permission_level) VALUES
 ((SELECT id FROM users WHERE email = 'yamamoto.teacher@school.ac.jp'), 'subject', 1, '数学', 'read');
 
 -- 生徒アカウント
@@ -122,3 +122,7 @@ VALUES
 -- 完了メッセージ（任意確認用）
 -- ====================================
 SELECT 'データベース初期化・テストデータ投入完了' AS message;
+
+
+INSERT INTO teacher_assignments (teacher_id, assignment_type, grade_id, subject_id, permission_level) VALUES
+((SELECT id FROM users WHERE email = 'yamamoto.teacher@school.ac.jp'), 'subject', 1, '数学', 'read');

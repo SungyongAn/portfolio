@@ -5,13 +5,15 @@ erDiagram
     users ||--o{ journal_entries : "reads"
     users ||--o{ teacher_notes : "creates"
     users ||--o{ teacher_notes : "about"
-    
+
     grades ||--o{ classes : "contains"
     grades ||--o{ teacher_assignments : "assigned to"
-    
+
     classes ||--o{ student_class_assignments : "contains"
     classes ||--o{ teacher_assignments : "assigned to"
-    
+
+    subjects ||--o{ teacher_assignments : "assigned to"
+
     journal_entries ||--o{ teacher_notes : "related to"
 
     users {
@@ -38,6 +40,12 @@ erDiagram
         timestamp created_at
     }
 
+    subjects {
+        int id PK
+        varchar name UK "教科名（数学・国語など）"
+        boolean is_active
+    }
+
     student_class_assignments {
         int id PK
         int student_id FK
@@ -52,7 +60,7 @@ erDiagram
         enum assignment_type "homeroom/subject/grade_head/administrator"
         int grade_id FK "nullable"
         int class_id FK "nullable"
-        varchar subject_name "nullable"
+        int subject_id FK "nullable"
         boolean is_primary "主担任フラグ"
         enum permission_level "read/write/admin"
         timestamp created_at

@@ -1,6 +1,38 @@
 # Changelog
 
-## 2026/01/16
+## 2026/01/22
+
+## Added
+- 教師の教科担当を正規化するため `subjects` テーブルを追加
+  - 教科名（name）の一意制約を設定
+  - 有効／無効を管理するため `is_active` カラムを追加
+
+## Changed
+- 教師の担当情報管理を改善
+  - `teacher_assignments` テーブルに `subject_id` を追加
+  - 教科情報を `subjects` テーブル参照に変更
+- 教科名の文字列管理を廃止
+  - `teacher_assignments.subject_name` カラムを削除
+  - 教科情報はマスタテーブル（subjects）で一元管理する設計に変更
+
+## Design
+- 教師の担当種別（homeroom / subject / grade_head / administrator）ごとの
+  必須項目制御は DB 制約ではなく、バックエンドのサービス層バリデーションで行う方針を明確化
+- 学年（grades）・クラス（classes）は、生徒・教師で共通利用する設計とした
+- ER 図とは別に、役割（role / assignment_type）ごとのバリテーション設計をドキュメント化
+
+## Migration
+- Alembic による差分マイグレーションを追加
+  - subjects テーブル作成
+  - teacher_assignments の教科管理方式変更
+
+## 2026/01/21
+
+## Fixed
+- classes 初期データ登録処理の改善
+  - 初期登録情報が残っており、文字化けしていたため修正
+
+## 2026/01/20
 
 ### Backend
 - `get_admin_user_list` API のユーザー一覧取得ロジックを修正
