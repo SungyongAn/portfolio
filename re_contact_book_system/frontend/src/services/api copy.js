@@ -11,52 +11,45 @@ const api = axios.create({
   }
 })
 
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-})
+// リクエストインターセプター（トークン追加）
+api.interceptors.request.use(
+  (config) => {
+    const authStore = useAuthStore()
+    const token = authStore.accessToken
 
-api.interceptors.request.use((config) => {
-  const authStore = useAuthStore()
-  if (authStore.accessToken) {
-    config.headers.Authorization =
-      `Bearer ${authStore.accessToken}`
-  }
-  return config
-})
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
 
-export const refreshApi = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-})
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
+// レスポンスインターセプター（エラーハンドリング）
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
 
-    // refresh API 自身は除外
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes('/api/auth/refresh')
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
+      
       const authStore = useAuthStore()
-
+      
+      // リフレッシュトークンを使って再試行
       const success = await authStore.refreshAccessToken()
+      
       if (success) {
-        originalRequest.headers.Authorization =
-          `Bearer ${authStore.accessToken}`
+        // 元のリクエストを再実行
+        originalRequest.headers.Authorization = `Bearer ${authStore.accessToken}`
         return api(originalRequest)
       } else {
+        // リフレッシュ失敗時はログアウト
         authStore.logout()
       }
     }
-
+    
     return Promise.reject(error)
   }
 )
@@ -68,7 +61,6 @@ export const authAPI = {
   logout: () => api.post('/api/auth/logout'),
   getMe: () => api.get('/api/auth/me')
 }
-
 
 // === 連絡帳API ===
 export const journalAPI = {

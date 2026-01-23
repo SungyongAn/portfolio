@@ -75,24 +75,41 @@ class PermissionLevelEnum(str, enum.Enum):
 class TeacherAssignment(Base):
     """教師割当テーブル"""
     __tablename__ = "teacher_assignments"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     teacher_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True, comment='教師ID')
     assignment_type = Column(Enum(AssignmentTypeEnum), nullable=False, index=True, comment='割当種別')
     grade_id = Column(Integer, ForeignKey("grades.id", ondelete="CASCADE"), nullable=True, index=True, comment='学年ID')
     class_id = Column(Integer, ForeignKey("classes.id", ondelete="CASCADE"), nullable=True, index=True, comment='クラスID')
-    subject_name = Column(String(50), nullable=True, comment='教科名')
+    subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="SET NULL"), nullable=True, index=True, comment='教科ID')
     is_primary = Column(Boolean, default=False, comment='主担任フラグ')
     permission_level = Column(Enum(PermissionLevelEnum), default=PermissionLevelEnum.read, comment='権限レベル')
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
+
     # リレーション
     teacher = relationship("User", foreign_keys=[teacher_id], back_populates="teacher_assignments")
     grade = relationship("Grade")
     class_obj = relationship("Class", back_populates="teacher_assignments")
-    
+    subject = relationship("Subject", back_populates="teacher_assignments")
+
     def __repr__(self):
-        return f"<TeacherAssignment(teacher_id={self.teacher_id}, type={self.assignment_type})>"
+        return f"<TeacherAssignment(teacher_id={self.teacher_id}, type={self.assignment_type}, subject_id={self.subject_id})>"
+    
+
+class Subject(Base):
+    """教科テーブル"""
+    __tablename__ = "subjects"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False, comment="教科名（数学・国語など）")
+    is_active = Column(Boolean, default=True, comment="有効かどうか")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # リレーション
+    teacher_assignments = relationship("TeacherAssignment", back_populates="subject", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Subject(id={self.id}, name='{self.name}')>"
 
 
 class TeacherNote(Base):

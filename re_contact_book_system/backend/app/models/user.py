@@ -12,11 +12,8 @@ class RoleEnum(str, enum.Enum):
     admin = "admin"
 
 
+# ユーザーテーブル 生徒、教師、管理者すべてを管理
 class User(Base):
-    """
-    ユーザーテーブル
-    生徒、教師、管理者すべてを管理
-    """
     __tablename__ = "users"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -24,8 +21,13 @@ class User(Base):
     password_hash = Column(String(255), nullable=False, comment='ハッシュ化されたパスワード')
     name = Column(String(100), nullable=False, comment='氏名')
     role = Column(Enum(RoleEnum), nullable=False, comment='ユーザーロール')
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now()
+    )
     
     # リレーション
     # 生徒としてのクラス割当

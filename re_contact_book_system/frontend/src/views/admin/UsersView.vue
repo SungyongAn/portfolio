@@ -1,21 +1,5 @@
 <template>
   <div class="container-fluid mt-4">
-    <!-- ヘッダー -->
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-          <h1>
-            <i class="bi bi-people-fill"></i>
-            ユーザー管理
-          </h1>
-          <router-link to="/admin/users/create" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i>
-            新規ユーザー作成
-          </router-link>
-        </div>
-      </div>
-    </div>
-
     <!-- フィルター -->
     <div class="row mb-3">
       <div class="col-md-3">
@@ -34,6 +18,12 @@
           placeholder="名前またはメールアドレスで検索"
           @input="debounceSearch"
         />
+      </div>
+      <div class="col-md-3 d-flex justify-content-end align-items-center">
+        <router-link to="/admin/users/create" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i>
+          新規ユーザー作成
+        </router-link>
       </div>
     </div>
 
