@@ -4,18 +4,20 @@ import { authAPI } from '@/services/api'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     accessToken: null, // アクセストークンはメモリに保存
+    refreshToken: localStorage.getItem('refreshToken') || null,
     tokenExpiry: localStorage.getItem('tokenExpiry')
     ? Number(localStorage.getItem('tokenExpiry'))
     : null,
     role: localStorage.getItem('role') || null,
     userName: localStorage.getItem('userName') || null,
     userId: localStorage.getItem('userId') || null,
-    lastActivity: Date.now()
+    lastActivity: Date.now(),
+    inactivityTimer: null
   }),
 
   getters: {
     isAuthenticated: (state) => {
-       return !!state.accessToken
+       return !!state.accessToken || !!state.refreshToken
     },
 
     isTokenExpired: (state) => {
@@ -42,6 +44,7 @@ export const useAuthStore = defineStore('auth', {
         this.tokenExpiry = expiryTime
 
         // LocalStorageに保存
+        localStorage.setItem('refreshToken', data.refresh_token)
         localStorage.setItem('tokenExpiry', expiryTime.toString())
         localStorage.setItem('role', data.role)
         localStorage.setItem('userName', data.name)
@@ -49,9 +52,6 @@ export const useAuthStore = defineStore('auth', {
 
         // 最終アクティビティ時刻を更新
         this.updateActivity()
-
-        // 自動リフレッシュタイマーを開始
-        this.startTokenRefreshTimer()
         
         // 無操作タイマーを開始
         this.startInactivityTimer()
@@ -80,21 +80,6 @@ export const useAuthStore = defineStore('auth', {
         console.error('トークンリフレッシュエラー:', error)
         this.logout()
         return false
-      }
-    },
-
-    startTokenRefreshTimer() {
-      // トークン期限の1分前に自動リフレッシュ
-      if (this.refreshTimer) {
-        clearTimeout(this.refreshTimer)
-      }
-
-      const timeUntilRefresh = (this.tokenExpiry - Date.now()) - (60 * 1000) // 1分前
-      
-      if (timeUntilRefresh > 0) {
-        this.refreshTimer = setTimeout(() => {
-          this.refreshAccessToken()
-        }, timeUntilRefresh)
       }
     },
 
@@ -137,9 +122,6 @@ export const useAuthStore = defineStore('auth', {
 
     logout() {
       // タイマーをクリア
-      if (this.refreshTimer) {
-        clearTimeout(this.refreshTimer)
-      }
       if (this.inactivityTimer) {
         clearTimeout(this.inactivityTimer)
       }
@@ -170,7 +152,6 @@ export const useAuthStore = defineStore('auth', {
       if (this.refreshToken) {
         this.refreshAccessToken().then((success) => {
           if (success) {
-            this.startTokenRefreshTimer()
             this.startInactivityTimer()
           }
         })

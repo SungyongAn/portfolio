@@ -1,4 +1,4 @@
-interceptorimport axios from 'axios'
+import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
@@ -11,49 +11,41 @@ const api = axios.create({
   }
 })
 
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-})
-
+// リクエストインターセプター（トークン追加）
 api.interceptors.request.use((config) => {
-  const authStore = useAuthStore()
-  if (authStore.accessToken) {
-    config.headers.Authorization =
-      `Bearer ${authStore.accessToken}`
+  const auth = useAuthStore()
+  if (auth.accessToken) {
+    config.headers.Authorization = `Bearer ${auth.accessToken}`
   }
   return config
 })
 
-export const refreshApi = axios.create({
-  baseURL: API_BASE_URL,
-  withCredentials: true,
-})
-
+// レスポンスインターセプター（エラーハンドリング）
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    const auth = useAuthStore()
     const originalRequest = error.config
 
     // refresh API 自身は除外
+    if (originalRequest.url?.includes('/api/auth/refresh')) {
+      return Promise.reject(error)
+    }
+
     if (
       error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes('/api/auth/refresh')
+      auth.refreshToken &&
+      !originalRequest._retry
     ) {
       originalRequest._retry = true
-      const authStore = useAuthStore()
 
-      const success = await authStore.refreshAccessToken()
-      if (success) {
+      try {
+        await auth.refreshAccessToken()
         originalRequest.headers.Authorization =
-          `Bearer ${authStore.accessToken}`
+          `Bearer ${auth.accessToken}`
         return api(originalRequest)
-      } else {
-        authStore.logout()
+      } catch {
+        auth.logout()
       }
     }
 
@@ -68,7 +60,6 @@ export const authAPI = {
   logout: () => api.post('/api/auth/logout'),
   getMe: () => api.get('/api/auth/me')
 }
-
 
 // === 連絡帳API ===
 export const journalAPI = {
