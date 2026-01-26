@@ -3,24 +3,22 @@ import { authAPI } from '@/services/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    accessToken: null, // アクセストークンはメモリに保存
-    refreshToken: localStorage.getItem('refreshToken') || null,
-    tokenExpiry: localStorage.getItem('tokenExpiry')
-    ? Number(localStorage.getItem('tokenExpiry'))
-    : null,
-    role: localStorage.getItem('role') || null,
-    userName: localStorage.getItem('userName') || null,
-    userId: localStorage.getItem('userId') || null,
+    accessToken: null, // アクセストークンはメモリのみ
+    tokenExpiry: null, // メモリのみ
+    role: null, // メモリのみ
+    userName: null, // メモリのみ
+    userId: null, // メモリのみ
     lastActivity: Date.now(),
-    inactivityTimer: null
+    inactivityTimer: null,
+    eventListeners: [] // クリーンアップ用
   }),
 
   getters: {
-    isAuthenticated: (state) => {
-       return !!state.accessToken || !!state.refreshToken
+    isAuthenticated() {
+      return !!this.accessToken && !this.isTokenExpired
     },
-
-    isTokenExpired: (state) => {
+    
+    isTokenExpired(state) {
       if (!state.tokenExpiry) return true
       return Date.now() > state.tokenExpiry
     }
@@ -32,9 +30,8 @@ export const useAuthStore = defineStore('auth', {
         const response = await authAPI.login(email, password)
         const data = response.data
 
-        // トークンを保存
+        // トークンを保存（メモリのみ）
         this.accessToken = data.access_token
-        this.refreshToken = data.refresh_token
         this.role = data.role
         this.userName = data.name
         this.userId = data.user_id
@@ -42,13 +39,6 @@ export const useAuthStore = defineStore('auth', {
         // 有効期限を計算（expires_in は秒単位）
         const expiryTime = Date.now() + (data.expires_in * 1000)
         this.tokenExpiry = expiryTime
-
-        // LocalStorageに保存
-        localStorage.setItem('refreshToken', data.refresh_token)
-        localStorage.setItem('tokenExpiry', expiryTime.toString())
-        localStorage.setItem('role', data.role)
-        localStorage.setItem('userName', data.name)
-        localStorage.setItem('userId', data.user_id.toString())
 
         // 最終アクティビティ時刻を更新
         this.updateActivity()
@@ -65,15 +55,13 @@ export const useAuthStore = defineStore('auth', {
 
     async refreshAccessToken() {
       try {
-        const response = await authAPI.refreshToken(this.refreshToken)
+        const response = await authAPI.refreshToken()
         const data = response.data
 
-        // 新しいアクセストークンを保存
+        // 新しいアクセストークンを保存（メモリのみ）
         this.accessToken = data.access_token
         const expiryTime = Date.now() + (data.expires_in * 1000)
         this.tokenExpiry = expiryTime
-
-        localStorage.setItem('tokenExpiry', expiryTime.toString())
 
         return true
       } catch (error) {
@@ -86,10 +74,8 @@ export const useAuthStore = defineStore('auth', {
     startInactivityTimer() {
       const INACTIVITY_TIMEOUT = 30 * 60 * 1000 // 30分
 
-      // 既存のタイマーをクリア
-      if (this.inactivityTimer) {
-        clearTimeout(this.inactivityTimer)
-      }
+      // 既存のタイマーとリスナーをクリア
+      this.clearInactivityTimer()
 
       // アクティビティイベントのリスナー
       const resetTimer = () => {
@@ -105,56 +91,69 @@ export const useAuthStore = defineStore('auth', {
         }, INACTIVITY_TIMEOUT)
       }
 
-      // イベントリスナーを登録
-      window.addEventListener('mousemove', resetTimer)
-      window.addEventListener('keypress', resetTimer)
-      window.addEventListener('click', resetTimer)
-      window.addEventListener('scroll', resetTimer)
+      // イベントリスナーを登録し、参照を保存
+      const events = ['mousemove', 'keypress', 'click', 'scroll', 'touchstart']
+      events.forEach(eventName => {
+        window.addEventListener(eventName, resetTimer)
+        this.eventListeners.push({ eventName, handler: resetTimer })
+      })
 
       // 初回タイマー開始
       resetTimer()
     },
 
-    updateActivity() {
-      this.lastActivity = Date.now()
-      localStorage.setItem('lastActivity', this.lastActivity.toString())
-    },
-
-    logout() {
+    clearInactivityTimer() {
       // タイマーをクリア
       if (this.inactivityTimer) {
         clearTimeout(this.inactivityTimer)
+        this.inactivityTimer = null
       }
 
-      // 状態をクリア
-      this.accessToken = null
-      this.refreshToken = null
-      this.tokenExpiry = null
-      this.role = null
-      this.userName = null
-      this.userId = null
+      // イベントリスナーを削除
+      this.eventListeners.forEach(({ eventName, handler }) => {
+        window.removeEventListener(eventName, handler)
+      })
+      this.eventListeners = []
+    },
 
-      // LocalStorageをクリア
-      localStorage.removeItem('refreshToken')
-      localStorage.removeItem('tokenExpiry')
-      localStorage.removeItem('role')
-      localStorage.removeItem('userName')
-      localStorage.removeItem('userId')
-      localStorage.removeItem('lastActivity')
+    updateActivity() {
+      this.lastActivity = Date.now()
+    },
 
-      // ログインページへリダイレクト
-      window.location.href = '/login'
+    async logout() {
+      try {
+        // サーバー側のログアウトAPI呼び出し（リフレッシュトークンの無効化）
+        await authAPI.logout()
+      } catch (error) {
+        console.error('ログアウトAPIエラー:', error)
+      } finally {
+        // タイマーとリスナーをクリア
+        this.clearInactivityTimer()
+
+        // 状態をクリア
+        this.accessToken = null
+        this.tokenExpiry = null
+        this.role = null
+        this.userName = null
+        this.userId = null
+        this.lastActivity = Date.now()
+
+        // ログインページへリダイレクト
+        window.location.href = '/login'
+      }
     },
 
     // アプリ起動時の初期化
-    initialize() {
-      // refreshToken があれば、必ず accessToken の再取得を試みる
-      if (this.refreshToken) {
-        this.refreshAccessToken().then((success) => {
-          if (success) {
-            this.startInactivityTimer()
-          }
-        })
+    async initialize() {
+      // リフレッシュトークン（HttpOnly Cookie）が存在する場合のみトークン更新を試行
+      try {
+        await this.refreshAccessToken()
+        this.startInactivityTimer()
+        return true
+      } catch (error) {
+        // リフレッシュトークンがない、または無効な場合は何もしない
+        // ログイン画面への遷移はルーターガードで処理
+        return false
       }
     }
   }

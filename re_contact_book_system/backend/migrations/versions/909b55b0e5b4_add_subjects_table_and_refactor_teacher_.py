@@ -28,20 +28,6 @@ def upgrade():
         sa.UniqueConstraint("name", name="uk_subject_name"),
     )
 
-    # ② subject_name を削除
-    op.drop_column("teacher_assignments", "subject_name")
-
-    # ③ subject_id を追加
-    op.add_column(
-        "teacher_assignments",
-        sa.Column(
-            "subject_id",
-            sa.Integer,
-            sa.ForeignKey("subjects.id", ondelete="CASCADE"),
-            nullable=True,
-        ),
-    )
-
 
 def downgrade():
     op.drop_column("teacher_assignments", "subject_id")

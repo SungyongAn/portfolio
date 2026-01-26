@@ -1,13 +1,40 @@
 # Changelog
 
+## 2026/01/26
+
+### Docs
+- CHANGELOG の分割・整理を実施
+  - 設計判断・設計方針に関する記載を Design ドキュメントへ移動
+  - 認証設計に関する詳細を `docs/design/auth-design.md` に整理
+  - 教師担当割当設計に関する詳細を `docs/design/teacher-assignment-design.md` に整理
+  - CHANGELOG には「変更事実と参照先」を記載する方針に統一
+
+### Changed
+- 認証方式を interceptor による 401 ハンドリング中心の構成へ変更
+  - アクセストークンはメモリ管理、リフレッシュトークンは HttpOnly Cookie 管理へ移行
+  - フロントエンドでのリフレッシュトークン保持を廃止
+  - 無操作ログアウト処理を認証ストアに集約
+  - 認証初期化処理を refresh API ベースで再設計
+  - 詳細設計は `docs/design/auth-design.md` を参照
+
+### Database
+- Alembic マイグレーション `d29c0dfc9e24` を作成・実行
+  - `subjects` テーブルに初期教科データを登録
+    - 国語、社会、数学、理科、音楽、美術、保健体育、技術・家庭、英語
+  - 既存データが存在する場合も安全に挿入（`INSERT IGNORE` 使用）
+  - `downgrade` 実行時には該当データを削除
+
 ## 2026/01/24
 
 ## Changed
 - 認証処理を interceptor による 401 ハンドリング中心の構成へ移行
-- トークン更新をタイマー方式からレスポンス起点方式に変更
-- refresh API の再帰呼び出し防止処理を追加
+  ※ docs/design/auth-design.md を参照
 
 ## 2026/01/23
+
+### Design
+- 認証設計の見直し  
+  ※ docs/design/auth-design.md を参照
 
 ### Frontend
 - ログイン後に全画面で共有される共通ヘッダー／フッターを実装
@@ -21,32 +48,14 @@
   - 教師・学年・クラス・教科の関係を明確化
   - DBスキーマ変更に対応するため `/models/user.py` `/models/class_model.py` を修正
 
-## Changed
-- 認証設計の見直し
-  - 特定画面での挙動調査を通じて、トークン更新処理の役割を整理
-  - interceptor による 401 ハンドリングを中心とした構成方針を採用
-  - auth store 内の token refresh timer は不要と判断し、将来的に削除予定
-
 ## 2026/01/22
 
-## Added
-- 教師の教科担当を正規化するため `subjects` テーブルを追加
-  - 教科名（name）の一意制約を設定
-  - 有効／無効を管理するため `is_active` カラムを追加
+### Added
+- subjects テーブル追加
 
-## Changed
-- 教師の担当情報管理を改善
-  - `teacher_assignments` テーブルに `subject_id` を追加
-  - 教科情報を `subjects` テーブル参照に変更
-- 教科名の文字列管理を廃止
-  - `teacher_assignments.subject_name` カラムを削除
-  - 教科情報はマスタテーブル（subjects）で一元管理する設計に変更
-
-## Design
-- 教師の担当種別（homeroom / subject / grade_head / administrator）ごとの
-  必須項目制御は DB 制約ではなく、バックエンドのサービス層バリデーションで行う方針を明確化
-- 学年（grades）・クラス（classes）は、生徒・教師で共通利用する設計とした
-- ER 図とは別に、役割（role / assignment_type）ごとのバリテーション設計をドキュメント化
+### Changed
+- 教師担当情報の正規化  
+  ※ docs/design/teacher-assignment-design.md を参照
 
 ## Migration
 - Alembic による差分マイグレーションを追加
@@ -74,9 +83,8 @@
 ## 2026/01/16
 
 ## Changed
-- **ログイン期間管理機能の実装（アクセストークン / リフレッシュトークン）**
-  - アクセストークンはメモリに保持、リフレッシュトークンは HttpOnly Cookie で管理
-  - フロントエンドから直接アクセス不可となり、XSS 攻撃に対して安全性が向上
+- トークン管理方式をアクセストークン／リフレッシュトークン構成に変更  
+  ※ docs/design/auth-design.md を参照
 
 ### Frontend
 - 認証ストア（Pinia）を更新し、アクセストークンをメモリ上で管理

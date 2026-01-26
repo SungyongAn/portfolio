@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import router from '@/router'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 
@@ -20,32 +21,23 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// レスポンスインターセプター（エラーハンドリング）
+// レスポンスインターセプターで 401 エラー時に自動リフレッシュを試みる実装も検討できます
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const auth = useAuthStore()
     const originalRequest = error.config
 
-    // refresh API 自身は除外
-    if (originalRequest.url?.includes('/api/auth/refresh')) {
-      return Promise.reject(error)
-    }
-
-    if (
-      error.response?.status === 401 &&
-      auth.refreshToken &&
-      !originalRequest._retry
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-
+      
       try {
         await auth.refreshAccessToken()
-        originalRequest.headers.Authorization =
-          `Bearer ${auth.accessToken}`
         return api(originalRequest)
-      } catch {
+      } catch (refreshError) {
         auth.logout()
+        router.push('/login')
+        return Promise.reject(refreshError)
       }
     }
 
