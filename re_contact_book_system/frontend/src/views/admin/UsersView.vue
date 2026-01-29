@@ -174,7 +174,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { adminAPI } from '@/services/api'
+import { adminAPI } from '@/services/adminService'
 import { Modal } from 'bootstrap'
 
 const router = useRouter()

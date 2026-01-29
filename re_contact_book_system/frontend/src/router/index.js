@@ -165,30 +165,47 @@ const router = createRouter({
 })
 
 // ナビゲーションガード
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
+  // ログイン画面では初期化しない
+  if (!authStore.isInitialized && to.name !== 'login') {
+    await authStore.initAuth()
+  }
+
+  // 未ログインで認証必須ページ
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next({ name: 'login' })
     return
   }
 
-  if (to.path === '/') {
+  // ログイン済みでゲスト専用ページ
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
     const role = authStore.role
+    if (role === 'admin') return next('/admin/users')
+    if (role === 'teacher') return next('/teacher/dashboard')
+    if (role === 'student') return next('/student/dashboard')
+    return next('/')
+  }
 
-    if (role === 'admin') {
-      next('/admin/users')
-    } else if (role === 'teacher') {
-      next('/teacher/dashboard')
-    } else if (role === 'student') {
-      next('/student/dashboard')
-    } else {
+   // ルートアクセス時の振り分け
+   if (to.path === '/') {
+    if (!authStore.isAuthenticated) {
       next('/login')
+      return
     }
+
+    const role = authStore.role
+    if (role === 'admin') return next('/admin/users')
+    if (role === 'teacher') return next('/teacher/dashboard')
+    if (role === 'student') return next('/student/dashboard')
+
+    next('/login')
     return
   }
 
   next()
 })
+
 
 export default router

@@ -108,18 +108,8 @@ def get_admin_user_list(
     return user_list
 
 
+# ユーザー情報を更新
 def update_user(db: Session, user_id: int, user_data: UserUpdate) ->  User | None:
-    """
-    ユーザー情報を更新
-    
-    Args:
-        db: データベースセッション
-        user_id: ユーザーID
-        user_data: 更新データ
-    
-    Returns:
-        User: 更新されたユーザー
-    """
     user = get_user_by_id(db, user_id)
     if not user:
         return None
@@ -135,17 +125,8 @@ def update_user(db: Session, user_id: int, user_data: UserUpdate) ->  User | Non
     return user
 
 
+# ユーザーを削除
 def delete_user(db: Session, user_id: int) -> bool:
-    """
-    ユーザーを削除
-    
-    Args:
-        db: データベースセッション
-        user_id: ユーザーID
-    
-    Returns:
-        bool: 削除成功ならTrue
-    """
     user = get_user_by_id(db, user_id)
     if not user:
         return False
@@ -155,18 +136,8 @@ def delete_user(db: Session, user_id: int) -> bool:
     return True
 
 
+# クラスに所属する生徒一覧を取得
 def get_students_by_class(db: Session, class_id: int) -> list[User]:
-    """
-    クラスに所属する生徒一覧を取得
-    
-    Args:
-        db: データベースセッション
-        class_id: クラスID
-    
-    Returns:
-        List[User]: 生徒リスト
-    """
-    from app.models.class_model import StudentClassAssignment
     
     return db.query(User).join(
         StudentClassAssignment, User.id == StudentClassAssignment.student_id

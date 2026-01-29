@@ -17,6 +17,5 @@ app.use(router)
 
 // アプリ起動時に認証状態を初期化
 const authStore = useAuthStore()
-authStore.initialize()
 
 app.mount('#app')
