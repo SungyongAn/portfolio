@@ -16,12 +16,23 @@ export async function login(email, password) {
 
 
 export async function refreshAccessToken() {
-  const res = await api.post('/api/auth/refresh')
-  const { access_token, expires_in } = res.data
+  try {
+    const res = await api.post('/api/auth/refresh')
 
-  const auth = useAuthStore()
-  auth.accessToken = access_token
-  auth.tokenExpiry = Date.now() + expires_in * 1000
+    const { access_token, expires_in } = res.data
+
+    const auth = useAuthStore()
+    auth.accessToken = access_token
+    auth.tokenExpiry = Date.now() + expires_in * 1000
+
+    return true
+  } catch (error) {
+    if (error.response?.status === 401) {
+      // 未ログインは正常系
+      return false
+    }
+    throw error
+  }
 }
 
 export async function logout() {

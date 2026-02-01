@@ -22,6 +22,10 @@ export const useAuthStore = defineStore('auth', {
     isTokenExpired(state) {
       if (!state.tokenExpiry) return true
       return Date.now() > state.tokenExpiry
+    },
+    maybeLoggedIn(state) {
+      // refresh を試す価値があるか？
+      return !!state.accessToken || !!state.tokenExpiry
     }
   },
 
@@ -57,18 +61,19 @@ export const useAuthStore = defineStore('auth', {
         this.isInitialized = true
       },
 
-    async refreshAccessToken() {
-      try {
-        await authAPI.refreshAccessToken()
-        return true
-      } catch (error) {
-        if (error.response?.status === 401) {
-          return false
-        }
-
-        console.error('トークンリフレッシュエラー:', error)
-        return false
+    async initAuth() {
+      if (!this.maybeLoggedIn) {
+        this.isInitialized = true
+        return
       }
+
+      const refreshed = await this.refreshAccessToken()
+
+      if (refreshed) {
+        this.startInactivityTimer()
+      }
+
+      this.isInitialized = true
     },
 
     startInactivityTimer() {
