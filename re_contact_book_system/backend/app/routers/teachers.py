@@ -7,9 +7,9 @@ from app.services.teacher_service import (
     get_submission_status,
     is_teacher_of_class
 )
-from app.services.journal_service import get_class_submissions
-from app.dependencies import get_current_teacher, get_current_teacher_or_admin
-from app.models.user import User
+# from app.services.journal_service import get_class_submissions
+from app.dependencies.auth import get_current_teacher#, get_current_teacher_or_admin
+from app.models.user import User, RoleEnum
 from typing import List
 from datetime import date
 
@@ -49,68 +49,68 @@ def get_my_classes(
         "total": len(result)
     }
 
+# 現在未使用
+# @router.get("/classes/{class_id}/submissions", response_model=List[SubmissionStatusResponse])
+# def get_class_submission_status(
+#     class_id: int,
+#     submission_date: date = Query(default=None, description="提出日（省略時は今日）"),
+#     db: Session = Depends(get_db),
+#     current_user: User = Depends(get_current_teacher_or_admin)
+# ):
+#     """
+#     クラスの提出状況を取得
+    
+#     指定クラスの連絡帳提出状況を一覧で取得する。
+#     教師は担当クラスのみ、管理者は全クラスを閲覧可能。
+#     """
+#     # 教師の場合、担当クラスか確認
+#     if current_user.role == RoleEnum.teacher:
+#         if not is_teacher_of_class(db, current_user.id, class_id):
+#             raise HTTPException(
+#                 status_code=status.HTTP_403_FORBIDDEN,
+#                 detail="このクラスの提出状況を閲覧する権限がありません"
+#             )
+    
+#     # 提出状況を取得
+#     status_list = get_submission_status(db, class_id, submission_date)
+    
+#     return [SubmissionStatusResponse(**item) for item in status_list]
 
-@router.get("/classes/{class_id}/submissions", response_model=List[SubmissionStatusResponse])
-def get_class_submission_status(
-    class_id: int,
-    submission_date: date = Query(default=None, description="提出日（省略時は今日）"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_teacher_or_admin)
-):
-    """
-    クラスの提出状況を取得
-    
-    指定クラスの連絡帳提出状況を一覧で取得する。
-    教師は担当クラスのみ、管理者は全クラスを閲覧可能。
-    """
-    # 教師の場合、担当クラスか確認
-    from app.models.user import RoleEnum
-    if current_user.role == RoleEnum.teacher:
-        if not is_teacher_of_class(db, current_user.id, class_id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="このクラスの提出状況を閲覧する権限がありません"
-            )
-    
-    # 提出状況を取得
-    status_list = get_submission_status(db, class_id, submission_date)
-    
-    return [SubmissionStatusResponse(**item) for item in status_list]
 
-
-@router.get("/classes/{class_id}/journals", response_model=List[JournalResponse])
-def get_class_journals(
-    class_id: int,
-    submission_date: date = Query(default=None, description="提出日（省略時は今日）"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_teacher_or_admin)
-):
-    """
-    クラスの連絡帳一覧を取得
+# 現在未使用
+# @router.get("/classes/{class_id}/journals", response_model=List[JournalResponse])
+# def get_class_journals(
+#     class_id: int,
+#     submission_date: date = Query(default=None, description="提出日（省略時は今日）"),
+#     db: Session = Depends(get_db),
+#     current_user: User = Depends(get_current_teacher_or_admin)
+# ):
+#     """
+#     クラスの連絡帳一覧を取得
     
-    指定クラス・指定日の連絡帳を全て取得する。
-    """
-    # 教師の場合、担当クラスか確認
-    from app.models.user import RoleEnum
-    if current_user.role == RoleEnum.teacher:
-        if not is_teacher_of_class(db, current_user.id, class_id):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="このクラスの連絡帳を閲覧する権限がありません"
-            )
+#     指定クラス・指定日の連絡帳を全て取得する。
+#     """
+#     # 教師の場合、担当クラスか確認
+#     from app.models.user import RoleEnum
+#     if current_user.role == RoleEnum.teacher:
+#         if not is_teacher_of_class(db, current_user.id, class_id):
+#             raise HTTPException(
+#                 status_code=status.HTTP_403_FORBIDDEN,
+#                 detail="このクラスの連絡帳を閲覧する権限がありません"
+#             )
     
-    # 連絡帳を取得
-    journals = get_class_submissions(db, class_id, submission_date)
+#     # 連絡帳を取得
+#     journals = get_class_submissions(db, class_id, submission_date)
     
-    # レスポンス用に生徒名を追加
-    result = []
-    for journal in journals:
-        response = JournalResponse.from_orm(journal)
-        if journal.student:
-            response.student_name = journal.student.name
-        result.append(response)
+#     # レスポンス用に生徒名を追加
+#     result = []
+#     for journal in journals:
+#         response = JournalResponse.from_orm(journal)
+#         if journal.student:
+#             response.student_name = journal.student.name
+#         result.append(response)
     
-    return result
+#     return result
 
 
 @router.get("/dashboard")

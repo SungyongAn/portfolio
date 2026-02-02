@@ -9,9 +9,24 @@ from app.models.class_model import (
     AssignmentTypeEnum
     )
 from app.schemas.user import UserCreate, UserUpdate
-from app.services.auth_service import get_password_hash
+from app.utils.password_utils import get_password_hash, verify_password
 from app.schemas.user import AdminUserListResponse
 
+
+# メールアドレス・パスワードでユーザーを認証
+def authenticate_user(
+    db: Session,
+    email: str,
+    password: str,
+) -> User | None:
+    user = db.query(User).filter(User.email == email.lower()).first()
+    if not user:
+        return None
+
+    if not verify_password(password, user.password_hash):
+        return None
+
+    return user
 
 # ユーザーを作成
 def create_user(db: Session, user_data: UserCreate) -> User:
@@ -73,11 +88,8 @@ def aggregate_admin_user_rows(results):
     return user_dict
 
 
+# 教師の割当一覧から表示用 role / grade / class を決定
 def resolve_teacher_display_role(assignments):
-    """
-    教師の割当一覧から表示用 role / grade / class を決定
-    """
-    from app.models.class_model import AssignmentTypeEnum
 
     if not assignments:
         return "教師", None, None
@@ -115,6 +127,7 @@ def resolve_teacher_display_role(assignments):
         role_label = "副担任"
 
     return role_label, primary["grade_number"], primary["class_name"]
+
 
 
 def build_admin_user_list(user_dict):

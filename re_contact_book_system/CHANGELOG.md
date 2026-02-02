@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026/02/02
+
+### Changed
+- `__init__.py` をすべて空ファイルに変更
+  - モジュール再 export による循環 import を防止するため、明示的 import のみに統一
+
+- 認証関連の責務分離を実施
+  - `routers/auth.py` からビジネスロジックを分離し、`services/auth_service.py` に集約
+  - 認証依存関係（ログインユーザー取得・トークン検証）を `dependencies/` 配下へ分離
+  - 共通処理を `utils/` 配下へ整理
+
+- トークン関連処理の再構成
+  - `dependencies.py` を廃止し、トークン処理を新規作成した `utils/token_utils.py` に統合
+  - トークン生成・検証ロジックを一元管理する構成へ変更
+
 ## 2026/02/01
 
 ### Changed

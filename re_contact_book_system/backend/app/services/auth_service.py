@@ -1,81 +1,88 @@
+from fastapi import HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
-from app.models.user import User
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
-from jose import jwt
-import os
 
-# パスワードハッシュ化
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+from app.schemas.user import LoginRequest, LoginResponse, TokenRefreshResponse
+from app.services.user_service import authenticate_user
+from app.utils.token_utils import (
+    create_access_token,
+    create_refresh_token,
+    decode_token,
+)
 
-# JWT設定
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this-in-production")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))  # 15分
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))  # 7日
+ACCESS_TOKEN_EXPIRE_SECONDS = 900  # 15分
 
+# ログイン処理
+def login_user(
+    db: Session,
+    request: LoginRequest,
+    response: Response,
+) -> LoginResponse:
 
-# パスワード検証
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-# パスワードのハッシュ化
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-# ユーザー認証
-def authenticate_user(db: Session, email: str, password: str):
-    # メールアドレスを小文字に統一
-    user = db.query(User).filter(User.email == email.lower()).first()
+    user = authenticate_user(db, request.email, request.password)
     if not user:
-        return None
-    if not verify_password(password, user.password_hash):
-        return None
-    return user
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="メールアドレスまたはパスワードが間違っています",
+        )
+
+    token_data = {
+        "sub": user.email,
+        "role": user.role,
+        "user_id": user.id,
+    }
+
+    access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
+
+    # リフレッシュトークンは Cookie に保存
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,  # 本番では True
+        samesite="Lax",
+        max_age=60 * 60 * 24 * 7,
+    )
+
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_SECONDS,
+        role=user.role,
+        name=user.name,
+        user_id=user.id,
+    )
 
 
-# アクセストークンを生成
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    to_encode.update({
-        "exp": expire,
-        "type": "access"
-    })
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+# リフレッシュトークンからアクセストークンを再発行
+def refresh_access_token(
+    request: Request,
+) -> TokenRefreshResponse:
 
+    refresh_token = request.cookies.get("refresh_token")
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="リフレッシュトークンがありません",
+        )
 
-# リフレッシュトークンを生成
-def create_refresh_token(data: dict):
+    payload = decode_token(refresh_token)
+    if not payload or payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="無効なリフレッシュトークンです",
+        )
 
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    
-    to_encode.update({
-        "exp": expire,
-        "type": "refresh"
-    })
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+    token_data = {
+        "sub": payload.get("sub"),
+        "role": payload.get("role"),
+        "user_id": payload.get("user_id"),
+    }
 
+    new_access_token = create_access_token(token_data)
 
-# トークンをデコード
-def decode_access_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        
-        # 期限切れチェック
-        exp = payload.get("exp")
-        if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():
-            return None
-            
-        return payload
-    except jwt.JWTError:
-        return None
+    return TokenRefreshResponse(
+        access_token=new_access_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_SECONDS,
+    )

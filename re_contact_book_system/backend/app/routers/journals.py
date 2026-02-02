@@ -11,7 +11,7 @@ from app.services.journal_service import (
     get_journal_by_id
 )
 from app.services.teacher_service import can_view_journal
-from app.dependencies import get_current_user, get_current_student, get_current_teacher
+from app.dependencies.auth import get_current_user, get_current_student, get_current_teacher
 from app.models.user import User, RoleEnum
 from typing import List
 

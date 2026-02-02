@@ -84,10 +84,50 @@
 
 ## 6. CHANGELOG との対応関係
 
+本設計書の内容は、以下の CHANGELOG に記載された設計変更・試行錯誤を
+整理・再構成したものである。
+
 | 日付 | 内容 |
 |---|---|
 | 2026/01/16 | トークン管理方式の見直し |
 | 2026/01/23 | interceptor 中心設計への移行 |
 | 2026/01/24 | 再帰呼び出し防止の追加 |
 
----
+## 7. モジュール構成と責務分離
+
+### 7.1 構成方針
+
+認証機能は責務ごとに明確に分離し、  
+循環 import や起動時エラーを防ぐ構成とする。
+
+- router / service / utils / dependencies を明確に分離
+- __init__.py による再 export は行わない
+- 下位レイヤーは上位レイヤーを import しない
+
+### 7.2 各モジュールの責務
+
+- routers/auth.py  
+  HTTP リクエスト・レスポンス制御のみを担当
+
+- services/auth_service.py  
+  認証ユースケース（login / refresh）を担当
+
+- utils/password_utils.py  
+  パスワードのハッシュ化・検証を行う純粋関数群
+
+- utils/token_utils.py  
+  JWT の生成・検証などトークン関連処理を担当
+
+- dependencies/auth.py  
+  FastAPI Depends 用の認証依存関数を定義
+
+### 7.3 import 設計と循環参照対策
+
+- service から utils への import は許可
+- utils から service への import は禁止
+- router は service のみを参照
+- __init__.py ではシンボルを再 export しない
+
+これにより、認証機能の拡張時にも
+循環 import や ImportError が発生しない構成としている。
+

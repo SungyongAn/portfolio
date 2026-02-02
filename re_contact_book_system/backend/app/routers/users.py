@@ -11,7 +11,7 @@ from app.services.user_service import (
     delete_user,
     get_students_by_class
 )
-from app.dependencies import get_current_admin, get_current_user
+from app.dependencies.auth import get_current_admin, get_current_user
 from app.models.user import User, RoleEnum
 from app.models.class_model import StudentClassAssignment
 
