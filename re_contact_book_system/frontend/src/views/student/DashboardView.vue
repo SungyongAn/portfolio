@@ -25,10 +25,6 @@
                 <i class="bi bi-clock-history"></i>
                 過去の記録
               </router-link>
-              <button @click="handleLogout" class="btn btn-outline-danger">
-                <i class="bi bi-box-arrow-right"></i>
-                ログアウト
-              </button>
             </div>
           </div>
         </div>

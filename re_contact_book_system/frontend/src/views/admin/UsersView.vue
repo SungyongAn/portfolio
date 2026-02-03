@@ -71,8 +71,11 @@
                       </span>
                     </td>
                     <td>
-                      <span v-if="user.class_name">
+                      <span v-if="user.role === '担任' || user.role === '生徒'">
                         {{ user.grade_number }}年{{ user.class_name }}
+                      </span>
+                      <span v-else-if="user.role === '学年主任'">
+                        {{ user.grade_number }}年主任
                       </span>
                       <span v-else class="text-muted">未割当</span>
                     </td>
