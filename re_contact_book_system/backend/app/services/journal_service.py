@@ -5,6 +5,7 @@ from app.models.user import User
 from app.schemas.journal import JournalCreate
 from datetime import date, datetime, timedelta
 from typing import Optional, List
+from app.models.class_model import StudentClassAssignment
 
 
 def calculate_entry_date(target_date: date = None) -> date:
@@ -142,7 +143,7 @@ def get_class_submissions(
     if submission_date is None:
         submission_date = date.today()
     
-    from app.models.class_model import StudentClassAssignment
+
     
     # クラスに所属する生徒の連絡帳を取得
     return db.query(JournalEntry).join(

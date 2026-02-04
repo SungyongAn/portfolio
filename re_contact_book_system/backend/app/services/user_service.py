@@ -254,3 +254,55 @@ def get_students_by_class(db: Session, class_id: int) -> list[User]:
         StudentClassAssignment.is_current == True,
         User.role == RoleEnum.student
     ).order_by(User.name).all()
+
+
+def get_student_class_summary(db: Session, user_id: int):
+    row = (
+        db.query(
+            Grade.grade_number,
+            Class.class_name,
+        )
+        .join(StudentClassAssignment, StudentClassAssignment.class_id == Class.id)
+        .join(Grade, Grade.id == Class.grade_id)
+        .filter(
+            StudentClassAssignment.student_id == user_id,
+            StudentClassAssignment.is_current == True,
+        )
+        .first()
+    )
+
+    if not row:
+        return None
+
+    return {
+        "grade_number": row.grade_number,
+        "class_name": row.class_name,
+    }
+
+
+
+def get_teacher_assignment_summaries(db: Session, user_id: int):
+    rows = (
+        db.query(
+            TeacherAssignment.assignment_type,
+            TeacherAssignment.is_primary,
+            TeacherAssignment.permission_level,
+            Grade.grade_number,
+            Class.class_name,
+        )
+        .outerjoin(Grade, Grade.id == TeacherAssignment.grade_id)
+        .outerjoin(Class, Class.id == TeacherAssignment.class_id)
+        .filter(TeacherAssignment.teacher_id == user_id)
+        .all()
+    )
+
+    return [
+        {
+            "assignment_type": r.assignment_type,
+            "is_primary": r.is_primary,
+            "permission_level": r.permission_level,
+            "grade_number": r.grade_number,
+            "class_name": r.class_name,
+        }
+        for r in rows
+    ]

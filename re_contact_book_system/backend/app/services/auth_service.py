@@ -1,8 +1,11 @@
 from fastapi import HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
-
-from app.schemas.user import LoginRequest, LoginResponse, TokenRefreshResponse
-from app.services.user_service import authenticate_user
+from app.schemas.user import LoginRequest, LoginResponse, RoleEnum, TokenRefreshResponse
+from app.services.user_service import (
+    authenticate_user,
+    get_student_class_summary,
+    get_teacher_assignment_summaries,
+    )
 from app.utils.token_utils import (
     create_access_token,
     create_refresh_token,
@@ -12,6 +15,7 @@ from app.utils.token_utils import (
 ACCESS_TOKEN_EXPIRE_SECONDS = 900  # 15分
 
 # ログイン処理
+
 def login_user(
     db: Session,
     request: LoginRequest,
@@ -34,23 +38,32 @@ def login_user(
     access_token = create_access_token(token_data)
     refresh_token = create_refresh_token(token_data)
 
-    # リフレッシュトークンは Cookie に保存
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,  # 本番では True
+        secure=False,
         samesite="Lax",
         max_age=60 * 60 * 24 * 7,
     )
 
+    student_class = None
+    teacher_assignments = []
+
+    if user.role == RoleEnum.student:
+        student_class = get_student_class_summary(db, user.id)
+
+    elif user.role == RoleEnum.teacher:
+        teacher_assignments = get_teacher_assignment_summaries(db, user.id)
+
     return LoginResponse(
         access_token=access_token,
-        token_type="bearer",
         expires_in=ACCESS_TOKEN_EXPIRE_SECONDS,
-        role=user.role,
-        name=user.name,
         user_id=user.id,
+        name=user.name,
+        role=user.role,
+        student_class=student_class,
+        teacher_assignments=teacher_assignments,
     )
 
 

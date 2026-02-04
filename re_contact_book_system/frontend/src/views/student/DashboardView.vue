@@ -42,9 +42,4 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const userName = computed(() => authStore.userName)
-
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/login')
-}
 </script>

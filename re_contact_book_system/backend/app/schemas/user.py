@@ -12,12 +12,17 @@ class LoginRequest(BaseModel):
 
 # ログインレスポンス
 class LoginResponse(BaseModel):
-    access_token: str = Field(..., description="アクセストークン（短命）")
-    token_type: str = Field(default="bearer", description="トークンタイプ")
-    expires_in: int = Field(..., description="有効期限（秒）")
-    role: str = Field(..., description="ユーザーロール")
-    name: str = Field(..., description="ユーザー名")
-    user_id: int = Field(..., description="ユーザーID")
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+    user_id: int
+    name: str
+    role: RoleEnum
+
+    # 学籍・担当情報（ロールによって使い分け）
+    student_class: StudentClassSummary | None = None
+    teacher_assignments: list[TeacherAssignmentSummary] = Field(default_factory=list)
 
 
 # トークンリフレッシュレスポンス
@@ -56,7 +61,7 @@ class UserResponse(BaseModel):
     id: int
     email: str
     name: str
-    role: str
+    role: RoleEnum
     created_at: datetime
 
     class Config:
@@ -68,7 +73,7 @@ class UserWithClassResponse(BaseModel):
     id: int
     email: str
     name: str
-    role: str
+    role: RoleEnum
     class_name: str | None = None
     grade_number: int | None = None
     created_at: datetime
@@ -76,11 +81,20 @@ class UserWithClassResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class StudentClassSummary(BaseModel):
+    grade_number: int
+    class_name: str
 
-# 管理者権限でのユーザー検索時の教師情報
+    class Config:
+        from_attributes = True
+
+
+# ユーザー検索時の教師情報
 class TeacherAssignmentSummary(BaseModel):
-    assignment_type: AssignmentTypeEnum
+    grade_number: int
+    class_name: str
 
+    assignment_type: AssignmentTypeEnum  # homeroom / sub_homeroom / subject
     is_primary: bool
     permission_level: PermissionLevelEnum
 
@@ -93,8 +107,8 @@ class AdminUserListResponse(BaseModel):
     id: int
     name: str
     email: str
-    role: str
-    grade_number: int | None
-    class_name: str | None
+    role: RoleEnum
 
+    student_class: StudentClassSummary | None = None
+    teacher_assignments: list[TeacherAssignmentSummary] = Field(default_factory=list)
 

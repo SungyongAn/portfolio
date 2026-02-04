@@ -158,6 +158,19 @@ docker exec -i journal_db mysql -uroot -prootpassword < init.sql
 ```bash
 docker compose down
 ```
+
+## スクリプト
+
+### API 経由で日誌を作成するスクリプト
+- ファイル: scripts/create_journal_via_api.py
+- 目的: API を通じて日誌エントリを作成する補助スクリプト
+- 使用例:
+  - Docker 内: docker compose exec backend python /app/scripts/create_journal_via_api.py
+  - ローカル: python scripts/create_journal_via_api.py
+- 注意:
+  - 本番データの直接変更は避ける
+  - API URL は .env を参照
+
 ### 補足
 
 - 開発環境では Docker volume を利用して、ホスト側のソースコードをコンテナにマウントしています

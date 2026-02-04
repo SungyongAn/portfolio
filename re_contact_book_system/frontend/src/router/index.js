@@ -197,7 +197,19 @@ router.beforeEach(async (to, from, next) => {
 
     const role = authStore.role
     if (role === 'admin') return next('/admin/users')
-    if (role === 'teacher') return next('/teacher/dashboard')
+    if (role === 'teacher') {
+      switch(authStore.teacherRole) {
+        case '担任':
+        case '副担任':
+          return next('/teacher/class-dashboard')
+        case '学年主任':
+          return next('/teacher/grade-dashboard')
+        case '教科担当':
+          return next('/teacher/subject-dashboard')
+        default:
+          return next('/teacher/dashboard')
+      }
+    }
     if (role === 'student') return next('/student/dashboard')
 
     next('/login')

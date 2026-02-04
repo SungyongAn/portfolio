@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026/02/04
+
+### Added
+- `scripts/create_journal_via_api.py` を作成
+  - API 経由で日誌を作成するスクリプトを追加
+
+- `docker-compose.dev.yml` を更新
+  - 開発環境コンテナでルート直下の `scripts/` を認識できるよう `volumes` にマウントを追加
+
+- `backend/requirements.txt` に `requests>=2.31.0` を追記
+  - Python スクリプトで HTTP リクエストを利用可能に
+
+### Changed
+- ログイン時に返却するユーザー情報の設計を見直し、ロール（生徒 / 教師）ごとに取得すべき学年・クラス情報を明確化
+  - 生徒ログイン時：現在所属している学年・クラス情報を取得する想定
+  - 教師ログイン時：`teacher_assignments` を基に担当学年・クラス情報を取得する設計とした
+
+### Design
+- `teacher_assignments` は 常に list として扱い、未割当時は空配列を返却する設計とした
+  - `list[...] | None `は使用せず、フロントエンド側での分岐を簡略化
+
+- バックエンドから値が取得できない場合でも、空リストを返却することでレスポンス構造を固定化する方針を確認
+
+### Refactor / Consideration
+- ログイン時のユーザー情報集約処理について、既存の `build_admin_user_list` / `resolve_teacher_display_role` の実装を参考にし、認証処理（`auth_service`）とユーザー情報集約ロジック（user_service）の責務分離を検討
+
+- 将来的な拡張（複数担任・学年主任・教科担当）を見据えつつ、現状は「1ユーザーにつき1つの `teacher_assignment` を主に扱う」前提で設計を進める方針を整理
+
+### Notes
+- 本変更は設計・方針整理段階であり、`auth_service.login_user` への実装反映は次工程で対応予定
+
 ## 2026/02/03
 
 ### Added
