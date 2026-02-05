@@ -8,10 +8,19 @@ export const useAuthStore = defineStore('auth', {
     role: null,
     userName: null,
     userId: null,
+    student_class: null,
+    primary_assignment: null,
+    teacher_assignments: [],  
     isInitialized: false,
     lastActivity: Date.now(),
     inactivityTimer: null,
-    eventListeners: []
+    eventListeners: [],
+
+    roleMap: {
+      student: '生徒',
+      teacher: '教師',
+      admin: '管理者'
+    }
   }),
 
   getters: {
@@ -23,9 +32,49 @@ export const useAuthStore = defineStore('auth', {
       if (!state.tokenExpiry) return true
       return Date.now() > state.tokenExpiry
     },
+
     maybeLoggedIn(state) {
-      // refresh を試す価値があるか？
       return !!state.accessToken || !!state.tokenExpiry
+    },
+
+    studentGrade() {
+      return this.student_class?.grade_number ?? null
+   },
+
+    studentClassName() {
+      return this.student_class?.class_name ?? null
+    },
+
+    primaryAssignmentType() {
+      return this.primary_assignment?.assignment_type ?? null
+    },
+
+    primaryAssignmentGrade() {
+      return this.primary_assignment?.grade_number ?? null
+    },
+
+    primaryAssignmentClass() {
+      return this.primary_assignment?.class_name ?? null
+    },
+
+    teacherAssignments() {
+      return this.teacher_assignments ?? []
+    }, 
+
+    displayRole() {
+      return this.role ? this.roleMap[this.role] || this.role : null
+    },
+    
+    isStudent() {
+      return this.role === 'student'
+    },
+
+    isTeacher() {
+      return this.role === 'teacher'
+    },
+
+    isAdmin() {
+      return this.role === 'admin'
     }
   },
 
@@ -44,22 +93,6 @@ export const useAuthStore = defineStore('auth', {
         throw error
       }
     },
-
-    async initAuth() {
-        const refreshed = await this.refreshAccessToken()
-
-        if (refreshed && this.accessToken) {
-          this.startInactivityTimer()
-        } else {
-          // 未ログイン状態として扱う
-          this.accessToken = null
-          this.tokenExpiry = null
-          this.role = null
-          this.userId = null
-          this.userName = null
-        } 
-        this.isInitialized = true
-      },
 
     async initAuth() {
       if (!this.maybeLoggedIn) {
@@ -129,6 +162,12 @@ export const useAuthStore = defineStore('auth', {
       this.role = null
       this.userName = null
       this.userId = null
+      this.student_class = null
+      this.primary_assignment = null
+      this.teacher_assignments = []
+
+        // ルーティング
+        router.push('/login')
     }
   }
 })

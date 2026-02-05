@@ -10,7 +10,7 @@ from app.models.class_model import (
     )
 from app.schemas.user import UserCreate, UserUpdate
 from app.utils.password_utils import get_password_hash, verify_password
-from app.schemas.user import AdminUserListResponse
+from app.schemas.user import AdminUserListResponse, StudentClassSummary, UserPrimaryAssignment
 
 
 # メールアドレス・パスワードでユーザーを認証
@@ -83,29 +83,23 @@ def aggregate_admin_user_rows(results):
                 "is_primary": row.is_primary,
                 "grade_number": row.teacher_grade_number,
                 "class_name": row.teacher_class_name,
+                "permission_level": row.permission_level,
             })
 
     return user_dict
 
 
-# 教師の割当一覧から表示用 role / grade / class を決定
-def resolve_teacher_display_role(assignments):
 
+# 教師の割当一覧から表示用 role / grade / class を決定
+def resolve_teacher_primary_assignment(assignments):
     if not assignments:
-        return "教師", None, None
+        return None, None, None
 
     assignment_priority = {
         AssignmentTypeEnum.grade_head: 1,
         AssignmentTypeEnum.homeroom: 2,
         AssignmentTypeEnum.subject: 3,
         AssignmentTypeEnum.administrator: 4,
-    }
-
-    assignment_map = {
-        AssignmentTypeEnum.homeroom: "担任",
-        AssignmentTypeEnum.grade_head: "学年主任",
-        AssignmentTypeEnum.subject: "教科担当",
-        AssignmentTypeEnum.administrator: "管理職",
     }
 
     sorted_assignments = sorted(
@@ -117,52 +111,52 @@ def resolve_teacher_display_role(assignments):
     )
 
     primary = sorted_assignments[0]
-
-    role_label = assignment_map.get(primary["assignment_type"], "教師")
-
-    if (
-        primary["assignment_type"] == AssignmentTypeEnum.homeroom
-        and not primary["is_primary"]
-    ):
-        role_label = "副担任"
-
-    return role_label, primary["grade_number"], primary["class_name"]
+    return primary["assignment_type"], primary["grade_number"], primary["class_name"]
 
 
 
 def build_admin_user_list(user_dict):
-    base_role_map = {
-        RoleEnum.student: "生徒",
-        RoleEnum.teacher: "教師",
-        RoleEnum.admin: "管理者",
-    }
-
     user_list: list[AdminUserListResponse] = []
 
     for user in user_dict.values():
         if user["role"] == RoleEnum.student:
-            display_role = base_role_map[RoleEnum.student]
-            grade_number = user["student_grade_number"]
-            class_name = user["student_class_name"]
+            student_class = (
+                StudentClassSummary(
+                    grade_number=user["student_grade_number"],
+                    class_name=user["student_class_name"]
+                )
+                if user["student_grade_number"] is not None else None
+            )
+            primary_assignment = None
 
         elif user["role"] == RoleEnum.teacher:
-            display_role, grade_number, class_name = resolve_teacher_display_role(
+            assignment_type, grade_number, class_name = resolve_teacher_primary_assignment(
                 user["teacher_assignments"]
             )
+            primary_assignment = (
+                UserPrimaryAssignment(
+                    assignment_type=assignment_type,
+                    grade_number=grade_number,
+                    class_name=class_name
+                )
+                if assignment_type else None
+            )
+            student_class = None
 
         else:
-            display_role = base_role_map.get(user["role"], user["role"].value)
-            grade_number = None
-            class_name = None
+            # 管理者
+            student_class = None
+            primary_assignment = None
 
         user_list.append(
             AdminUserListResponse(
                 id=user["id"],
                 name=user["name"],
                 email=user["email"],
-                role=display_role,
-                grade_number=grade_number,
-                class_name=class_name,
+                role=user["role"],
+                student_class=student_class,
+                primary_assignment=primary_assignment,
+                teacher_assignments=user["teacher_assignments"],
             )
         )
 
@@ -191,6 +185,7 @@ def get_admin_user_list(
             Grade.grade_number.label("student_grade_number"),
             TeacherAssignment.assignment_type,
             TeacherAssignment.is_primary,
+            TeacherAssignment.permission_level,
             TeacherGrade.grade_number.label("teacher_grade_number"),
             TeacherClass.class_name.label("teacher_class_name"),
         )

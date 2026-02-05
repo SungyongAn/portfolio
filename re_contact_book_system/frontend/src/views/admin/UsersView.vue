@@ -210,6 +210,7 @@ const fetchUsers = async () => {
     if (filters.value.search) params.search = filters.value.search
 
     const response = await adminAPI.getUsers(params)
+    console.log('取得したユーザー一覧:', response.data)
     users.value = response.data
   } catch (err) {
     console.error('ユーザー取得エラー:', err)

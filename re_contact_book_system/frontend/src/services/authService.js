@@ -12,6 +12,9 @@ export async function login(email, password) {
   auth.role = res.data.role
   auth.userId = res.data.user_id
   auth.userName = res.data.name
+  auth.student_class = res.data.student_class ?? null
+  auth.primary_assignment = res.data.primary_assignment ?? null
+  auth.teacher_assignments = res.data.teacher_assignments ?? []
 }
 
 
@@ -41,14 +44,6 @@ export async function logout() {
   } catch (e) {
     // 無視
   }
-
-  const auth = useAuthStore()
-  auth.accessToken = null
-  auth.userId = null
-  auth.userName = null
-  auth.role = null
-  auth.tokenExpiry = null
-  router.push('/login')
 }
 
 // 名前付き export まとめ

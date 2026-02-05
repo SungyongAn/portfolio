@@ -156,17 +156,31 @@ const authStore = useAuthStore()
 // ユーザー情報
 const userName = computed(() => authStore.userName || 'ゲスト')
 const role = computed(() => authStore.role)
+const grade_number = computed(() =>
+  isStudent.value ? authStore.student_class?.grade_number : null
+)
+
+const class_name = computed(() =>
+  isStudent.value ? authStore.student_class?.class_name : null
+)
 const userId = computed(() => authStore.userId)
+
 
 // クラス情報（Storeから取得 - 将来実装）
 const classInfo = computed(() => {
-  // TODO: ユーザー情報APIから学年・クラスを取得
-  // 仮実装
-  if (role.value === 'student') {
-    return '1年A組' // 実際はAPIから取得
-  } else if (role.value === 'teacher') {
-    return '1年A組 担任' // 実際はAPIから取得
+  if (authStore.isStudent) {
+    if (!authStore.studentGrade || !authStore.studentClassName) return null
+    return `${authStore.studentGrade}年${authStore.studentClassName}`
   }
+
+  if (authStore.isTeacher) {
+    // 例：担任が最初の assignment と仮定
+    const assignment = authStore.teacherAssignments[0]
+    if (!assignment) return null
+
+    return `${assignment.grade_number}年${assignment.class_name} 担任`
+  }
+
   return null
 })
 

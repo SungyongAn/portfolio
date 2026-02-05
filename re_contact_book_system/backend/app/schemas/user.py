@@ -10,6 +10,48 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=6, description="パスワード")
 
 
+# クラス情報付きユーザーレスポンス
+class UserWithClassResponse(BaseModel):
+    id: int
+    email: str
+    name: str
+    role: RoleEnum
+    class_name: str | None = None
+    grade_number: int | None = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# 生徒のユーザー情報取得時の学年、クラス情報
+class StudentClassSummary(BaseModel):
+    grade_number: int
+    class_name: str
+
+    class Config:
+        from_attributes = True
+
+
+# 教師のユーザー情報取得時の情報
+class TeacherAssignmentSummary(BaseModel):
+    grade_number: int | None = None
+    class_name: str | None = None
+
+    assignment_type: AssignmentTypeEnum  # homeroom / sub_homeroom / subject
+    is_primary: bool
+    permission_level: PermissionLevelEnum
+
+    class Config:
+        from_attributes = True
+
+class UserPrimaryAssignment(BaseModel):
+    assignment_type: AssignmentTypeEnum  # homeroom / sub_homeroom / subject
+    grade_number: int | None = None
+    class_name: str | None = None
+
+    class Config:
+        from_attributes = True
+
 # ログインレスポンス
 class LoginResponse(BaseModel):
     access_token: str
@@ -68,47 +110,18 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
-# クラス情報付きユーザーレスポンス
-class UserWithClassResponse(BaseModel):
-    id: int
-    email: str
-    name: str
-    role: RoleEnum
-    class_name: str | None = None
-    grade_number: int | None = None
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class StudentClassSummary(BaseModel):
-    grade_number: int
-    class_name: str
-
-    class Config:
-        from_attributes = True
-
-
-# ユーザー検索時の教師情報
-class TeacherAssignmentSummary(BaseModel):
-    grade_number: int
-    class_name: str
-
-    assignment_type: AssignmentTypeEnum  # homeroom / sub_homeroom / subject
-    is_primary: bool
-    permission_level: PermissionLevelEnum
-
-    class Config:
-        from_attributes = True
-
-
 # 管理者権限でのユーザー検索
 class AdminUserListResponse(BaseModel):
     id: int
     name: str
     email: str
-    role: RoleEnum
+    role: RoleEnum  # student / teacher / admin
 
+    # 生徒の場合のクラス情報
     student_class: StudentClassSummary | None = None
-    teacher_assignments: list[TeacherAssignmentSummary] = Field(default_factory=list)
 
+    # 教師の場合の代表割当（一覧表示用）
+    primary_assignment: UserPrimaryAssignment | None = None
+
+    # 教師の場合の全割当（編集・詳細画面用）
+    teacher_assignments: list[TeacherAssignmentSummary] = Field(default_factory=list)
