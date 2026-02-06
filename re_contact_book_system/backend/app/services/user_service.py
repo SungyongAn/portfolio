@@ -10,7 +10,12 @@ from app.models.class_model import (
     )
 from app.schemas.user import UserCreate, UserUpdate
 from app.utils.password_utils import get_password_hash, verify_password
-from app.schemas.user import AdminUserListResponse, StudentClassSummary, UserPrimaryAssignment
+from app.schemas.user import (
+    AdminUserListResponse, 
+    StudentClassSummary,
+    UserPrimaryAssignment, 
+    TeacherAssignmentSummary
+    )
 
 
 # メールアドレス・パスワードでユーザーを認証
@@ -91,9 +96,12 @@ def aggregate_admin_user_rows(results):
 
 
 # 教師の割当一覧から表示用 role / grade / class を決定
-def resolve_teacher_primary_assignment(assignments):
+def resolve_teacher_primary_assignment(
+    assignments: list[TeacherAssignmentSummary],
+) -> UserPrimaryAssignment | None:
+
     if not assignments:
-        return None, None, None
+        return None
 
     assignment_priority = {
         AssignmentTypeEnum.grade_head: 1,
@@ -105,13 +113,19 @@ def resolve_teacher_primary_assignment(assignments):
     sorted_assignments = sorted(
         assignments,
         key=lambda x: (
-            assignment_priority.get(x["assignment_type"], 99),
-            not x["is_primary"],
+            assignment_priority.get(x.assignment_type, 99),
+            not x.is_primary,
         )
     )
 
     primary = sorted_assignments[0]
-    return primary["assignment_type"], primary["grade_number"], primary["class_name"]
+
+    return UserPrimaryAssignment(
+        assignment_type=primary.assignment_type,
+        grade_number=primary.grade_number,
+        class_name=primary.class_name,
+    )
+
 
 
 
@@ -292,12 +306,12 @@ def get_teacher_assignment_summaries(db: Session, user_id: int):
     )
 
     return [
-        {
-            "assignment_type": r.assignment_type,
-            "is_primary": r.is_primary,
-            "permission_level": r.permission_level,
-            "grade_number": r.grade_number,
-            "class_name": r.class_name,
-        }
+        TeacherAssignmentSummary(
+            assignment_type=r.assignment_type,
+            is_primary=r.is_primary,
+            permission_level=r.permission_level,
+            grade_number=r.grade_number,
+            class_name=r.class_name,
+        )
         for r in rows
     ]

@@ -1,7 +1,6 @@
 // src/services/authService.js
 import api from './api'
 import { useAuthStore } from '@/stores/auth'
-import router from '@/router'
 
 export async function login(email, password) {
   const res = await api.post('/api/auth/login', { email, password })

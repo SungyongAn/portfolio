@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { authAPI } from '@/services/authService'
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -166,8 +167,8 @@ export const useAuthStore = defineStore('auth', {
       this.primary_assignment = null
       this.teacher_assignments = []
 
-        // ルーティング
-        router.push('/login')
+      // ルーティング
+      router.push('/login')
     }
   }
 })

@@ -64,6 +64,11 @@ class LoginResponse(BaseModel):
 
     # 学籍・担当情報（ロールによって使い分け）
     student_class: StudentClassSummary | None = None
+    
+    # 教師の場合の代表割当（一覧表示用）
+    primary_assignment: UserPrimaryAssignment | None = None
+
+    # 教師の場合の全割当（編集・詳細画面用）
     teacher_assignments: list[TeacherAssignmentSummary] = Field(default_factory=list)
 
 

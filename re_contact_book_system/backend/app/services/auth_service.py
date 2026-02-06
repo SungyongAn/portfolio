@@ -1,10 +1,17 @@
 from fastapi import HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
-from app.schemas.user import LoginRequest, LoginResponse, RoleEnum, TokenRefreshResponse
+from app.schemas.user import (
+    LoginRequest,
+    LoginResponse,
+    RoleEnum,
+    TokenRefreshResponse,
+    UserPrimaryAssignment
+    )
 from app.services.user_service import (
     authenticate_user,
     get_student_class_summary,
     get_teacher_assignment_summaries,
+    resolve_teacher_primary_assignment,
     )
 from app.utils.token_utils import (
     create_access_token,
@@ -49,12 +56,16 @@ def login_user(
 
     student_class = None
     teacher_assignments = []
+    primary_assignment = None
 
     if user.role == RoleEnum.student:
         student_class = get_student_class_summary(db, user.id)
 
     elif user.role == RoleEnum.teacher:
+
         teacher_assignments = get_teacher_assignment_summaries(db, user.id)
+
+        primary_assignment = resolve_teacher_primary_assignment(teacher_assignments)
 
     return LoginResponse(
         access_token=access_token,
@@ -63,6 +74,7 @@ def login_user(
         name=user.name,
         role=user.role,
         student_class=student_class,
+        primary_assignment=primary_assignment,
         teacher_assignments=teacher_assignments,
     )
 

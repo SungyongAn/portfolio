@@ -70,6 +70,7 @@
               </li>
             </template>
 
+            <!-- メニュー -->
             <template v-else-if="role === 'admin'">
               <li class="nav-item">
                 <router-link to="/admin/users" class="nav-link" active-class="active">

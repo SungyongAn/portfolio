@@ -1,8 +1,45 @@
 # Changelog
 
+## 2026/02/06
+
+### Changed
+- ログインレスポンス設計を整理し、教師ユーザー向けに以下の情報構造を明確化
+  - 教師の全割当情報（ `teacher_assignments` ）
+  - 一覧表示用の代表割当（ `primary_assignment` ）を分離
+- `LoginResponse` / `AdminUserListResponse` に `primary_assignment` を追加し、一覧表示用と詳細編集用の責務を分離
+- 教師割当の代表選択ロジックを `resolve_teacher_primary_assignment` に集約し、ロール判定や表示ロジックの重複を解消
+
+### Fixed
+- 教師ログイン時に発生していた以下のエラーを修正
+  - `tuple` / `dict` / `Schema` が混在していたことによる
+    `AttributeError: 'tuple' object has no attribute 'assignment_type'`
+- 教師割当取得処理を `TeacherAssignmentSummary`（ `Schema` ）に統一し、service 層から生データ（ `tuple` / `dict` ）を返さない設計に変更
+- 割当が存在しない教師ユーザーに対しても安全に処理できるよう、空配列チェックを追加
+
+### Refactored
+- 教師割当関連のデータ整形責務を service 層に集約
+  - `get_teacher_assignment_summaries`
+  - `resolve_teacher_primary_assignment`
+- ログイン処理 ( `login_user` ) を「取得 → 整形 → レスポンス返却」の単純な構造に整理
+  - 認証レスポンスにおけるロール分岐の可読性を向上
+
+### Notes
+- フロントエンド（Pinia / auth store）側の修正は不要
+  + 既存の `primary_assignment` / `teacher_assignments` 利用設計と整合
+- 今後、管理者ユーザー一覧（ `AdminUserList` ）でも `resolve_teacher_primary_assignment` を共通利用可能な設計とした
+
 ## 2026/02/05
 
 ### Changed
+- ログアウト処理の責務を `authStore.logout()` に集約
+  - `authService.logout()` は API 通信のみを担当するよう整理
+  - Store 側で以下の処理を一元管理する設計に変更
+    - 認証状態（accessToken / user 情報）の初期化
+    - 無操作タイマー（inactivityTimer）の解除
+    - ログイン画面へのルーティング遷移
+- 無操作タイムアウト時のログアウト処理を `authStore.logout()` 経由に統一
+  - ログアウト時の副作用（状態リセット・タイマー解除・遷移）が確実に実行されるよう改善
+
 - 管理者向けユーザー一覧取得ロジックを再設計
   - 教師の複数割当（担任・学年主任・教科担当など）に対応
   - DB の結合結果を user_id 単位で集約する `aggregate_admin_user_rows()` を追加
