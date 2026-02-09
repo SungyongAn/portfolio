@@ -131,3 +131,7 @@
 これにより、認証機能の拡張時にも
 循環 import や ImportError が発生しない構成としている。
 
+## 8. 関連ドキュメント
+
+- [ログインレスポンス設計](./login-response-design.md) - ログイン成功時のデータ構造設計
+- [教師担当割当設計](./teacher-assignment-design.md) - 教師の複数担当管理設計
