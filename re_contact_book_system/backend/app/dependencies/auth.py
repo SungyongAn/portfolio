@@ -8,14 +8,12 @@ from app.utils.token_utils import decode_token
 
 security = HTTPBearer()
 
-
+# アクセストークンから現在のユーザーを取得
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
-    """
-    アクセストークンから現在のユーザーを取得
-    """
+
     token = credentials.credentials
 
     payload = decode_token(token)
@@ -43,20 +41,16 @@ def get_current_user(
     return user
 
 
+# 現在のアクティブユーザーを取得（将来 is_active フラグなどを確認する想定）
 def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    """
-    現在のアクティブユーザーを取得
-    （将来 is_active フラグなどを確認する想定）
-    """
+    
     return current_user
 
 
+# 特定ロールを要求する依存関数
 def require_role(allowed_roles: list[RoleEnum]):
-    """
-    特定ロールを要求する依存関数
-    """
     def role_checker(
         current_user: User = Depends(get_current_active_user),
     ) -> User:

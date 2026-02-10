@@ -1,5 +1,51 @@
 # Frontend Changelog
 
+--------------------------------------------
+
+Fixed：バグ修正
+Infrastructure：環境・基盤変更（アプリの挙動自体は変わらない）
+Refactored：動作を変えないコード改善（内部構造のみ変更）
+Removed：完全削除
+Deprecated：今は使えるが将来削除予定
+Security：安全性に関わる変更
+
+⚠️ Breaking Change：破壊的変更
+※補足：
+アップデート後、これまで動いていた利用者側のコードや使い方が、
+そのままでは動作しなくなり、修正が必要となる変更を指します。
+
+例：
+- DBスキーマの変更（名称変更・型変更・必須項目の追加など）
+- テーブルのカラム追加・削除・名称変更
+- APIリクエスト／レスポンス仕様の変更により、
+  利用者側の実装修正が必要になる場合
+
+※原則として、項目の追加のみで既存の挙動や前提が変わらない場合は
+Breaking Change には該当しません。
+※ Breaking Change は変更内容のカテゴリではなく、
+各項目に付随する注意事項です。
+
+--------------------------------------------
+## 2026/02/10
+### Added
+- 管理者画面のユーザー一覧ページにおける表示用フィールドを統一
+  - `displayRole`、`displayGrade`、`displayClass` を追加
+  - 生徒・教師・管理者で情報取得元が異なる場合も template 側で統一的に表示可能に
+
+### Changed
+- `fetchUsers` 内で取得したユーザー情報を整形し、template 用の表示情報を事前に生成
+  - 教師の場合は `primary_assignment` から `assignment_type`、`grade_number`、`class_name` を取得
+  - 生徒の場合は `student_class` から `grade_number`、`class_name` を取得
+  - 管理者の場合は role 表示のみ
+- template 側での role / クラス情報の条件分岐を簡略化
+  - `user.displayRole`、`user.displayGrade`、`user.displayClass` を参照する形に変更
+- ロールバッジ表示も `displayRole` を参照するように変更
+
+### Refactored
+- 教師・生徒・管理者の表示ロジックを `fetchUsers` 内で集約
+  - template 側では表示専用フィールドのみを参照
+  - 表示ロジックの重複や分岐を削減
+
 ## 2026/02/05
 ### Changed
 - ログアウト処理の責務を `authStore.logout()` に集約

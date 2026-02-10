@@ -1,5 +1,45 @@
 # Backend Changelog
 
+--------------------------------------------
+
+Fixed：バグ修正
+Infrastructure：環境・基盤変更（アプリの挙動自体は変わらない）
+Refactored：動作を変えないコード改善（内部構造のみ変更）
+Removed：完全削除
+Deprecated：今は使えるが将来削除予定
+Security：安全性に関わる変更
+
+⚠️ Breaking Change：破壊的変更
+※補足：
+アップデート後、これまで動いていた利用者側のコードや使い方が、
+そのままでは動作しなくなり、修正が必要となる変更を指します。
+
+例：
+- DBスキーマの変更（名称変更・型変更・必須項目の追加など）
+- テーブルのカラム追加・削除・名称変更
+- APIリクエスト／レスポンス仕様の変更により、
+  利用者側の実装修正が必要になる場合
+
+※原則として、項目の追加のみで既存の挙動や前提が変わらない場合は
+Breaking Change には該当しません。
+※ Breaking Change は変更内容のカテゴリではなく、
+各項目に付随する注意事項です。
+
+--------------------------------------------
+
+
+## 2026/02/10
+### Fixed
+- 教師ユーザーの代表割当取得時の `AttributeError: 'tuple' object has no attribute 'assignment_type'` を修正
+  - `build_admin_user_list` 内で `resolve_teacher_primary_assignment` の返り値を適切に `UserPrimaryAssignment` に変換するよう整理
+  - 教師割当が存在しない場合（空配列）の処理を追加し、安全に `None` を返すよう修正
+- フロントで教師の `primary_assignment` 情報を安全に参照できるように対応
+
+### Refactored
+- `build_admin_user_list` 内での教師割当データ整形を整理
+  - 返り値を tuple ではなく `UserPrimaryAssignment` 型として扱う
+  - フロントでの `assignment_type` / `grade_number` / `class_name` 参照を統一
+
 ## 2026/02/06
 ### Changed
 - ログインレスポンス設計を整理し、教師ユーザー向けに以下の情報構造を明確化

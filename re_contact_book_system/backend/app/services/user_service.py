@@ -128,7 +128,6 @@ def resolve_teacher_primary_assignment(
 
 
 
-
 def build_admin_user_list(user_dict):
     user_list: list[AdminUserListResponse] = []
 
@@ -144,17 +143,14 @@ def build_admin_user_list(user_dict):
             primary_assignment = None
 
         elif user["role"] == RoleEnum.teacher:
-            assignment_type, grade_number, class_name = resolve_teacher_primary_assignment(
-                user["teacher_assignments"]
-            )
-            primary_assignment = (
-                UserPrimaryAssignment(
-                    assignment_type=assignment_type,
-                    grade_number=grade_number,
-                    class_name=class_name
+            teacher_assignments = [
+                TeacherAssignmentSummary.model_validate(a)
+                for a in user["teacher_assignments"]
+                ]
+            primary_assignment = resolve_teacher_primary_assignment(
+                teacher_assignments
                 )
-                if assignment_type else None
-            )
+
             student_class = None
 
         else:

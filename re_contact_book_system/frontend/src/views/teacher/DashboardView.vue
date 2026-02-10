@@ -52,7 +52,7 @@ const userRole = computed(() => authStore.user?.role || '')
 
 // 担任または副担任かどうか
 const isClassTeacher = computed(() => 
-  userRole.value === '担任' || userRole.value === '副担任'
+  primary_assignment.assignment_type === '担任' || primary_assignment.assignment_type === '副担任'
 )
 
 

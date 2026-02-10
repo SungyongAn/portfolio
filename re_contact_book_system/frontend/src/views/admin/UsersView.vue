@@ -7,7 +7,6 @@
           <option value="">全ロール</option>
           <option value="student">生徒</option>
           <option value="teacher">教師</option>
-          <option value="admin">管理者</option>
         </select>
       </div>
       <div class="col-md-6">
@@ -66,16 +65,16 @@
                     </td>
                     <td>{{ user.email }}</td>
                     <td>
-                      <span class="badge" :class="getRoleBadgeClass(user.role)">
-                        {{ user.role }}
+                      <span class="badge" :class="getRoleBadgeClass(user.displayRole)">
+                        {{ user.displayRole }}
                       </span>
                     </td>
                     <td>
-                      <span v-if="user.role === '担任' || user.role === '生徒'">
-                        {{ user.grade_number }}年{{ user.class_name }}
+                      <span v-if="user.displayRole === '担任' || user.displayRole === '生徒'">
+                        {{ user.displayGrade }}年{{ user.displayClass }}
                       </span>
-                      <span v-else-if="user.role === '学年主任'">
-                        {{ user.grade_number }}年主任
+                      <span v-else-if="user.displayRole === '学年主任'">
+                        {{ user.displayGrade }}年主任
                       </span>
                       <span v-else class="text-muted">未割当</span>
                     </td>
@@ -178,6 +177,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { adminAPI } from '@/services/adminService'
+import { authAPI } from '@/services/authService'
 import { Modal } from 'bootstrap'
 
 const router = useRouter()
@@ -210,8 +210,48 @@ const fetchUsers = async () => {
     if (filters.value.search) params.search = filters.value.search
 
     const response = await adminAPI.getUsers(params)
-    console.log('取得したユーザー一覧:', response.data)
-    users.value = response.data
+
+    // 教師の primary_assignment から displayRole を追加
+    users.value = response.data.map(user => {
+      let displayRole = ''
+      let displayGrade = null
+      let displayClass = null
+
+      if (user.role === 'teacher' && user.primary_assignment) {
+        switch(user.primary_assignment.assignment_type) {
+          case 'homeroom':
+            displayRole = '担任'
+            break
+          case 'grade_head':
+            displayRole = '学年主任'
+            break
+          case 'subject':
+            displayRole = '教科担当'
+            break
+          default:
+            displayRole = '教師'
+        }
+        displayGrade = user.primary_assignment.grade_number
+        displayClass = user.primary_assignment.class_name
+
+      } else if (user.role === 'student') {
+        displayRole = '生徒'
+        displayGrade = user.student_class?.grade_number ?? null
+        displayClass = user.student_class?.class_name ?? null
+
+      } else if (user.role === 'admin') {
+        displayRole = '管理者'
+      } else {
+        displayRole = user.role
+      }
+
+      return {
+        ...user,
+        displayRole,
+        displayGrade,
+        displayClass
+      }
+    })
   } catch (err) {
     console.error('ユーザー取得エラー:', err)
     error.value = 'ユーザー情報の取得に失敗しました'
@@ -219,6 +259,24 @@ const fetchUsers = async () => {
     loading.value = false
   }
 }
+
+onMounted(async () => {
+  // accessToken が無ければ refresh を試みる
+  if (!authStore.accessToken) {
+    const refreshed = await authAPI.refreshAccessToken()
+    if (!refreshed) {
+      // 未ログイン扱い → ログイン画面へ
+      router.push('/login')
+      return
+    }
+  }
+
+  // 認証が確定してから取得
+  await fetchUsers()
+
+  // Bootstrapモーダルの初期化
+  deleteModalInstance.value = new Modal(deleteModal.value)
+})
 
 // 検索のデバウンス
 let searchTimeout = null
@@ -230,7 +288,7 @@ const debounceSearch = () => {
 }
 
 // ロールバッジのクラス
-const getRoleBadgeClass = (role) => {
+const getRoleBadgeClass = (displayrole) => {
   const classes = {
     admin: 'bg-danger',
     担任: 'bg-primary',
@@ -238,7 +296,7 @@ const getRoleBadgeClass = (role) => {
     学年主任: 'bg-primary',
     生徒: 'bg-success'
   }
-  return classes[role] || 'bg-secondary'
+  return classes[displayrole] || 'bg-secondary'
 }
 
 
@@ -278,12 +336,6 @@ const deleteUser = async () => {
   }
 }
 
-// マウント時
-onMounted(() => {
-  fetchUsers()
-  // Bootstrapモーダルの初期化
-  deleteModalInstance.value = new Modal(deleteModal.value)
-})
 </script>
 
 <style scoped>

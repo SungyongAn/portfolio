@@ -93,7 +93,7 @@ def upgrade():
         sa.Column("teacher_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
         sa.Column(
             "assignment_type",
-            sa.Enum("homeroom", "subject", "grade_head", "administrator"),
+            sa.Enum("homeroom", "subject", "grade_head"),
             nullable=False,
         ),
         sa.Column("grade_id", sa.Integer, sa.ForeignKey("grades.id", ondelete="CASCADE")),
