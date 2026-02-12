@@ -9,6 +9,24 @@
 
 ---
 
+## 2026/02/12
+### Added
+-  ドキュメントファイルの所在を明記した `docs/INDEX.md` を作成
+  - `README.md` に `docs/INDEX.md` への案内を追加
+
+### Changed
+- 認証まわりの責務分離を整理
+  - API 層はレスポンスデータ返却のみに責務を限定
+  - 認証情報の state 更新処理を Pinia store に集約
+
+- ログイン後のユーザー情報管理設計を整理
+  - 教師・生徒それぞれの属性を store 直下で管理する構造に統一
+  - primary_assignment / teacher_assignments をオブジェクト構造で保持
+
+### Fixed
+- 教師ダッシュボードで担当区分（assignment_type）が取得できない問題を修正
+  - store と View 間の参照先不一致を解消
+
 ## 2026/02/10
 ### Changed
 - 教師の担当情報設計を整理

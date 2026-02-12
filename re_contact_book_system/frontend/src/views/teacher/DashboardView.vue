@@ -9,7 +9,7 @@
               教師ダッシュボード
             </h1>
             <p class="card-text">
-              ようこそ、{{ userName }}さん{{ userRole }}
+              ようこそ、{{ userName }}さん{{ assignmentLabel }}
             </p>
             <hr>
             
@@ -41,19 +41,32 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter()
+const assignmentLabelMap = {
+  homeroom: '担任',
+  sub_homeroom: '副担任',
+}
+
 const authStore = useAuthStore()
 
 const userName = computed(() => authStore.userName)
-const userRole = computed(() => authStore.user?.role || '')
 
-// 担任または副担任かどうか
-const isClassTeacher = computed(() => 
-  primary_assignment.assignment_type === '担任' || primary_assignment.assignment_type === '副担任'
+const primaryAssignment = computed(
+  () => authStore.primary_assignment || null
 )
 
+const assignmentLabel = computed(() => {
+  const type = primaryAssignment.value?.assignment_type
+  return assignmentLabelMap[type] ?? ''
+})
+
+
+// 担任または副担任かどうか
+const isClassTeacher = computed(() => {
+  const type = primaryAssignment.value?.assignment_type
+  console.log('[TeacherDashboard] assignment_type:', type)
+  return type === 'homeroom' || type === 'sub_homeroom'
+})
 
 </script>

@@ -146,13 +146,18 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+
+const assignmentTypeLabelMap = {
+  homeroom: '担任',
+  sub_homeroom: '副担任',
+}
 
 // ユーザー情報
 const userName = computed(() => authStore.userName || 'ゲスト')
@@ -175,11 +180,13 @@ const classInfo = computed(() => {
   }
 
   if (authStore.isTeacher) {
-    // 例：担任が最初の assignment と仮定
-    const assignment = authStore.teacherAssignments[0]
+    const assignment = authStore.primary_assignment
     if (!assignment) return null
 
-    return `${assignment.grade_number}年${assignment.class_name} 担任`
+    const label = assignmentTypeLabelMap[assignment.assignment_type]
+    if (!label) return null
+
+    return `${assignment.grade_number}年${assignment.class_name} ${label}`
   }
 
   return null

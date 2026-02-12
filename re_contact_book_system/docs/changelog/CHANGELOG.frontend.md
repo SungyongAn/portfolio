@@ -26,6 +26,21 @@ Breaking Change には該当しません。
 各項目に付随する注意事項です。
 
 --------------------------------------------
+
+## 2026/02/12
+### Changed
+- 認証フローの実装を改善
+  - authService では API 通信のみを担当し、state 更新処理を Pinia store に集約
+  - login / refreshToken 処理の責務を明確化
+
+- Pinia auth store の構造を整理
+  - primary_assignment をオブジェクトとして保持する形に統一
+  - teacher_assignments を将来拡張可能な構造として保持
+
+### Fixed
+- 教師ダッシュボードで担当区分が undefined になる問題を修正
+  - store の state 構造と View 側の参照先の不一致を解消
+
 ## 2026/02/10
 ### Added
 - 管理者画面のユーザー一覧ページにおける表示用フィールドを統一

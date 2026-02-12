@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { authAPI } from '@/services/authService'
+import * as authAPI from '@/services/authService'
 import router from '@/router'
 
 export const useAuthStore = defineStore('auth', {
@@ -82,17 +82,45 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        // authService は認証専用サービス
-        // API 呼び出しと同時に authStore を直接更新する責務を持つ
-        // （認証状態はアプリ内で一意なため）
-        await authAPI.login(email, password)
+        const data = await authAPI.login(email, password)
+        console.log('store login data:', data)
+        this.accessToken = data.access_token
+        this.tokenExpiry = Date.now() + data.expires_in * 1000
+        this.role = data.role
+        this.userId = data.user_id
+        this.userName = data.name
+        this.student_class = data.student_class ?? null
+        this.primary_assignment = data.primary_assignment ?? null
+        this.teacher_assignments = data.teacher_assignments ?? []
+        console.log('after set state:', {
+          accessToken: this.accessToken,
+          role: this.role,
+          userName: this.userName,
+          primary_assignment:this.primary_assignment.assignment_type
+        })
+
         this.updateActivity()
         this.startInactivityTimer()
+      
         return true
       } catch (error) {
         console.error('ログインエラー:', error)
         throw error
       }
+    },
+
+    async refreshAccessToken() {
+      const data = await authAPI.refreshAccessToken()
+      
+      if (!data) {
+        return false
+      }
+
+      // ← ここでstateを更新
+      this.accessToken = data.access_token
+      this.tokenExpiry = Date.now() + data.expires_in * 1000
+    
+      return true
     },
 
     async initAuth() {

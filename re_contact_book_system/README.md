@@ -251,5 +251,8 @@ docker compose down
 詳細なAPI仕様は http://localhost:8000/docs を参照してください。
 
 ## 変更履歴
-
 詳細な変更履歴は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+
+## ドキュメント
+設計・仕様・変更履歴の一覧は以下を参照してください。
+- docs/INDEX.md
