@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  db:
+    build: ./mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: journal_system
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./seed.sql:/tmp/seed.sql
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+pymysql://root:root@db:3306/journal_system?charset=utf8mb4
+
+
+  frontend:
+    build: ./frontend
+
+volumes:
+  mysql_data:

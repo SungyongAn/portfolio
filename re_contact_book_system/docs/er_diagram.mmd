@@ -1,0 +1,93 @@
+erDiagram
+    users ||--o{ student_class_assignments : "has"
+    users ||--o{ teacher_assignments : "has"
+    users ||--o{ journal_entries : "submits"
+    users ||--o{ journal_entries : "reads"
+    users ||--o{ teacher_notes : "creates"
+    users ||--o{ teacher_notes : "about"
+
+    grades ||--o{ classes : "contains"
+    grades ||--o{ teacher_assignments : "assigned to"
+
+    classes ||--o{ student_class_assignments : "contains"
+    classes ||--o{ teacher_assignments : "assigned to"
+
+    subjects ||--o{ teacher_assignments : "assigned to"
+
+    journal_entries ||--o{ teacher_notes : "related to"
+
+    users {
+        int id PK
+        varchar email UK "ログイン用"
+        varchar password_hash "Argon2ハッシュ"
+        enum role "student/teacher/admin"
+        varchar name "氏名"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    grades {
+        int id PK
+        int grade_number "1,2,3年"
+        int year "年度"
+        timestamp created_at
+    }
+
+    classes {
+        int id PK
+        int grade_id FK
+        varchar class_name "A組,B組等"
+        timestamp created_at
+    }
+
+    subjects {
+        int id PK
+        varchar name UK "教科名（数学・国語など）"
+        boolean is_active
+    }
+
+    student_class_assignments {
+        int id PK
+        int student_id FK
+        int class_id FK
+        boolean is_current "現在のクラス"
+        timestamp assigned_at
+    }
+
+    teacher_assignments {
+        int id PK
+        int teacher_id FK
+        enum assignment_type "homeroom/subject/grade_head"
+        int grade_id FK "nullable"
+        int class_id FK "nullable"
+        int subject_id FK "nullable"
+        boolean is_primary "主担任フラグ"
+        enum permission_level "read/write/admin"
+        timestamp created_at
+    }
+
+    journal_entries {
+        int id PK
+        int student_id FK
+        date entry_date "記入対象日"
+        date submission_date "提出日"
+        varchar physical_condition "体調"
+        varchar mental_condition "メンタル"
+        text reflection_text "振り返り"
+        boolean is_read "既読フラグ"
+        int read_by FK "nullable"
+        timestamp read_at "nullable"
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    teacher_notes {
+        int id PK
+        int teacher_id FK
+        int student_id FK
+        int entry_id FK "nullable"
+        text note_text "メモ内容"
+        boolean is_shared "学年共有"
+        timestamp created_at
+        timestamp updated_at
+    }
