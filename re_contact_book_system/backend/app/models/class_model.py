@@ -62,7 +62,6 @@ class AssignmentTypeEnum(str, enum.Enum):
     homeroom = "homeroom"            # 担任
     subject = "subject"              # 教科担当
     grade_head = "grade_head"        # 学年主任
-    administrator = "administrator"  # 管理職
 
 
 class PermissionLevelEnum(str, enum.Enum):
@@ -123,7 +122,8 @@ class TeacherNote(Base):
     note_text = Column(Text, nullable=False, comment='メモ内容')
     is_shared = Column(Boolean, default=False, index=True, comment='学年共有フラグ')
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
     
     # リレーション
     teacher = relationship("User", foreign_keys=[teacher_id], back_populates="teacher_notes")

@@ -3,12 +3,11 @@ from sqlalchemy import and_, or_
 from app.models.user import User
 from app.models.class_model import TeacherAssignment, AssignmentTypeEnum, StudentClassAssignment
 from app.models.journal import JournalEntry
-from typing import List, Optional
 from datetime import date
 
 
 # 教師が担当するクラスIDのリストを取得
-def get_teacher_classes(db: Session, teacher_id: int) -> List[int]:
+def get_teacher_classes(db: Session, teacher_id: int) -> list[int]:
 
     assignments = db.query(TeacherAssignment).filter(
         TeacherAssignment.teacher_id == teacher_id,
@@ -19,7 +18,7 @@ def get_teacher_classes(db: Session, teacher_id: int) -> List[int]:
 
 
 # 教師が担当する学年IDのリストを取得
-def get_teacher_grades(db: Session, teacher_id: int) -> List[int]:
+def get_teacher_grades(db: Session, teacher_id: int) -> list[int]:
     
     assignments = db.query(TeacherAssignment).filter(
         TeacherAssignment.teacher_id == teacher_id,
@@ -58,8 +57,6 @@ def can_view_journal(db: Session, teacher_id: int, journal_id: int) -> bool:
                 TeacherAssignment.assignment_type == AssignmentTypeEnum.grade_head,
                 TeacherAssignment.grade_id == student_class.class_obj.grade_id
             ),
-            # 管理者
-            TeacherAssignment.assignment_type == AssignmentTypeEnum.administrator
         )
     ).first()
     
@@ -71,7 +68,7 @@ def get_submission_status(
     db: Session,
     class_id: int,
     target_date: date = None
-) -> List[dict]:
+) -> list[dict]:
     
     if target_date is None:
         target_date = date.today()

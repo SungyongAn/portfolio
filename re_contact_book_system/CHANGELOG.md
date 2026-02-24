@@ -7,7 +7,12 @@
 - [Frontend](./docs/changelog/CHANGELOG-frontend.md)
 - [Database](./docs/changelog/CHANGELOG-database.md)
 
----
+## 2026/02/24
+
+### Fixed
+- ドキュメントとコードの整合性確認・修正を実施
+  - 詳細は各コンポーネント別 CHANGELOG を参照
+
 
 ## 2026/02/12
 ### Added

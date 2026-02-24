@@ -4,10 +4,6 @@
 
 SET NAMES 'utf8mb4';
 
-CREATE DATABASE IF NOT EXISTS journal_system
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
 USE journal_system;
 
 -- ====================================
@@ -19,20 +15,21 @@ SET @password_hash =
 -- ====================================
 -- 学年
 -- ====================================
-INSERT INTO grades (grade_number, year) VALUES
-(1, 2025),
-(2, 2025),
-(3, 2025);
+INSERT INTO grades (grade_number, year)
+SELECT 1, YEAR(CURDATE()) UNION ALL
+SELECT 2, YEAR(CURDATE()) UNION ALL
+SELECT 3, YEAR(CURDATE())
+ON DUPLICATE KEY UPDATE grade_number = grade_number;
 
 -- ====================================
 -- クラス
 -- ====================================
 INSERT INTO classes (grade_id, class_name) VALUES
-((SELECT id FROM grades WHERE grade_number = 1 AND year = 2025), 'A組'),
-((SELECT id FROM grades WHERE grade_number = 1 AND year = 2025), 'B組'),
-((SELECT id FROM grades WHERE grade_number = 2 AND year = 2025), 'A組'),
-((SELECT id FROM grades WHERE grade_number = 2 AND year = 2025), 'B組'),
-((SELECT id FROM grades WHERE grade_number = 3 AND year = 2025), 'A組');
+((SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE())), 'A組'),
+((SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE())), 'B組'),
+((SELECT id FROM grades WHERE grade_number = 2 AND year = YEAR(CURDATE())), 'A組'),
+((SELECT id FROM grades WHERE grade_number = 2 AND year = YEAR(CURDATE())), 'B組'),
+((SELECT id FROM grades WHERE grade_number = 3 AND year = YEAR(CURDATE())), 'A組');
 
 -- ====================================
 -- ユーザー（教師）
@@ -64,10 +61,10 @@ VALUES
   (SELECT id FROM users WHERE email = 'tanaka.teacher@school.ac.jp'),
   'homeroom',
   (SELECT grade_id FROM classes WHERE class_name = 'A組' AND grade_id = (
-      SELECT id FROM grades WHERE grade_number = 1 AND year = 2025 LIMIT 1
+      SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()) LIMIT 1
   ) LIMIT 1),
   (SELECT id FROM classes WHERE class_name = 'A組' AND grade_id = (
-      SELECT id FROM grades WHERE grade_number = 1 AND year = 2025 LIMIT 1
+      SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()) LIMIT 1
   ) LIMIT 1),
   TRUE,
   'write'
@@ -80,10 +77,10 @@ VALUES
   (SELECT id FROM users WHERE email = 'suzuki.teacher@school.ac.jp'),
   'homeroom',
   (SELECT grade_id FROM classes WHERE class_name = 'B組' AND grade_id = (
-      SELECT id FROM grades WHERE grade_number = 1 AND year = 2025 LIMIT 1
+      SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()) LIMIT 1
   ) LIMIT 1),
   (SELECT id FROM classes WHERE class_name = 'B組' AND grade_id = (
-      SELECT id FROM grades WHERE grade_number = 1 AND year = 2025 LIMIT 1
+      SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()) LIMIT 1
   ) LIMIT 1),
   TRUE,
   'write'
@@ -95,7 +92,7 @@ VALUES
 (
   (SELECT id FROM users WHERE email = 'suzuki.teacher@school.ac.jp'),
   'grade_head',
-  (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025),
+  (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE())),
   'admin'
 );
 
@@ -106,9 +103,9 @@ VALUES
 (
   (SELECT id FROM users WHERE email = 'yamamoto.teacher@school.ac.jp'),
   'subject',
-  (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025 LIMIT 1),
+  (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()) LIMIT 1),
   (SELECT id FROM classes WHERE class_name = 'A組' 
-      AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025 LIMIT 1) 
+      AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()) LIMIT 1) 
       LIMIT 1),
   (SELECT id FROM subjects WHERE name = '数学' LIMIT 1),
   'read'
@@ -123,31 +120,31 @@ VALUES
 (
   (SELECT id FROM users WHERE email = 'yamada.taro@school.ac.jp'),
   (SELECT id FROM classes WHERE class_name = 'A組'
-    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025)),
+    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()))),
   TRUE
 ),
 (
   (SELECT id FROM users WHERE email = 'sato.hanako@school.ac.jp'),
   (SELECT id FROM classes WHERE class_name = 'A組'
-    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025)),
+    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()))),
   TRUE
 ),
 (
   (SELECT id FROM users WHERE email = 'tanaka.jiro@school.ac.jp'),
   (SELECT id FROM classes WHERE class_name = 'A組'
-    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025)),
+    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()))),
   TRUE
 ),
 (
   (SELECT id FROM users WHERE email = 'suzuki.ichiro@school.ac.jp'),
   (SELECT id FROM classes WHERE class_name = 'B組'
-    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025)),
+    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()))),
   TRUE
 ),
 (
   (SELECT id FROM users WHERE email = 'watanabe.yuki@school.ac.jp'),
   (SELECT id FROM classes WHERE class_name = 'B組'
-    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = 2025)),
+    AND grade_id = (SELECT id FROM grades WHERE grade_number = 1 AND year = YEAR(CURDATE()))),
   TRUE
 );
 

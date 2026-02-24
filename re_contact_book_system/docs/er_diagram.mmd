@@ -57,7 +57,7 @@ erDiagram
     teacher_assignments {
         int id PK
         int teacher_id FK
-        enum assignment_type "homeroom/subject/grade_head/administrator"
+        enum assignment_type "homeroom/subject/grade_head"
         int grade_id FK "nullable"
         int class_id FK "nullable"
         int subject_id FK "nullable"

@@ -26,7 +26,22 @@ Breaking Change には該当しません。
 各項目に付随する注意事項です。
 
 --------------------------------------------
+## 2026/02/24
 
+### Fixed
+- `001_initial_schema.py`
+  - `subjects` テーブルに `created_at` カラムを追加（他テーブルとの統一）
+
+### Changed
+- `seed.sql`
+  - `CREATE DATABASE` 文を削除（役割の境界を整理）
+  - `grades` の年度を固定値（`2025`）から `YEAR(CURDATE())` による自動取得に変更
+  - `grades` の INSERT を `ON DUPLICATE KEY UPDATE` 付きの形式に変更
+
+- `docs/er_diagram.mmd`
+  - `teacher_assignments.assignment_type` から `administrator` を削除
+    （`homeroom / subject / grade_head` の3値に修正）
+    
 ## 2026/02/10
 ### Changed
 - 教師の担当情報設計を整理し、`teacher_assignments.assignment_type` から `administrator` を削除

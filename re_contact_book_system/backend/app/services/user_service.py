@@ -107,7 +107,6 @@ def resolve_teacher_primary_assignment(
         AssignmentTypeEnum.grade_head: 1,
         AssignmentTypeEnum.homeroom: 2,
         AssignmentTypeEnum.subject: 3,
-        AssignmentTypeEnum.administrator: 4,
     }
 
     sorted_assignments = sorted(

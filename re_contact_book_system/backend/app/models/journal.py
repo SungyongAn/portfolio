@@ -45,8 +45,9 @@ class JournalEntry(Base):
     
     def __repr__(self):
         return (
-            f"<JournalEntry(id={self.id}",
-            f"student_id={self.student_id}",
-            f"entry_date={self.entry_date}",
+            f"<JournalEntry("
+            f"id={self.id}, "
+            f"student_id={self.student_id}, "
+            f"entry_date={self.entry_date}, "
             f"is_read={self.is_read})>"
             )

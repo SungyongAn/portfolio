@@ -37,7 +37,7 @@ class TeacherAssignmentSummary(BaseModel):
     grade_number: int | None = None
     class_name: str | None = None
 
-    assignment_type: AssignmentTypeEnum  # homeroom / sub_homeroom / subject
+    assignment_type: AssignmentTypeEnum  # homeroom / subject / grade_head
     is_primary: bool
     permission_level: PermissionLevelEnum
 
@@ -45,7 +45,7 @@ class TeacherAssignmentSummary(BaseModel):
         from_attributes = True
 
 class UserPrimaryAssignment(BaseModel):
-    assignment_type: AssignmentTypeEnum  # homeroom / sub_homeroom / subject
+    assignment_type: AssignmentTypeEnum  # homeroom / subject / grade_head
     grade_number: int | None = None
     class_name: str | None = None
 

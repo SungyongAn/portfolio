@@ -39,9 +39,11 @@ re_contact_book_system/
 │   │   ├── routers/         # APIエンドポイント
 │   │   ├── services/        # ビジネスロジック
 │   │   ├── db.py            # DB接続設定
-│   │   ├── dependencies.py  # 認証・依存性注入
+│   │   ├── dependencies/    # 認証・依存性注入
+│   │   │   └── auth.py
 │   │   └── main.py          # FastAPIアプリ
 │   ├── alembic/             # マイグレーション
+│   ├── scripts/             # 補助スクリプト
 │   ├── requirements.txt     # Python依存関係
 │   └── .env                 # 環境変数
 ├── frontend/
@@ -54,10 +56,22 @@ re_contact_book_system/
 │   │   └── main.js          # エントリーポイント
 │   ├── package.json
 │   └── .env                 # 環境変数
-├── docker-compose.yml       # Docker設定
-├── init.sql                 # DB初期化スクリプト
+├── docker-compose.yml       # Docker共通設定
+├── docker-compose.dev.yml   # 開発環境用Docker設定
+├── docker-compose.prod.yml  # 本番環境用Docker設定
+├── seed.sql                 # テストデータ投入スクリプト
 └── docs/
-    └── ER図.png
+    ├── INDEX.md             # ドキュメント一覧
+    ├── er_diagram.mmd       # ER図（Mermaid形式）
+    ├── archive/             # 旧バージョンのドキュメント
+    ├── changelog/           # コンポーネント別変更履歴
+    │   ├── CHANGELOG-backend.md
+    │   ├── CHANGELOG-frontend.md
+    │   └── CHANGELOG-database.md
+    └── design/              # 設計ドキュメント
+        ├── auth-design.md
+        ├── teacher-assignment-design.md
+        └── login-response-design.md
 ```
 ※ 開発環境では Docker を使用しており、ローカルの仮想環境（.venv）はリポジトリには含めていません。
 
@@ -137,9 +151,41 @@ docker ps
 
 ### 4. データベースの初期化（初回のみ）
 
+MySQLコンテナの初回起動時に、環境変数 `MYSQL_DATABASE` により
+データベース `journal_system` が自動作成されます。
+
+続いてマイグレーションを実行し、テーブルを作成します。
+
 ```bash
-docker exec -i journal_db mysql -uroot -prootpassword < init.sql
+docker compose exec backend alembic upgrade head
 ```
+
+続いて、テストデータを投入します。
+
+```bash
+docker compose exec -T db mysql -u root -proot --default-character-set=utf8mb4 journal_system < seed.sql
+```
+
+### ■ Windows環境での注意（重要）
+
+Windows環境では、PowerShell や一部のターミナルを使用した場合、  
+リダイレクト実行時の文字コード差異により **日本語データが文字化けする可能性があります。**
+
+その場合は **コマンドプロンプト（cmd）での実行を推奨** します。
+
+#### ✔ 推奨手順（cmd）
+
+1. コマンドプロンプトを開く  
+2. プロジェクトのルートディレクトリへ移動  
+3. 以下を実行
+
+```bash
+docker compose exec -T db mysql -u root -proot --default-character-set=utf8mb4 journal_system < seed.sql
+```
+
+※ 上記コマンドでも文字化けする場合は、seed.sql の保存文字コードが UTF-8 (BOMなし) になっているか確認してください。
+
+> **注意**: `seed.sql` は日付依存データ等を含まない開発用テストデータのみを対象としています。本番環境では `seed.sql` の実行は不要です。
 
 ### 5. 起動確認
 
@@ -184,7 +230,7 @@ docker compose down
 | ロール | メールアドレス | パスワード |
 |--------|---------------|-----------|
 | 管理者 | admin@school.ac.jp | password123 |
-| 教師（担任） | tanaka.teacher@school.ac.jcp | password123 |
+| 教師（担任） | tanaka.teacher@school.ac.jp | password123 |
 | 教師（学年主任） | suzuki.teacher@school.ac.jp | password123 |
 | 生徒 | yamada.taro@school.ac.jp | password123 |
 
@@ -215,11 +261,13 @@ docker compose down
 - **grades**: 学年情報（1年・2年・3年）
 - **classes**: クラス情報（A組・B組）
 - **student_class_assignments**: 生徒のクラス割当（履歴管理対応）
-- **teacher_assignments**: 教師の役割・担当割当（担任・学年主任・教科担当）
+- **teacher_assignments**: 教師の役割・担当割当（担任・学年主任・教科担当）  
+  ※ 管理者権限は `users.role = admin` で管理しており、`assignment_type` には含まれません。
 - **journal_entries**: 連絡帳エントリ（体調・メンタル・振り返り）
 - **teacher_notes**: 教師メモ（学年会議用共有機能）
 
-詳細は `docs/ER図.png` を参照してください。
+詳細は `docs/er_diagram.mmd` を参照してください（Mermaid形式）。  
+設計の詳細については `docs/design/teacher-assignment-design.md` も参照してください。
 
 ## API エンドポイント
 
@@ -238,7 +286,7 @@ docker compose down
 ### 教師機能
 - `GET /api/teachers/dashboard` - ダッシュボード情報
 - `GET /api/teachers/my-classes` - 担当クラス一覧
-- `GET /api/teachers/classes/{class_id}/submissions` - 提出状況
+- `GET /api/teachers/classes/{class_id}/submissions` - 提出状況(実装予定)
 - `GET /api/teachers/unread-journals` - 未読一覧
 
 ### ユーザー管理（管理者のみ）

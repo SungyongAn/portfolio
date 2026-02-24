@@ -7,11 +7,14 @@ from app.services.teacher_service import (
     get_submission_status,
     is_teacher_of_class
 )
-# from app.services.journal_service import get_class_submissions
-from app.dependencies.auth import get_current_teacher#, get_current_teacher_or_admin
-from app.models.user import User, RoleEnum
+from app.services.journal_service import get_class_submissions
+from app.dependencies.auth import get_current_teacher, get_current_teacher_or_admin
+from app.models.user import User as UserModel, RoleEnum
+from app.models.journal import JournalEntry
+from app.models.class_model import StudentClassAssignment
 from typing import List
 from datetime import date
+
 
 router = APIRouter(prefix="/api/teachers", tags=["教師機能"])
 
@@ -20,7 +23,7 @@ router = APIRouter(prefix="/api/teachers", tags=["教師機能"])
 @router.get("/my-classes")
 def get_my_classes(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_teacher)
+    current_user: UserModel = Depends(get_current_teacher)
 ):
 
     class_ids = get_teacher_classes(db, current_user.id)
@@ -55,7 +58,7 @@ def get_my_classes(
 #     class_id: int,
 #     submission_date: date = Query(default=None, description="提出日（省略時は今日）"),
 #     db: Session = Depends(get_db),
-#     current_user: User = Depends(get_current_teacher_or_admin)
+#     current_user: UserModel = Depends(get_current_teacher_or_admin)
 # ):
 #     """
 #     クラスの提出状況を取得
@@ -77,7 +80,7 @@ def get_my_classes(
 #     return [SubmissionStatusResponse(**item) for item in status_list]
 
 
-# 現在未使用
+# # 現在未使用
 # @router.get("/classes/{class_id}/journals", response_model=List[JournalResponse])
 # def get_class_journals(
 #     class_id: int,
@@ -116,7 +119,7 @@ def get_my_classes(
 @router.get("/dashboard")
 def get_teacher_dashboard(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_teacher)
+    current_user: UserModel = Depends(get_current_teacher)
 ):
     """
     教師ダッシュボード情報を取得
@@ -141,7 +144,6 @@ def get_teacher_dashboard(
         read_count = sum(1 for s in status_list if s["is_read"])
         
         # クラス情報を取得
-        from app.models.class_model import Class
         cls = db.query(Class).filter(Class.id == class_id).first()
         
         summary.append({
@@ -166,7 +168,7 @@ def get_teacher_dashboard(
 @router.get("/unread-journals", response_model=List[JournalResponse])
 def get_unread_journals(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_teacher)
+    current_user: UserModel = Depends(get_current_teacher)
 ):
     """
     未読の連絡帳一覧を取得
@@ -177,11 +179,6 @@ def get_unread_journals(
     
     if not class_ids:
         return []
-    
-    # 各クラスの未読連絡帳を取得
-    from app.models.journal import JournalEntry
-    from app.models.class_model import StudentClassAssignment
-    from app.models.user import User as UserModel
     
     unread_journals = db.query(JournalEntry).join(
         UserModel, JournalEntry.student_id == UserModel.id

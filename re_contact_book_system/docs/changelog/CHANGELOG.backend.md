@@ -26,7 +26,40 @@ Breaking Change には該当しません。
 各項目に付随する注意事項です。
 
 --------------------------------------------
+## 2026/02/24
 
+### Fixed
+- `models/class_model.py`
+  - `AssignmentTypeEnum` から `administrator` を削除（DBスキーマとの不一致を解消）
+  - `TeacherNote.updated_at` に `server_default=func.now()` を追加
+
+- `models/journal.py`
+  - `__repr__` がタプルを返していたバグを修正（文字列連結に変更）
+
+- `schemas/user.py`
+  - `TeacherAssignmentSummary` および `UserPrimaryAssignment` のコメントに残っていた
+    `sub_homeroom` の記述を `homeroom / subject / grade_head` に修正
+
+- `services/teacher_service.py`
+  - `can_view_journal` 内の `AssignmentTypeEnum.administrator` 参照を削除
+
+- `services/user_service.py`
+  - `resolve_teacher_primary_assignment` 内の `administrator` 優先度定義を削除
+
+- `routers/teachers.py`
+  - `User` → `UserModel` の型アノテーション修正（全関数対象）
+  - メソッド内の `from app.models.class_model import Class` をファイル先頭のimportに移動
+  - `get_teacher_dashboard` の型アノテーション修正
+
+### Changed
+- `routers/teachers.py`
+  - 未実装エンドポイント（`/classes/{class_id}/submissions`、`/classes/{class_id}/journals`）を
+    コメントアウトに変更
+
+### Refactored
+- `main.py`
+  - `@app.on_event("startup/shutdown")` は非推奨のため、将来的に `lifespan` への移行を推奨
+    （現時点では動作上の問題なし）
 
 ## 2026/02/10
 ### Fixed

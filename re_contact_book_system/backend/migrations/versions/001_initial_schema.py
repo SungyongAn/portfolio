@@ -66,6 +66,7 @@ def upgrade():
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("name", sa.String(50), nullable=False),
         sa.Column("is_active", sa.Boolean, server_default=sa.true()),
+        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
         sa.UniqueConstraint("name", name="uk_subject_name"),
     )
 
