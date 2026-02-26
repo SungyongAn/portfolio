@@ -1,107 +1,230 @@
 # 画面一覧
 
 ## 画面一覧サマリ（画面数・遷移の概要）
-- 画面数：14
+- 画面数：5（viewsのルーティング単位）
 - 簡易画面の概要
+```
 src/
 ├── components/
-│　  └── AppHeader.vue
+│   ├── ClubMemberManagement.vue（部員の管理画面、コーチ / 監督）
+│   ├── ClubMemberCreate.vue（部員作成、コーチ / 監督）
+│   ├── ClubMemberRetire.vue（退部・引退処理、コーチ / 監督）
+│   ├── MeasurementResultReview.vue（測定結果の確認/承認画面、部員 / コーチ）
+│   ├── MeasurementResultList.vue（測定記録の閲覧、全アカウント）
+│   ├── MeasurementResultGraph.vue（測定記録のグラフ閲覧、全アカウント）
+│   └── AppHeader.vue（ログイン後の共有ヘッダー）
 └── views/
-　├── LoginView.vue
-　├── club_member/
-　│　　├── DashboardView.vue
-　│　　├── MeasurementResultReview.vue
-　│　　└── MeasurementResultList.vue
-　├── manager/
-　│　　├── DashboardView.vue
-　│　　├── MeasurementResultSubmit.vue
-　│　　└── MeasurementResultRejection.vue
-　├── coach/
-　│　　├── DashboardView.vue
-　│　　├── MeasurementResultReview.vue
-　│　　├── MeasurementResultList.vue
-　│　　└── ClubMemberManagement.vue
-　└── director/
-　 　　├── DashboardView.vue
-　　　 ├── MeasurementResultList.vue
-　　 　└── ClubMemberManagement.vue
+    ├── LoginView.vue（ログイン画面）
+    ├── shared/
+    │   └── DashboardView.vue（部員 / コーチ / 監督）
+    └── manager/
+        ├── DashboardView.vue（マネージャー）
+        ├── MeasurementResultSubmit.vue（測定結果の入力/承認依頼）
+        └── MeasurementResultRejection.vue（否認の確認/修正）
+```
 
+---
 
-## 各画面の詳細
-- 画面名：LoginView.vue
-- 対象ロール：全ロール
-- 主な表示項目
-　・タイトル
-　・メールアドレス入力欄
-　・パスワード入力欄
-　・ログインボタン
-- 主な入力項目
-　・メールアドレス
-　・パスワード
-- 遷移先
-　・部員：club_member/DashboardView.vue
-　・マネージャー：manager/DashboardView.vue
-　・コーチ：coach/DashboardView.vue
-　・監督：director/DashboardView.vue
+## 共通コンポーネント
 
+| コンポーネント名 | 対象ロール | 主な表示項目 | 備考 |
+|---|---|---|---|
+| AppHeader.vue | 全ロール（ログイン後） | ユーザー名・ロール・ログアウトボタン | ログイン画面では非表示 |
 
-- 画面名：club_member/DashboardView.vue
-- 対象ロール：部員
-- 主な表示項目
-　・測定結果の確認/承認
-　・測定結果の閲覧
-- 主な入力項目：なし
-- 遷移先
-　・測定結果の確認/承認：MeasurementResultReview.vue
-　・測定結果の閲覧：MeasurementResultList.vue
+---
 
-- 画面名：manager/DashboardView.vue
-- 対象ロール：マネージャー
-- 主な表示項目
-　・測定結果の入力/承認依頼
-　・否認の確認/修正
-- 主な入力項目：なし
-- 遷移先
-　・測定結果の入力/承認依頼MeasurementResultSubmit.vue
-　・否認の確認/修正：MeasurementResultRejection.vue
+## ロール別各画面の詳細
 
-- 画面名：coach/DashboardView.vue
-- 対象ロール：コーチ
-- 主な表示項目
-　・測定結果の承認
-　・測定結果の閲覧
-　・部員の管理画面
-- 主な入力項目：なし
-- 遷移先
-　・測定結果の確認/承認：MeasurementResultReview.vue
-　・測定結果の閲覧：MeasurementResultList.vue
-　・部員の管理画面：ClubMemberManagement.vue
+### views
 
-- 画面名：director/DashboardView.vue
-- 対象ロール：監督
-- 主な表示項目
-　・測定結果の閲覧
-　・部員の管理画面
-- 主な入力項目：なし
-- 遷移先
-　・測定結果の閲覧：MeasurementResultList.vue
-　・部員の管理画面：ClubMemberManagement.vue
+---
 
+#### LoginView.vue（ログイン画面）
+- **対象ロール**：全ロール
+- **主な表示項目**
+  - タイトル
+  - メールアドレス入力欄
+  - パスワード入力欄
+  - ログインボタン
+- **主な入力項目**
+  - メールアドレス
+  - パスワード
+- **遷移先**
+  - shared/DashboardView.vue（部員 / コーチ / 監督）
+  - manager/DashboardView.vue（マネージャー）
 
-- 画面名
-- 対象ロール
-- 主な表示項目
-- 主な入力項目
-- 遷移先
+---
 
-- 画面名
-- 対象ロール
-- 主な表示項目
-- 主な入力項目
-- 遷移先
+#### shared/DashboardView.vue（部員 / コーチ / 監督 共有ダッシュボード）
+- **対象ロール**：部員 / コーチ / 監督
+- **主な表示項目**（表示可能ロール）
+  - 測定結果の確認/承認（部員 / コーチ）
+  - 測定記録の閲覧（部員 / コーチ / 監督）※部員は自身の記録のみ
+  - 測定記録のグラフ表示（部員 / コーチ / 監督）※部員は自身の記録のみ
+  - 部員の管理画面（コーチ / 監督）
+- **主な入力項目**：なし
+- **遷移先**
+  - MeasurementResultReview.vue（測定結果の確認/承認画面、部員 / コーチ）
+  - MeasurementResultList.vue（測定記録の閲覧、全アカウント）
+  - MeasurementResultGraph.vue（測定記録のグラフ表示、全アカウント）
+  - ClubMemberManagement.vue（部員の管理画面、コーチ / 監督）
 
-- 画面名
-- 対象ロール
-- 主な表示項目
-- 主な入力項目
-- 遷移先
+---
+
+#### manager/DashboardView.vue（マネージャーダッシュボード）
+- **対象ロール**：マネージャー
+- **主な表示項目**
+  - 測定結果の入力/承認依頼（リンク）
+  - 否認の確認/修正（リンク）
+  - 測定記録の閲覧（リンク）
+  - 測定記録のグラフ表示（リンク）
+- **主な入力項目**：なし
+- **遷移先**
+  - MeasurementResultSubmit.vue（測定結果の入力/承認依頼）
+  - MeasurementResultRejection.vue（否認の確認/修正）
+  - MeasurementResultList.vue（測定記録の閲覧、全アカウント）
+  - MeasurementResultGraph.vue（測定記録のグラフ表示、全アカウント）
+
+---
+
+#### manager/MeasurementResultSubmit.vue（測定結果の入力/承認依頼）
+- **対象ロール**：マネージャー
+- **主な表示項目**
+  - 部員名
+  - 学年
+  - 走力（2種）：50m走（sec）/ ベースランニング（sec）
+  - 肩力（2種）：遠投（m）/ ストレート球速（km/h）
+  - 打力（2種）：打球速度（km/h）/ スイング速度（km/h）
+  - 筋力（2種）：ベンチプレス（kg）/ スクワット（kg）
+  - 承認依頼ボタン
+- **主な入力項目**
+  - 走力（2種）：50m走（sec）/ ベースランニング（sec）
+  - 肩力（2種）：遠投（m）/ ストレート球速（km/h）
+  - 打力（2種）：打球速度（km/h）/ スイング速度（km/h）
+  - 筋力（2種）：ベンチプレス（kg）/ スクワット（kg）
+- **遷移先**
+  - 承認依頼ボタン → 送信される対象部員情報の確認画面を表示後、送信
+
+---
+
+#### manager/MeasurementResultRejection.vue（否認の確認/修正）
+- **対象ロール**：マネージャー
+- **主な表示項目**
+  - 否認された部員の測定記録一覧
+  - 部員・コーチのどちらが否認したか
+  - 承認依頼ボタン
+- **主な入力項目**
+  - 走力（2種）：50m走（sec）/ ベースランニング（sec）
+  - 肩力（2種）：遠投（m）/ ストレート球速（km/h）
+  - 打力（2種）：打球速度（km/h）/ スイング速度（km/h）
+  - 筋力（2種）：ベンチプレス（kg）/ スクワット（kg）
+- **遷移先**
+  - 承認依頼ボタン → 送信される対象部員情報の確認画面を表示後、送信
+  - 承認終了後は同画面内に留まり未処理の一覧のみ表示、未処理がなければ項目名のみ表示
+
+---
+
+### components
+
+---
+
+#### MeasurementResultReview.vue（測定結果の確認/承認画面）
+- **対象ロール**：部員 / コーチ
+- **主な表示項目**
+  - 測定結果の一覧表示
+    - 部員：自身の未承認測定結果のみ表示
+    - コーチ：全部員の部員承認済み・コーチ未承認の測定結果を表示
+  - 承認ボタン
+  - 否認ボタン
+- **主な入力項目**：なし
+- **遷移先**
+  - 承認・否認ボタン押下後、同画面内に留まり未処理の一覧のみ表示、未処理がなければ項目名のみ表示
+
+---
+
+#### ClubMemberManagement.vue（部員の管理画面）
+- **対象ロール**：コーチ / 監督
+- **主な表示項目**
+  - 部員作成ボタン
+  - 退部・引退処理ボタン
+- **主な入力項目**：なし
+- **遷移先**
+  - ClubMemberCreate.vue（部員作成）
+  - ClubMemberRetire.vue（退部・引退処理）
+
+---
+
+#### ClubMemberCreate.vue（部員作成）
+- **対象ロール**：コーチ / 監督
+- **主な表示項目**
+  - メールアドレス入力欄
+  - 生徒名入力欄
+  - 学年入力欄
+  - パスワード入力欄
+  - 登録ボタン
+- **主な入力項目**
+  - メールアドレス
+  - 生徒名
+  - 学年
+  - パスワード
+- **遷移先**
+  - 登録ボタン → 登録内容の確認画面表示後、登録ボタンを押したら登録画面に戻る
+
+---
+
+#### ClubMemberRetire.vue（退部・引退処理）
+- **対象ロール**：コーチ / 監督
+- **主な表示項目**
+  - 生徒名
+  - 学年
+  - 検索ボタン
+  - 退部ボタン
+  - 引退ボタン
+- **主な入力項目**
+  - 名前（検索用）
+  - 学年（検索用）
+  - メールアドレス（検索用）
+- **遷移先**
+  - 退部ボタン → 対象情報の確認画面を表示し最終確認 → 処理終了後は退部・引退処理画面に戻る
+  - 引退ボタン → 対象情報の確認画面を表示し最終確認 → 処理終了後は退部・引退処理画面に戻る
+
+---
+
+#### MeasurementResultList.vue（測定記録の閲覧）
+- **対象ロール**：全ロール
+- **主な表示項目**
+  - 計測月
+  - 生徒名
+  - 学年
+  - 走力（2種）：50m走（sec）/ ベースランニング（sec）
+  - 肩力（2種）：遠投（m）/ ストレート球速（km/h）
+  - 打力（2種）：打球速度（km/h）/ スイング速度（km/h）
+  - 筋力（2種）：ベンチプレス（kg）/ スクワット（kg）
+  - リセットボタン
+  - **備考**：部員の場合は自身の記録のみ表示、コーチ・監督・マネージャーは全部員の記録を表示
+- **主な入力項目**
+  - 名前（検索用）
+  - 学年（検索用）
+  - 項目名（検索用）
+- **遷移先**
+  - リセットボタン → 表示結果を初期化
+
+---
+
+#### MeasurementResultGraph.vue（測定記録のグラフ閲覧）
+- **対象ロール**：全ロール
+- **主な表示項目**
+  - 表示項目の選択（任意で選択可能）
+  - 選択した項目の折れ線グラフ表示（項目別）
+    - 走力（2種）：50m走（sec）/ ベースランニング（sec）
+    - 肩力（2種）：遠投（m）/ ストレート球速（km/h）
+    - 打力（2種）：打球速度（km/h）/ スイング速度（km/h）
+    - 筋力（2種）：ベンチプレス（kg）/ スクワット（kg）
+  - リセットボタン
+  - **備考**：部員の場合は自身の記録のみ表示、コーチ・監督・マネージャーは全部員の記録を表示。項目混合は対象外。
+- **主な入力項目**
+  - 名前（検索用）
+  - 学年（検索用）
+  - 項目名（検索用）
+- **遷移先**
+  - リセットボタン → 表示結果を初期化

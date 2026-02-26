@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-02-26
+
+### Added
+- ユースケース整理ドキュメントを追加
+  - docs/usecase.md を作成
+
+- PoC機能一覧ドキュメントを追加
+  - docs/functions.md を作成
+
+- 画面一覧ドキュメントを追加
+  - docs/screens.md を作成
+
+### Changed
+- usecase.md を更新
+  - グラフ表示の備考に「表示方法は項目別のみ（項目混合は対象外）」を追記
+  
 ## 2026-02-24
 
 ### Added

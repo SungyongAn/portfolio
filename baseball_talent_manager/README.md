@@ -24,17 +24,16 @@ PoCとして最小構成で検証を行うものです。
 - 課題精査
 - ユースケース整理（docs/usecase.md）
 - PoC機能決定（docs/functions.md）
+- 画面設計（docs/screens.md）
 - フロントエンド環境構築（Vite）
 - 基本アプリ構成作成（App.vue / main.js）
 - 参考資料の整理
 
 ### 進行中
-- 画面設計（docs/screens.md）
+- API設計（docs/api.md / docs/auth_design.md / docs/role_matrix.md）
 
 ### 次の予定
-- 画面設計の確定
-- API設計
-- DB設計
+- DB設計（docs/er.md）
 - モックUI作成
 
 ---
