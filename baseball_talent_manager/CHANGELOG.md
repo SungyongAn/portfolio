@@ -1,4 +1,35 @@
 # CHANGELOG
+## 2026-02-28
+
+### Added
+- 承認依頼ステータス確認画面を追加
+  - MeasurementStatusList.vue を新規追加（課題1）
+  - manager/DashboardView.vue の遷移先に追加
+  - MeasurementResultSubmit.vue の遷移先に追加
+- APIドキュメントを追加
+  - docs/api.md を作成
+
+### Changed
+- screens.md を更新
+  - MeasurementRejection.vue を削除
+    - 否認後の再作成は MeasurementResultSubmit.vue で対応
+  - MeasurementResultList.vue に再作成ボタンの遷移先を追加
+    - rejected ステータスのみ再作成ボタンを表示
+    - 再作成ボタン押下で MeasurementResultSubmit.vue へ遷移
+  - MeasurementResultGraph.vue を課題2へ変更
+  - 各画面に課題1 / 課題2の区分を追加
+  - MeasurementStatusList.vue のファイル構成を整理
+    - manager/ 配下の独立したファイルとして記載
+- usecase.md を更新
+  - 各ユースケースに課題1 / 課題2の区分を追加
+  - マネージャーの測定結果入力を1名ずつ入力する仕様に変更（課題1）
+  - 複数部員一括入力をページネーション対応と共に課題2へ移動
+  - 3年生一括引退処理を課題2へ移動
+- api.md を更新
+  - 認証系API（ログイン・トークン再発行・ログアウト）を定義
+  - 承認フロー管理APIを定義
+  - 部員管理APIを定義
+  - 測定記録管理APIを定義
 
 ## 2026-02-26
 
