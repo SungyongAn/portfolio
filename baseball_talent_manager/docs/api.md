@@ -265,11 +265,17 @@ manager
   "message": "str"
 }
 ```
+
 ### 5.2 測定記録取得
 ### GET /api/measurements
 
 ### 認証
 必要（全ロール）
+
+### 備考
+- バックエンドでJWTトークンのロールを検証し返却データを制御する
+  - member：自身の測定記録のみ返す
+  - manager | coach | director：全部員の測定記録を返す
 
 ### Request
 ```JSON

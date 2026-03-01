@@ -1,4 +1,20 @@
 # CHANGELOG
+
+## 2026-03-01
+
+### Added
+- 認証設計書を追加
+  - docs/auth_design.md を作成
+- ロール権限マトリクスを追加
+  - docs/role_matrix.md を作成
+
+### Changed
+- api.md を更新
+  - 5.2 測定記録取得の備考にロール別返却データ制御を追記
+    - member：自身の測定記録のみ返す
+    - manager | coach | director：全部員の測定記録を返す
+    - バックエンドでJWTトークンのロールを検証して制御する
+
 ## 2026-02-28
 
 ### Added
