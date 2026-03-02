@@ -1,5 +1,50 @@
 # CHANGELOG
 
+## 2026-03-02
+
+### Added
+- Docker環境を構築
+  - docker-compose.yml を作成
+  - docker-compose.dev.yml を作成
+  - mysql/Dockerfile を作成
+  - mysql/conf.d/my.cnf を作成
+  - backend/Dockerfile を作成
+  - frontend/Dockerfile.dev を作成
+  - scripts/wait_for_db.py を作成
+
+- Alembic環境を構築
+  - alembic.ini を作成
+  - alembic/env.py を作成
+  - alembic/versions/001_create_users.py を作成
+  - alembic/versions/002_create_measurements.py を作成
+
+- バックエンド環境を構築
+  - backend/app/db.py を作成
+  - backend/.env を作成
+
+- モックUI作成を開始
+  - frontend/src/dummyData.js を作成
+    - 仮ユーザーデータ（manager・member・coach・director）
+    - 仮部員一覧データ
+    - 仮測定記録データ（approved・pending_member・rejected を混在）
+  - frontend/src/router/index.js を作成中
+    - 課題1の画面ルートを定義
+    - ロール別ルート構成（manager・member・coach・director）
+    - メタ情報（requiresAuth・role・title・breadcrumbs）を定義
+
+- 画面一覧サマリの記載内容に合わせて各コンポーネント（空ファイル）を作成
+
+### Changed
+- マイグレーションを実行
+  - usersテーブルを作成
+  - measurementsテーブルを作成
+- frontend/src/main.js を更新
+  - stores/auth のインポートをコメントアウト（モックUI段階のため）
+- frontend/src/App.vue を更新
+  - AppHeader コンポーネントの組み込み
+  - ログイン画面・404画面ではヘッダーを非表示にする処理を追加
+
+
 ## 2026-03-01
 
 ### Added

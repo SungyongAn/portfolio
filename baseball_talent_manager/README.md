@@ -17,24 +17,46 @@ PoCとして最小構成で検証を行うものです。
 
 ## 開発状況
 
-現在は **PoC設計フェーズ終盤** です。  
-画面設計を進めながら、フロントエンド雛形構築を開始しています。
+現在は **フェーズB：プロトタイプ実装フェーズ** です。
 
 ### 完了
 - 課題精査
 - ユースケース整理（docs/usecase.md）
 - PoC機能決定（docs/functions.md）
 - 画面設計（docs/screens.md）
-- フロントエンド環境構築（Vite）
-- 基本アプリ構成作成（App.vue / main.js）
-- 参考資料の整理
+- API設計（docs/api.md）
+- 認証設計（docs/auth_design.md）
+- ロール権限マトリクス（docs/role_matrix.md）
+- ER図・テーブル設計（docs/er.md）
+- Docker環境構築
+  - docker-compose.yml
+  - docker-compose.dev.yml
+  - mysql/Dockerfile・my.cnf
+  - backend/Dockerfile
+  - frontend/Dockerfile.dev
+  - scripts/wait_for_db.py
+- Alembic環境構築・マイグレーション実行
+  - usersテーブル
+  - measurementsテーブル
+- バックエンド環境構築
+  - backend/app/db.py
+- モックUI作成開始
+  - dummyData.js作成
+  - router/index.js作成中
+  - 各コンポーネント（空ファイル）作成
 
 ### 進行中
-- API設計（docs/api.md / docs/auth_design.md / docs/role_matrix.md）
+- フェーズB：プロトタイプ実装
+- router/index.js修正・完成
+- stores/auth.js作成
+- components/AppHeader.vue作成
+- 各画面コンポーネント実装
 
 ### 次の予定
-- DB設計（docs/er.md）
-- モックUI作成
+- バックエンド実装（FastAPI）
+- フロントエンド実装（Vue.js）
+- seed.sql作成
+- 動作確認
 
 ---
 
@@ -42,14 +64,13 @@ PoCとして最小構成で検証を行うものです。
 
 設計関連ドキュメントは docs フォルダに格納しています。
 
-- ユースケース整理  
-  `docs/usecase.md`
-
-- PoC機能一覧  
-  `docs/functions.md`
-
-- 画面設計  
-  `docs/screens.md`（作成中）
+- ユースケース整理：`docs/usecase.md`
+- PoC機能一覧：`docs/functions.md`
+- 画面設計：`docs/screens.md`
+- API設計：`docs/api.md`
+- 認証設計：`docs/auth_design.md`
+- ロール権限マトリクス：`docs/role_matrix.md`
+- ER図・テーブル設計：`docs/er.md`
 
 ---
 
@@ -58,56 +79,82 @@ PoCとして最小構成で検証を行うものです。
 課題資料・検討用ファイルは以下に格納しています。
 `docs/reference_materials/`
 
+---
+
 ## ディレクトリ構成（主要部分）
-
-backend/ バックエンド実装予定
 ```
-docs/
-├─ usecase.md ユースケース整理
-├─ functions.md PoC機能一覧
-├─ screens.md 画面設計（作成中）
-└─ reference_materials/
-　　├─ 課題PDF
-　　└─ 記録ファイル
-
-frontend/
-├─ src/
-├─ App.vue
-├─ main.js
-└─ vite.config.js
+baseball_talent_manager/
+├── docker-compose.yml
+├── docker-compose.dev.yml
+├── mysql/
+│   ├── Dockerfile
+│   └── conf.d/
+│       └── my.cnf
+├── backend/
+│   ├── Dockerfile
+│   ├── .env
+│   ├── alembic.ini
+│   ├── alembic/
+│   │   ├── env.py
+│   │   └── versions/
+│   │       ├── 001_create_users.py
+│   │       └── 002_create_measurements.py
+│   └── app/
+│       └── db.py
+├── frontend/
+│   ├── Dockerfile.dev
+│   └── src/
+├── scripts/
+│   └── wait_for_db.py
+└── docs/
 ```
 
-## 技術スタック（予定）
+---
+
+## 技術スタック
 
 ### Frontend
 - Vue 3
 - Vite
-- Vue Router（予定）
-- Pinia（予定）
+- Vue Router
+- Pinia
 
 ### Backend
-- FastAPI（予定）
+- FastAPI
+- SQLAlchemy
+- Alembic
 
 ### Database
-- PostgreSQL（予定）
+- MySQL 8.0
 
 ### 認証
 - メール＋パスワード認証
-- パスワードハッシュ化（argon2想定）
-- JWTベース認証（予定）
+- Argon2（パスワードハッシュ）
+- JWT認証（Access Token + Refresh Token）
 
 ### 開発環境
-- Docker / docker-compose（予定）
+- Docker / docker-compose
 
 ---
 
-## 起動方法（フロントエンド）
+## 起動方法（開発環境）
 
+### DBのみ起動（現在の状態）
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
 ```
+
+### 全サービス起動（フロント・バックエンド実装完了後）
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+```
+
+### マイグレーション実行
+```bash
+cd backend
+alembic upgrade head
+```
+
 
 ## 備考
 
