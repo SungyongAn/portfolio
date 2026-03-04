@@ -9,4 +9,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"), // @ を src にマッピング
     },
   },
+  server: {
+    host: "0.0.0.0",
+    port: 5173,
+    watch: {
+      usePolling: true  // Dockerコンテナ内でのファイル変更検知に必要
+    }
+  }
 });

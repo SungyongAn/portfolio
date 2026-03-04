@@ -1,5 +1,19 @@
 # CHANGELOG
 
+### 2026-03-04
+
+**Added**
+- views/manager/MeasurementResultSubmit.vue作成
+  - 測定結果入力フォーム（部員選択・計測日・走力・肩力・打力・筋力）
+  - バリデーション（未入力項目の赤枠表示）
+  - 送信処理（成功メッセージ表示）
+- views/manager/MeasurementStatusList.vue作成
+  - 承認フローステータス一覧（テーブル形式）
+  - ステータスバッジ色分け表示
+
+**Changed**
+- vite.config.jsにserver設定追加（usePolling: trueによるホットリロード有効化）
+
 ## 2026-03-03
 
 ### Added

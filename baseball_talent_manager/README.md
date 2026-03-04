@@ -46,11 +46,24 @@ PoCとして最小構成で検証を行うものです。
   - 各コンポーネント（空ファイル）作成
 
 ### 進行中
-- フェーズB：プロトタイプ実装
-- router/index.js修正・完成
-- stores/auth.js作成
-- components/AppHeader.vue作成
-- 各画面コンポーネント実装
+### 実装済み画面（Phase B：モックUI）
+
+### マネージャー
+- [x] DashboardView.vue
+- [x] MeasurementResultSubmit.vue（測定結果の入力）
+- [x] MeasurementStatusList.vue（承認フロー ステータス一覧）
+
+### 部員・コーチ・監督共通
+- [x] DashboardView.vue
+
+### 未実装
+- [ ] MeasurementResultReview.vue（部員：測定記録の承認）
+- [ ] MeasurementRecordView.vue（部員：測定記録の閲覧）
+- [ ] MeasurementRecordList.vue（コーチ・監督：全部員の測定記録閲覧）
+- [ ] MeasurementFinalReview.vue（コーチ：最終承認）
+- [ ] MemberList.vue（部員管理）
+- [ ] MemberCreate.vue（部員作成）
+- [ ] MemberRetire.vue（退部・引退）
 
 ### 次の予定
 - バックエンド実装（FastAPI）
