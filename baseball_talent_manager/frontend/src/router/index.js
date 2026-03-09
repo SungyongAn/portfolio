@@ -120,10 +120,11 @@ const router = createRouter({
             breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
           },
         },
+
         {
           path: "members",
           name: "coach-members",
-          component: () => import("@/components/MemberList.vue"),
+          component: () => import("@/components/MemberManagement.vue"),
           meta: {
             title: "部員管理",
             breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
@@ -178,7 +179,7 @@ const router = createRouter({
         {
           path: "members",
           name: "director-members",
-          component: () => import("@/components/MemberList.vue"),
+          component: () => import("@/components/MemberManagement.vue"),
           meta: {
             title: "部員管理",
             breadcrumbs: [
@@ -216,7 +217,7 @@ const router = createRouter({
 });
 
 // ナビゲーションガード
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
 
   // ログイン画面では初期化しない
@@ -226,45 +227,39 @@ router.beforeEach(async (to, from, next) => {
 
   // 未ログインで認証必須ページ
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: "login" });
-    return;
+    return { name: "login" };
   }
 
   // ログイン済みでゲスト専用ページ
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
     const role = authStore.role;
-    if (role === "manager") return next("/manager/dashboard");
-    if (role === "member") return next("/member/dashboard");
-    if (role === "coach") return next("/coach/dashboard");
-    if (role === "director") return next("/director/dashboard");
-    return next("/");
+    if (role === "manager") return "/manager/dashboard";
+    if (role === "member") return "/member/dashboard";
+    if (role === "coach") return "/coach/dashboard";
+    if (role === "director") return "/director/dashboard";
+    return "/";
   }
 
   // ルートアクセス時の振り分け
   if (to.path === "/") {
-    if (!authStore.isAuthenticated) {
-      next("/login");
-      return;
-    }
+    if (!authStore.isAuthenticated) return "/login";
     const role = authStore.role;
-    if (role === "manager") return next("/manager/dashboard");
-    if (role === "member") return next("/member/dashboard");
-    if (role === "coach") return next("/coach/dashboard");
-    if (role === "director") return next("/director/dashboard");
-    return next("/login");
+    if (role === "manager") return "/manager/dashboard";
+    if (role === "member") return "/member/dashboard";
+    if (role === "coach") return "/coach/dashboard";
+    if (role === "director") return "/director/dashboard";
+    return "/login";
   }
 
   // ロール別アクセス制御
   if (to.meta.role && authStore.role !== to.meta.role) {
     const role = authStore.role;
-    if (role === "manager") return next("/manager/dashboard");
-    if (role === "member") return next("/member/dashboard");
-    if (role === "coach") return next("/coach/dashboard");
-    if (role === "director") return next("/director/dashboard");
-    return next("/login");
+    if (role === "manager") return "/manager/dashboard";
+    if (role === "member") return "/member/dashboard";
+    if (role === "coach") return "/coach/dashboard";
+    if (role === "director") return "/director/dashboard";
+    return "/login";
   }
-
-  next();
 });
 
 export default router;

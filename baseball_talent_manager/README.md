@@ -17,7 +17,7 @@ PoCとして最小構成で検証を行うものです。
 
 ## 開発状況
 
-現在は **フェーズB：プロトタイプ実装フェーズ** です。
+現在は **フェーズB：モックUI実装完了 / フェーズC：バックエンド実装予定** です。
 
 ### 完了
 - 課題精査
@@ -40,34 +40,32 @@ PoCとして最小構成で検証を行うものです。
   - measurementsテーブル
 - バックエンド環境構築
   - backend/app/db.py
-- モックUI作成開始
-  - dummyData.js作成
-  - router/index.js作成中
-  - 各コンポーネント（空ファイル）作成
+- モックUI実装（課題1）
+  - dummyData.js
+  - router/index.js
+  - 各コンポーネント実装済み（下記参照）
 
-### 進行中
-### 実装済み画面（Phase B：モックUI）
+### 実装済み画面（課題1：モックUI）
 
-### マネージャー
-- [x] DashboardView.vue
-- [x] MeasurementResultSubmit.vue（測定結果の入力）
-- [x] MeasurementStatusList.vue（承認フロー ステータス一覧）
+#### マネージャー
+- [x] `views/manager/DashboardView.vue`（ダッシュボード）
+- [x] `views/manager/MeasurementResultSubmit.vue`（測定結果の入力）
+- [x] `views/manager/MeasurementStatusList.vue`（承認ステータス一覧）
 
-### 部員・コーチ・監督共通
-- [x] DashboardView.vue
+#### 部員・コーチ・監督共通
+- [x] `views/shared/DashboardView.vue`（ダッシュボード）
 
-### 未実装
-- [ ] MeasurementResultReview.vue（部員：測定記録の承認）
-- [ ] MeasurementRecordView.vue（部員：測定記録の閲覧）
-- [ ] MeasurementRecordList.vue（コーチ・監督：全部員の測定記録閲覧）
-- [ ] MeasurementFinalReview.vue（コーチ：最終承認）
-- [ ] MemberList.vue（部員管理）
-- [ ] MemberCreate.vue（部員作成）
-- [ ] MemberRetire.vue（退部・引退）
+#### 共通コンポーネント
+- [x] `components/AppHeader.vue`（共通ヘッダー）
+- [x] `components/MeasurementResultReview.vue`（測定記録の承認・否認）
+- [x] `components/MeasurementResultList.vue`（測定記録の閲覧）
+- [x] `components/MemberManagement.vue`（部員管理メニュー）
+- [x] `components/MemberCreate.vue`（部員作成）
+- [x] `components/MemberRetire.vue`（退部・引退処理）
 
 ### 次の予定
+- 既存コンポーネントのcomputedベースへのリファクタリング
 - バックエンド実装（FastAPI）
-- フロントエンド実装（Vue.js）
 - seed.sql作成
 - 動作確認
 
@@ -117,6 +115,26 @@ baseball_talent_manager/
 ├── frontend/
 │   ├── Dockerfile.dev
 │   └── src/
+│       ├── components/
+│       │   ├── AppHeader.vue
+│       │   ├── MeasurementResultReview.vue
+│       │   ├── MeasurementResultList.vue
+│       │   ├── MemberManagement.vue
+│       │   ├── MemberCreate.vue
+│       │   └── MemberRetire.vue
+│       ├── views/
+│       │   ├── LoginView.vue
+│       │   ├── shared/
+│       │   │   └── DashboardView.vue
+│       │   └── manager/
+│       │       ├── DashboardView.vue
+│       │       ├── MeasurementResultSubmit.vue
+│       │       └── MeasurementStatusList.vue
+│       ├── router/
+│       │   └── index.js
+│       ├── stores/
+│       │   └── auth.js
+│       └── dummyData.js
 ├── scripts/
 │   └── wait_for_db.py
 └── docs/
@@ -152,9 +170,14 @@ baseball_talent_manager/
 
 ## 起動方法（開発環境）
 
-### DBのみ起動（現在の状態）
+### DBのみ起動
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
+```
+
+### frontendのみ起動
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d frontend
 ```
 
 ### 全サービス起動（フロント・バックエンド実装完了後）
@@ -168,6 +191,7 @@ cd backend
 alembic upgrade head
 ```
 
+---
 
 ## 備考
 

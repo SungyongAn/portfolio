@@ -20,7 +20,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="measurement in measurements" :key="measurement.measurement_id">
+          <tr
+            v-for="measurement in measurements"
+            :key="measurement.measurement_id"
+          >
             <td>{{ measurement.name }}</td>
             <td>{{ measurement.grade }}年</td>
             <td>{{ measurement.measurement_date }}</td>

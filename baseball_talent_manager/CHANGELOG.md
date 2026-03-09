@@ -1,5 +1,55 @@
 # CHANGELOG
 
+### 2026-03-09
+
+### [課題1] モックUI実装完了
+
+### Added
+- `views/LoginView.vue` - ログイン画面
+- `views/shared/DashboardView.vue` - 部員・コーチ・監督共通ダッシュボード
+- `views/manager/DashboardView.vue` - マネージャー専用ダッシュボード
+- `views/manager/MeasurementResultSubmit.vue` - 測定結果入力フォーム
+  - バリデーション（未入力チェック）
+  - 測定項目を走力・肩力・打力・筋力のカードでグループ化
+  - 送信時のローディングフラグ・成功メッセージ表示
+- `views/manager/MeasurementStatusList.vue` - 承認ステータス一覧
+  - ステータスバッジ（approved/pending_member/pending_coach/rejected）
+- `components/AppHeader.vue` - 共通ヘッダー
+- `components/MeasurementResultReview.vue` - 測定結果の承認・否認
+  - 部員：自身のpending_memberレコードを表示
+  - コーチ：全部員のpending_coachレコードを表示
+- `components/MeasurementResultList.vue` - 測定記録閲覧
+  - 全ロール共通コンポーネント（computedベースでロール別フィルタリング）
+  - 部員：自身のapprovedレコードのみ表示
+  - スタッフ（manager/coach/director）：全部員のapprovedレコードを表示
+- `components/MemberManagement.vue` - 部員管理メニュー
+- `components/MemberCreate.vue` - 部員作成フォーム
+  - バリデーション（未入力・メール形式チェック）
+  - 確認モーダルによる登録フロー
+- `components/MemberRetire.vue` - 部員退部・引退処理
+  - 退部（withdrawn）・引退（retired）の別ステータス管理
+  - 確認モーダルによる処理フロー
+  - 処理後はcomputedにより一覧から自動除外
+
+### Changed
+- `router/index.js`
+  - ナビゲーションガードを`next()`から`return`ベースに修正（Vue Router非推奨警告対応）
+  - コーチ・監督ルートに部員管理・部員作成・退部引退処理を追加
+- `vite.config.js`
+  - `server.watch.usePolling: true` を追加（Docker環境でのホットリロード有効化）
+
+### Technical Notes
+- `MeasurementResultList.vue` より `computed` ベースの reactivity パターンを採用
+- 課題1完了後に既存コンポーネント（`MeasurementResultSubmit`・`MeasurementStatusList`・`MeasurementResultReview`）を`computed`ベースへリファクタリング予定
+- 重複チェック等のバックエンドバリデーションは課題2で実装予定
+
+### Deferred to 課題2
+- 検索・ソート機能
+- チーム全体の傾向可視化ダッシュボード
+- スマートフォン対応レイアウト
+- `MeasurementResultList.vue` のロール別コンポーネント分割
+- 複数部員の一括登録・一括引退処理
+
 ### 2026-03-04
 
 **Added**
