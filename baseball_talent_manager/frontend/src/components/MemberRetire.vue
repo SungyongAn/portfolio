@@ -107,9 +107,8 @@ import { ref, computed } from "vue";
 import { dummyMembers } from "@/dummyData";
 
 // activeな部員のみ表示
-const members = ref(dummyMembers);
 const activeMembers = computed(() =>
-  members.value.filter((m) => m.status === "active"),
+  dummyMembers.filter((m) => m.status === "active"),
 );
 
 // モーダル制御
@@ -127,7 +126,7 @@ const openModal = (member, type) => {
 const handleProcess = () => {
   const label = actionType.value === "retired" ? "引退" : "退部";
   // ステータス更新
-  const target = members.value.find(
+  const target = dummyMembers.find(
     (m) => m.user_id === selectedMember.value.user_id,
   );
   if (target) {

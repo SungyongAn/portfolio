@@ -1,8 +1,32 @@
 # CHANGELOG
 
-### 2026-03-09
+## 2026-03-10
 
-### [課題1] モックUI実装完了
+## [リファクタリング] モックUIコンポーネントのcomputed統一
+
+### Changed
+- `MeasurementResultSubmit.vue`
+  - `members`を`ref`から定数`MEMBERS`に変更
+  - 測定項目のキー名をスネークケースに統一（例：`sprint50m` → `sprint_50m`）
+- `MeasurementStatusList.vue`
+  - `measurements`を`ref`から定数に変更
+  - `hasMeasurements`を`computed`で実装
+  - `getStatus`関数を追加（不明なステータスのフォールバック対応）
+- `MeasurementResultReview.vue`
+  - `measurements`を`ref`+`onMounted`から`computed`ベースに変更
+  - `APPROVE_STATUS`オブジェクトでロール別の承認後ステータスを管理
+- `MemberRetire.vue`
+  - `members`の`ref`を削除し`dummyMembers`を直接参照
+  - `activeMembers`を`computed`に変更
+
+### Technical Notes
+- `ref`は「ユーザー操作で変化する値」（showModal・successMessageなど）にのみ使用
+- `computed`は「既存データから派生する値」（フィルタリング結果など）に使用
+- 変更されない値（dummyDataのimport・定数など）は`ref`・`computed`不要
+
+## 2026-03-09
+
+## [課題1] モックUI実装完了
 
 ### Added
 - `views/LoginView.vue` - ログイン画面
@@ -50,9 +74,9 @@
 - `MeasurementResultList.vue` のロール別コンポーネント分割
 - 複数部員の一括登録・一括引退処理
 
-### 2026-03-04
+## 2026-03-04
 
-**Added**
+### Added
 - views/manager/MeasurementResultSubmit.vue作成
   - 測定結果入力フォーム（部員選択・計測日・走力・肩力・打力・筋力）
   - バリデーション（未入力項目の赤枠表示）
@@ -61,7 +85,7 @@
   - 承認フローステータス一覧（テーブル形式）
   - ステータスバッジ色分け表示
 
-**Changed**
+### Changed
 - vite.config.jsにserver設定追加（usePolling: trueによるホットリロード有効化）
 
 ## 2026-03-03

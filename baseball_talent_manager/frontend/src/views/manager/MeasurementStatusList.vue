@@ -4,7 +4,7 @@
     <h2 class="mb-4">承認フロー ステータス一覧</h2>
 
     <!-- データなし -->
-    <div v-if="measurements.length === 0" class="alert alert-info">
+    <div v-if="!hasMeasurements" class="alert alert-info">
       測定記録がありません
     </div>
 
@@ -28,8 +28,8 @@
             <td>{{ measurement.grade }}年</td>
             <td>{{ measurement.measurement_date }}</td>
             <td>
-              <span :class="['badge', statusConfig[measurement.status].badge]">
-                {{ statusConfig[measurement.status].label }}
+              <span :class="['badge', getStatus(measurement.status).badge]">
+                {{ getStatus(measurement.status).label }}
               </span>
             </td>
           </tr>
@@ -39,13 +39,13 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed } from "vue";
 import { dummyMeasurements } from "@/dummyData";
 
-// 測定記録一覧
-const measurements = ref([]);
+const measurements = dummyMeasurements;
 
-// ステータスの表示名・バッジカラー定義
+const hasMeasurements = computed(() => measurements.length > 0);
+
 const statusConfig = {
   approved: { label: "承認済み", badge: "bg-success" },
   pending_member: { label: "部員承認待ち", badge: "bg-warning text-dark" },
@@ -53,8 +53,12 @@ const statusConfig = {
   rejected: { label: "否認", badge: "bg-danger" },
 };
 
-// 測定記録一覧取得
-onMounted(() => {
-  measurements.value = dummyMeasurements;
-});
+const getStatus = (status) => {
+  return (
+    statusConfig[status] ?? {
+      label: "不明",
+      badge: "bg-secondary",
+    }
+  );
+};
 </script>

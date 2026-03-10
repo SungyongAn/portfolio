@@ -4,74 +4,57 @@
     <h2 class="mb-4">測定結果の確認/承認</h2>
 
     <!-- データなし -->
-    <div v-if="measurements.length === 0" class="alert alert-info">
+    <div v-if="!hasMeasurements" class="alert alert-info">
       承認依頼はありません
     </div>
 
-    <!-- テーブル形式 -->
+    <!-- テーブル -->
     <div v-else class="table-responsive">
       <table class="table table-hover align-middle">
+        <!-- ヘッダー -->
         <thead class="table-light">
           <tr>
-            <th v-if="role === 'coach'">部員名</th>
+            <th v-if="isCoach">部員名</th>
             <th>計測日</th>
-            <th>50m走 (sec)</th>
-            <th>ベースランニング (sec)</th>
-            <th>遠投 (m)</th>
-            <th>ストレート球速 (km/h)</th>
-            <th>打球速度 (km/h)</th>
-            <th>スイング速度 (km/h)</th>
-            <th>ベンチプレス (kg)</th>
-            <th>スクワット (kg)</th>
+
+            <th v-for="field in MEASUREMENT_FIELDS" :key="field.key">
+              {{ field.label }}
+            </th>
+
             <th>承認の有無</th>
           </tr>
         </thead>
+
+        <!-- データ -->
         <tbody>
           <tr
             v-for="measurement in measurements"
             :key="measurement.measurement_id"
           >
-            <td v-if="role === 'coach'">
+            <td v-if="isCoach">
               {{ measurement.name }}（{{ measurement.grade }}年）
             </td>
+
             <td>{{ measurement.measurement_date }}</td>
-            <td>
-              {{ measurement.sprint_50m }}
+
+            <td v-for="field in MEASUREMENT_FIELDS" :key="field.key">
+              {{ measurement[field.key] }}
             </td>
-            <td>
-              {{ measurement.base_running }}
-            </td>
-            <td>
-              {{ measurement.throwing_distance }}
-            </td>
-            <td>
-              {{ measurement.pitch_speed }}
-            </td>
-            <td>
-              {{ measurement.batting_speed }}
-            </td>
-            <td>
-              {{ measurement.swing_speed }}
-            </td>
-            <td>
-              {{ measurement.bench_press }}
-            </td>
-            <td>
-              {{ measurement.squat }}
-            </td>
+
             <td>
               <div class="d-flex flex-wrap gap-2">
                 <button
                   @click="handleApprove(measurement.measurement_id)"
-                  type="button"
                   class="btn btn-primary"
+                  type="button"
                 >
                   承認
                 </button>
+
                 <button
                   @click="handleReject(measurement.measurement_id)"
-                  type="button"
                   class="btn btn-danger"
+                  type="button"
                 >
                   否認
                 </button>
@@ -85,51 +68,88 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { dummyMeasurements } from "@/dummyData";
 
 const authStore = useAuthStore();
-const role = authStore.role;
-const measurements = ref([]);
 
-onMounted(() => {
-  if (role === "member") {
-    measurements.value = dummyMeasurements.filter(
-      (m) => m.user_id === authStore.userId && m.status === "pending_member",
-    );
-  } else if (role === "coach") {
-    measurements.value = dummyMeasurements.filter(
-      (m) => m.status === "pending_coach",
-    );
-  }
-});
+const role = computed(() => authStore.role);
 
-// 承認処理（ボタン押下時に実行）
-const handleApprove = (measurementId) => {
-  const target = dummyMeasurements.find(
-    (m) => m.measurement_id === measurementId,
-  );
-  if (role === "member") {
-    target.status = "pending_coach";
-  } else if (role === "coach") {
-    target.status = "approved";
-  }
-  // 画面の一覧から該当レコードを除外
-  measurements.value = measurements.value.filter(
-    (m) => m.measurement_id !== measurementId,
-  );
+const isCoach = computed(() => role.value === "coach");
+
+const MEASUREMENT_FIELDS = [
+  {
+    key: "sprint_50m",
+    label: "50m走 (sec)",
+  },
+  {
+    key: "base_running",
+    label: "ベースランニング (sec)",
+  },
+  {
+    key: "throwing_distance",
+    label: "遠投 (m)",
+  },
+  {
+    key: "pitch_speed",
+    label: "ストレート球速 (km/h)",
+  },
+  {
+    key: "batting_speed",
+    label: "打球速度 (km/h)",
+  },
+  {
+    key: "swing_speed",
+    label: "スイング速度 (km/h)",
+  },
+  {
+    key: "bench_press",
+    label: "ベンチプレス (kg)",
+  },
+  {
+    key: "squat",
+    label: "スクワット (kg)",
+  },
+];
+
+const APPROVE_STATUS = {
+  member: "pending_coach",
+  coach: "approved",
 };
 
-// 否認処理（ボタン押下時に実行）
-const handleReject = (measurementId) => {
+const measurements = computed(() => {
+  if (role.value === "member") {
+    return dummyMeasurements.filter(
+      (m) => m.user_id === authStore.userId && m.status === "pending_member",
+    );
+  }
+
+  if (role.value === "coach") {
+    return dummyMeasurements.filter((m) => m.status === "pending_coach");
+  }
+
+  return [];
+});
+
+const hasMeasurements = computed(() => measurements.value.length > 0);
+
+// ステータス更新
+const updateStatus = (measurementId, newStatus) => {
   const target = dummyMeasurements.find(
     (m) => m.measurement_id === measurementId,
   );
-  target.status = "rejected";
-  // 画面の一覧から該当レコードを除外
-  measurements.value = measurements.value.filter(
-    (m) => m.measurement_id !== measurementId,
-  );
+
+  if (!target) return;
+
+  target.status = newStatus;
+};
+
+const handleApprove = (measurementId) => {
+  updateStatus(measurementId, APPROVE_STATUS[role.value]);
+};
+
+const handleReject = (measurementId) => {
+  updateStatus(measurementId, "rejected");
 };
 </script>
