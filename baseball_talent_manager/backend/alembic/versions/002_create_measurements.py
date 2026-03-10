@@ -30,9 +30,10 @@ def upgrade():
         sa.Column('squat', sa.Float(), nullable=False),
         sa.Column('status', sa.String(20), nullable=False, server_default='draft'),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.func.now()),
-        sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.func.now()),
         sa.PrimaryKeyConstraint('id'),
         sa.ForeignKeyConstraint(['user_id'], ['users.id']),
+        sa.Index('ix_measurements_user_id', 'user_id'), 
     )
 
 

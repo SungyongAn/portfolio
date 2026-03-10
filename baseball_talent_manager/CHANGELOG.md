@@ -24,6 +24,35 @@
 - `computed`は「既存データから派生する値」（フィルタリング結果など）に使用
 - 変更されない値（dummyDataのimport・定数など）は`ref`・`computed`不要
 
+## 2026-03-10
+
+## [バックエンド] モデル・スキーマ実装開始
+
+### Added
+- `backend/app/models/__init__.py` を作成
+- `backend/app/models/user.py` を作成
+  - `User` モデル（usersテーブル対応）
+  - `Measurement` との双方向 `relationship` を定義
+- `backend/app/models/measurement.py` を作成
+  - `Measurement` モデル（measurementsテーブル対応）
+  - `user_id` に `index=True` を追加（検索頻度が高いため）
+  - `User` との双方向 `relationship` を定義
+- `backend/app/schemas/__init__.py` を作成
+- `backend/app/schemas/auth.py` を作成
+  - `LoginRequest` / `LoginResponse` を定義
+
+### Changed
+- `backend/alembic/versions/001_create_users.py`
+  - `updated_at` の `onupdate=sa.func.now()` を削除
+- `backend/alembic/versions/002_create_measurements.py`
+  - `updated_at` の `onupdate=sa.func.now()` を削除
+  - `ix_measurements_user_id` インデックスを追加
+
+### Technical Notes
+- `created_at` / `updated_at` をPython側（`datetime.now(timezone.utc)`）で統一管理
+  - `onupdate=sa.func.now()` はMySQLで効かないケースがあるため
+  - DBサーバーのタイムゾーン設定に依存しないようUTCを明示
+
 ## 2026-03-09
 
 ## [課題1] モックUI実装完了

@@ -64,11 +64,13 @@ PoCとして最小構成で検証を行うものです。
 - [x] `components/MemberRetire.vue`（退部・引退処理）
 
 ### 次の予定
-- 既存コンポーネントのcomputedベースへのリファクタリング
 - バックエンド実装（FastAPI）
+  - schemas/user.py・schemas/measurement.py
+  - utils/security.py（JWT・Argon2）
+  - dependencies/auth.py（認証チェック）
+  - routers/（各エンドポイント）
 - seed.sql作成
 - 動作確認
-
 ---
 
 ## 設計ドキュメント
@@ -111,7 +113,14 @@ baseball_talent_manager/
 │   │       ├── 001_create_users.py
 │   │       └── 002_create_measurements.py
 │   └── app/
-│       └── db.py
+│       ├── db.py
+│       ├── models/
+│       │   ├── __init__.py
+│       │   ├── user.py
+│       │   └── measurement.py
+│       └── schemas/
+│           ├── __init__.py
+│           └── auth.py
 ├── frontend/
 │   ├── Dockerfile.dev
 │   └── src/
