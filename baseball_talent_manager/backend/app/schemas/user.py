@@ -1,0 +1,24 @@
+from pydantic import BaseModel, EmailStr
+
+
+class UserCreateRequest(BaseModel):
+    email: EmailStr
+    name: str
+    grade: int | None = None
+    role: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    message: str
+
+
+class UserListItem(BaseModel):
+    user_id: int
+    email: EmailStr
+    name: str
+    grade: int | None = None
+    role: str
+
+class UserListResponse(BaseModel):
+    users: list[UserListItem]

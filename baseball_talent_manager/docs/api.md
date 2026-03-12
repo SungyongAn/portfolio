@@ -185,7 +185,7 @@ coach | director
 ```JSON
 {
   "email": "EmailStr",
-  "memberName": "str",
+  "name": "str",
   "grade": "int",
   "password": "str",
   "role": "str"

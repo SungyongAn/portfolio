@@ -1,6 +1,48 @@
 # CHANGELOG
 
+## 2026-03-11
+
+## [バックエンド] サービス層・ルーター実装
+
+### Added
+- `backend/app/schemas/user.py` を作成
+  - `UserCreateRequest` / `UserResponse` / `UserListItem` / `UserListResponse` を定義
+- `backend/app/schemas/measurement.py` を作成
+  - `MeasurementCreateRequest` / `MeasurementCreateResponse` / `MeasurementItem` / `ApproveRequest` / `ApproveResponse` を定義
+- `backend/app/schemas/auth.py` を更新
+  - `TokenRefreshResponse` を追加
+- `backend/app/utils/security.py` を作成
+  - パスワードハッシュ化・検証（Argon2）
+  - Access Token / Refresh Token 生成・デコード（JWT）
+- `backend/app/dependencies/__init__.py` を作成
+- `backend/app/dependencies/auth.py` を作成
+  - `get_current_user` / `require_roles` を定義
+- `backend/app/services/__init__.py` を作成
+- `backend/app/services/auth_service.py` を作成
+  - `login_user` / `refresh_access_token` / `authenticate_user` を定義
+- `backend/app/services/user_service.py` を作成
+  - `create_user` / `get_user_by_email` / `get_user_list` を定義
+- `backend/app/routers/__init__.py` を作成
+- `backend/app/routers/auth.py` を作成
+  - `POST /api/auth/login` / `POST /api/auth/refresh` / `POST /api/auth/logout`
+- `backend/app/routers/users.py` を作成
+  - `POST /api/users` / `GET /api/users`
+
+### Changed
+- `backend/.env`
+  - `DATABASE_URL` のDB名を `journal_system` から `baseball_talent_manager` に修正
+  - `ACCESS_TOKEN_EXPIRE_MINUTES` を `1440` から `30` に変更
+  - `REFRESH_TOKEN_EXPIRE_DAYS=7` を追加
+- `.gitignore`
+  - Python関連（`__pycache__/` / `.venv/` など）と `.env` の除外設定を追加
+
+### Technical Notes
+- `expires_in` は秒単位で統一（`ACCESS_TOKEN_EXPIRE_MINUTES * 60`）
+- `services/` にビジネスロジック + DBアクセスを記述、`crud/` への分割は課題2で対応予定
+- メールアドレスは登録・検索時に `lower()` で小文字統一
+
 ## 2026-03-10
+
 
 ## [リファクタリング] モックUIコンポーネントのcomputed統一
 
@@ -23,8 +65,6 @@
 - `ref`は「ユーザー操作で変化する値」（showModal・successMessageなど）にのみ使用
 - `computed`は「既存データから派生する値」（フィルタリング結果など）に使用
 - 変更されない値（dummyDataのimport・定数など）は`ref`・`computed`不要
-
-## 2026-03-10
 
 ## [バックエンド] モデル・スキーマ実装開始
 

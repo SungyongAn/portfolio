@@ -14,3 +14,9 @@ class LoginResponse(BaseModel):
     name: str
     grade: int | None = None
     role: str
+
+
+class TokenRefreshResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    expires_in: int
