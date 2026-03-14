@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## 2026-03-12
+
+## [バックエンド] サービス層・ルーター実装完了
+
+### Added
+- `backend/app/services/measurement_service.py` を作成
+  - `create_measurement()` - 測定記録登録
+  - `get_measurements()` - 測定記録取得（ロール別分岐）
+  - `get_measurement_by_id()` - measurement_idによる測定記録取得
+  - `submit_measurement()` - 承認フロー発行
+  - `member_approve()` - 部員による承認・否認
+  - `coach_approve()` - コーチによる最終承認・否認
+- `backend/app/routers/measurements.py` を作成
+  - `POST /api/measurements` - 測定記録登録（manager）
+  - `GET /api/measurements` - 測定記録取得（全ロール）
+  - `POST /api/measurements/{measurement_id}/submit` - 承認フロー発行（manager）
+  - `PATCH /api/measurements/{measurement_id}/member-approve` - 部員承認・否認（member）
+  - `PATCH /api/measurements/{measurement_id}/coach-approve` - コーチ承認・否認（coach）
+- `backend/app/main.py` を作成
+  - FastAPIアプリケーション設定
+  - CORSミドルウェア設定
+  - ルーター登録（auth・users・measurements）
+- `backend/requirements.txt` を作成
+
+### Changed
+- `backend/app/schemas/measurement.py`
+  - `MeasurementSubmitResponse` を追加
+  - `MeasurementListResponse` を追加
+
+### Technical Notes
+- `get_measurements()` はJOINでUserの`name`・`grade`を取得
+- 承認フローのステータス遷移：draft → pending_member → pending_coach → approved（rejected）
+- `requirements.txt` は `pipreqs` で生成
+
+### Next
+- フロントエンド実装（モックUIからAPI接続への移行）
+  - 画面骨格
+  - ルーティング
+  - API接続
+  - 状態管理
+  - UI改善
+
 ## 2026-03-11
 
 ## [バックエンド] サービス層・ルーター実装

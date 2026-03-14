@@ -17,7 +17,7 @@ PoCとして最小構成で検証を行うものです。
 
 ## 開発状況
 
-現在は **フェーズB：モックUI実装完了 / フェーズC：バックエンド実装予定** です。
+現在は **フェーズC：バックエンド実装完了 / フェーズD：フロントエンド実装中** です。
 
 ### 完了
 - 課題精査
@@ -64,12 +64,13 @@ PoCとして最小構成で検証を行うものです。
 - [x] `components/MemberRetire.vue`（退部・引退処理）
 
 ### 次の予定
-- バックエンド実装（FastAPI）
-  - schemas/user.py・schemas/measurement.py
-  - utils/security.py（JWT・Argon2）
-  - dependencies/auth.py（認証チェック）
-  - routers/（各エンドポイント）
 - seed.sql作成
+- フロントエンド実装（モックUIからAPI接続への移行）
+  - 画面骨格
+  - ルーティング
+  - API接続
+  - 状態管理
+  - UI改善
 - 動作確認
 ---
 
@@ -103,24 +104,34 @@ baseball_talent_manager/
 │   ├── Dockerfile
 │   └── conf.d/
 │       └── my.cnf
-├── backend/
-│   ├── Dockerfile
-│   ├── .env
-│   ├── alembic.ini
-│   ├── alembic/
-│   │   ├── env.py
-│   │   └── versions/
-│   │       ├── 001_create_users.py
-│   │       └── 002_create_measurements.py
-│   └── app/
-│       ├── db.py
-│       ├── models/
-│       │   ├── __init__.py
-│       │   ├── user.py
-│       │   └── measurement.py
-│       └── schemas/
-│           ├── __init__.py
-│           └── auth.py
+├── backend/app/
+│   ├── db.py
+│   ├── main.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   └── measurement.py
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   ├── user.py
+│   │   └── measurement.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── security.py
+│   ├── dependencies/
+│   │   ├── __init__.py
+│   │   └── auth.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── auth_service.py
+│   │   ├── user_service.py
+│   │   └── measurement_service.py
+│   └── routers/
+│       ├── __init__.py
+│       ├── auth.py
+│       ├── users.py
+│       └── measurements.py
 ├── frontend/
 │   ├── Dockerfile.dev
 │   └── src/
@@ -148,8 +159,6 @@ baseball_talent_manager/
 │   └── wait_for_db.py
 └── docs/
 ```
-
----
 
 ## 技術スタック
 
@@ -187,6 +196,11 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
 ### frontendのみ起動
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d frontend
+```
+
+### backendのみ起動
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d backend
 ```
 
 ### 全サービス起動（フロント・バックエンド実装完了後）

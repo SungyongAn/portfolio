@@ -25,7 +25,7 @@ class MeasurementItem(BaseModel):
     measurement_id: int
     user_id: int
     name: str
-    grade: int | None = None  
+    grade: int | None = None
     measurement_date: date
     sprint_50m: float
     base_running: float
@@ -36,6 +36,15 @@ class MeasurementItem(BaseModel):
     bench_press: float
     squat: float
     status: str
+
+
+class MeasurementListResponse(BaseModel):
+    measurements: list[MeasurementItem]
+
+
+class MeasurementSubmitResponse(BaseModel):
+    measurement_id: int
+    message: str
 
 
 class ApproveRequest(BaseModel):

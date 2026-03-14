@@ -1,12 +1,22 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.measurement import Measurement
 from app.models.user import User
-from app.models.measurement import 
+from app.schemas.measurement import (
+    ApproveResponse,
+    MeasurementCreateRequest,
+    MeasurementCreateResponse,
+    MeasurementItem,
+    MeasurementListResponse,
+    MeasurementSubmitResponse,
+)
 
-from app.schemas.measurement import MeasurementCreateRequest
 
-def create_measurement(db: Session, measurement_data: MeasurementCreateRequest) -> User:
+# マネージャーによる測定結果の登録
+def create_measurement(
+    db: Session, measurement_data: MeasurementCreateRequest
+) -> MeasurementCreateResponse:
 
     # user_idのユーザーが存在するか確認
     existing_user = db.query(User).filter(User.id == measurement_data.user_id).first()
@@ -17,6 +27,184 @@ def create_measurement(db: Session, measurement_data: MeasurementCreateRequest) 
             detail="指定されたユーザーが存在しません",
         )
 
+    measurement = Measurement(
+        user_id=measurement_data.user_id,
+        measurement_date=measurement_data.measurement_date,
+        sprint_50m=measurement_data.sprint_50m,
+        base_running=measurement_data.base_running,
+        throwing_distance=measurement_data.throwing_distance,
+        pitch_speed=measurement_data.pitch_speed,
+        batting_speed=measurement_data.batting_speed,
+        swing_speed=measurement_data.swing_speed,
+        bench_press=measurement_data.bench_press,
+        squat=measurement_data.squat,
+    )
 
-def get_user_by_user_id(db: Session, user_id: int) -> User | None:
-    return db.query(User).filter(User.id == user_id).first()
+    db.add(measurement)
+    db.commit()
+    db.refresh(measurement)
+
+    return MeasurementCreateResponse(
+        measurement_id=measurement.id,
+        message="測定記録を登録しました",
+    )
+
+
+# 測定結果の取得ロールに応じた分岐あり
+def get_measurements(db: Session, current_user: User) -> MeasurementListResponse:
+
+    if current_user.role == "member":
+        query = (
+            db.query(Measurement, User.name, User.grade)
+            .join(User, Measurement.user_id == User.id)
+            .filter(Measurement.user_id == current_user.id)
+        )
+    else:
+        query = db.query(Measurement, User.name, User.grade).join(
+            User, Measurement.user_id == User.id
+        )
+
+    results = query.all()
+
+    result_list = [
+        MeasurementItem(
+            measurement_id=row.Measurement.id,
+            user_id=row.Measurement.user_id,
+            name=row.name,
+            grade=row.grade,
+            measurement_date=row.Measurement.measurement_date,
+            sprint_50m=row.Measurement.sprint_50m,
+            base_running=row.Measurement.base_running,
+            throwing_distance=row.Measurement.throwing_distance,
+            pitch_speed=row.Measurement.pitch_speed,
+            batting_speed=row.Measurement.batting_speed,
+            swing_speed=row.Measurement.swing_speed,
+            bench_press=row.Measurement.bench_press,
+            squat=row.Measurement.squat,
+            status=row.Measurement.status,
+        )
+        for row in results
+    ]
+
+    return MeasurementListResponse(measurements=result_list)
+
+
+# measurement_idを指定しての測定結果の取得
+def get_measurement_by_id(db: Session, measurement_id: int) -> Measurement | None:
+    return db.query(Measurement).filter(Measurement.id == measurement_id).first()
+
+
+# マネージャーから部員への測定結果の承認依頼
+def submit_measurement(
+    db: Session,
+    measurement_id: int,
+    current_user: User,
+) -> MeasurementSubmitResponse:
+
+    measurement = get_measurement_by_id(db, measurement_id)
+
+    if not measurement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="測定記録が存在しません",
+        )
+
+    if measurement.status != "draft":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="この測定記録は承認フローを発行できません",
+        )
+
+    measurement.status = "pending_member"
+    db.commit()
+
+    return MeasurementSubmitResponse(
+        measurement_id=measurement.id,
+        message="承認依頼を行いました。",
+    )
+
+
+def member_approve(
+    db: Session,
+    measurement_id: int,
+    action: str,
+    current_user: User,
+) -> ApproveResponse:
+
+    measurement = get_measurement_by_id(db, measurement_id)
+
+    if not measurement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="測定記録が存在しません",
+        )
+
+    if measurement.status != "pending_member":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="この測定記録は承認フローを発行できません",
+        )
+
+    if action != "reject" and action != "approve":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="actionはapproveまたはrejectを指定してください",
+        )
+
+    if action == "reject":
+        measurement.status = "rejected"
+
+    elif action == "approve":
+        measurement.status = "pending_coach"
+
+    db.commit()
+
+    message = "承認しました" if action == "approve" else "否認しました"
+
+    return ApproveResponse(
+        message=message,
+        status=measurement.status,
+    )
+
+
+def coach_approve(
+    db: Session,
+    measurement_id: int,
+    action: str,
+    current_user: User,
+) -> ApproveResponse:
+
+    measurement = get_measurement_by_id(db, measurement_id)
+
+    if not measurement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="測定記録が存在しません",
+        )
+
+    if measurement.status != "pending_coach":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="この測定記録は承認フローを発行できません",
+        )
+
+    if action != "reject" and action != "approve":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="actionはapproveまたはrejectを指定してください",
+        )
+
+    if action == "reject":
+        measurement.status = "rejected"
+
+    elif action == "approve":
+        measurement.status = "approved"
+
+    db.commit()
+
+    message = "承認しました" if action == "approve" else "否認しました"
+
+    return ApproveResponse(
+        message=message,
+        status=measurement.status,
+    )
