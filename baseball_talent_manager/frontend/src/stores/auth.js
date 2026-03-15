@@ -1,9 +1,3 @@
-/**
- * stores/auth.js
- *
- * モックUI用Piniaストア
- * バックエンド実装後はauth.full.jsに差し替える
- */
 import { defineStore } from "pinia";
 import * as authAPI from "@/services/authService";
 import router from "@/router";
@@ -11,11 +5,15 @@ import router from "@/router";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessToken: null,
+    tokenExpiry: null, // トークンの有効期限
     role: null,
     userName: null,
     userId: null,
-    memberGrade: null,
+    member_grade: null,
     isInitialized: false,
+    lastActivity: Date.now(),
+    inactivityTimer: null,
+    eventListeners: [],
 
     roleMap: {
       manager: "マネージャー",
@@ -26,47 +24,59 @@ export const useAuthStore = defineStore("auth", {
   }),
 
   getters: {
-    // ログイン状態
-    isAuthenticated(state) {
-      return !!state.accessToken;
+    isAuthenticated() {
+      return !!this.accessToken && !this.isTokenExpired;
     },
 
-    // ロール表示名
-    displayRole(state) {
-      return state.role ? state.roleMap[state.role] || state.role : null;
+    isTokenExpired(state) {
+      if (!state.tokenExpiry) return true;
+      return Date.now() > state.tokenExpiry;
     },
 
-    // ロール別判定
-    isManager(state) {
-      return state.role === "manager";
+    maybeLoggedIn(state) {
+      return !!state.accessToken || !!state.tokenExpiry;
     },
 
-    isMember(state) {
-      return state.role === "member";
+    memberGrade() {
+      return this.member_grade ?? null;
     },
 
-    isCoach(state) {
-      return state.role === "coach";
+    displayRole() {
+      return this.role ? this.roleMap[this.role] || this.role : null;
     },
 
-    isDirector(state) {
-      return state.role === "director";
+    isManager() {
+      return this.role === "manager";
+    },
+
+    isMember() {
+      return this.role === "member";
+    },
+
+    isCoach() {
+      return this.role === "coach";
+    },
+
+    isDirector() {
+      return this.role === "director";
     },
   },
 
   actions: {
-    /**
-     * ログイン
-     * authService.loginを呼び出してstateに格納する
-     */
     async login(email, password) {
       try {
         const data = await authAPI.login(email, password);
+        console.log("store login data:", data);
         this.accessToken = data.access_token;
+        this.tokenExpiry = Date.now() + data.expires_in * 1000;
         this.role = data.role;
         this.userId = data.user_id;
         this.userName = data.name;
-        this.memberGrade = data.grade ?? null;
+        this.member_grade = data.grade ?? null;
+
+        this.updateActivity();
+        this.startInactivityTimer();
+
         return true;
       } catch (error) {
         console.error("ログインエラー:", error);
@@ -74,19 +84,75 @@ export const useAuthStore = defineStore("auth", {
       }
     },
 
-    /**
-     * アプリ起動時の認証状態初期化
-     * モックUI段階ではリフレッシュ不要のためシンプルな実装
-     */
+    async refreshAccessToken() {
+      const data = await authAPI.refreshAccessToken();
+
+      if (!data) {
+        return false;
+      }
+
+      // ← ここでstateを更新
+      this.accessToken = data.access_token;
+      this.tokenExpiry = Date.now() + data.expires_in * 1000;
+
+      return true;
+    },
+
     async initAuth() {
-      // モックUI段階ではリフレッシュ不要
+      if (!this.maybeLoggedIn) {
+        this.isInitialized = true;
+        return;
+      }
+
+      const refreshed = await this.refreshAccessToken();
+
+      if (refreshed) {
+        this.startInactivityTimer();
+      }
+
       this.isInitialized = true;
     },
 
-    /**
-     * ログアウト
-     * stateをリセットしてログイン画面へ遷移する
-     */
+    startInactivityTimer() {
+      const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30分
+
+      this.clearInactivityTimer();
+
+      const resetTimer = () => {
+        this.updateActivity();
+        if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
+
+        this.inactivityTimer = setTimeout(() => {
+          console.log("無操作によりログアウトします");
+          this.logout();
+        }, INACTIVITY_TIMEOUT);
+      };
+
+      const events = ["mousemove", "keypress", "click", "scroll", "touchstart"];
+      events.forEach((eventName) => {
+        window.addEventListener(eventName, resetTimer);
+        this.eventListeners.push({ eventName, handler: resetTimer });
+      });
+
+      resetTimer();
+    },
+
+    clearInactivityTimer() {
+      if (this.inactivityTimer) {
+        clearTimeout(this.inactivityTimer);
+        this.inactivityTimer = null;
+      }
+
+      this.eventListeners.forEach(({ eventName, handler }) => {
+        window.removeEventListener(eventName, handler);
+      });
+      this.eventListeners = [];
+    },
+
+    updateActivity() {
+      this.lastActivity = Date.now();
+    },
+
     async logout() {
       try {
         await authAPI.logout();
@@ -94,12 +160,15 @@ export const useAuthStore = defineStore("auth", {
         // エラー無視
       }
 
+      this.clearInactivityTimer();
       this.accessToken = null;
+      this.tokenExpiry = null;
       this.role = null;
       this.userName = null;
       this.userId = null;
-      this.memberGrade = null;
+      this.member_grade = null;
 
+      // ルーティング
       router.push("/login");
     },
   },

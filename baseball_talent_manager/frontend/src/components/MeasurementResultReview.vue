@@ -68,9 +68,21 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { dummyMeasurements } from "@/dummyData";
+
+import {
+  getMeasurements,
+  memberApprove,
+  coachApprove,
+} from "@/services/measurementService.js";
+
+const allMeasurements = ref([]);
+
+onMounted(async () => {
+  const res = await getMeasurements();
+  allMeasurements.value = res.data.measurements;
+});
 
 const authStore = useAuthStore();
 
@@ -113,43 +125,39 @@ const MEASUREMENT_FIELDS = [
   },
 ];
 
-const APPROVE_STATUS = {
-  member: "pending_coach",
-  coach: "approved",
-};
-
 const measurements = computed(() => {
   if (role.value === "member") {
-    return dummyMeasurements.filter(
+    return allMeasurements.value.filter(
       (m) => m.user_id === authStore.userId && m.status === "pending_member",
     );
   }
-
   if (role.value === "coach") {
-    return dummyMeasurements.filter((m) => m.status === "pending_coach");
+    return allMeasurements.value.filter((m) => m.status === "pending_coach");
   }
-
   return [];
 });
 
 const hasMeasurements = computed(() => measurements.value.length > 0);
 
-// ステータス更新
-const updateStatus = (measurementId, newStatus) => {
-  const target = dummyMeasurements.find(
-    (m) => m.measurement_id === measurementId,
-  );
-
-  if (!target) return;
-
-  target.status = newStatus;
+const handleApprove = async (measurementId) => {
+  if (role.value === "member") {
+    await memberApprove(measurementId, "approve");
+  } else if (role.value === "coach") {
+    await coachApprove(measurementId, "approve");
+  }
+  // 再取得
+  const res = await getMeasurements();
+  allMeasurements.value = res.data.measurements;
 };
 
-const handleApprove = (measurementId) => {
-  updateStatus(measurementId, APPROVE_STATUS[role.value]);
-};
-
-const handleReject = (measurementId) => {
-  updateStatus(measurementId, "rejected");
+const handleReject = async (measurementId) => {
+  if (role.value === "member") {
+    await memberApprove(measurementId, "reject");
+  } else if (role.value === "coach") {
+    await coachApprove(measurementId, "reject");
+  }
+  // 再取得
+  const res = await getMeasurements();
+  allMeasurements.value = res.data.measurements;
 };
 </script>

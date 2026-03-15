@@ -2,7 +2,13 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.user import User
-from app.schemas.user import UserCreateRequest, UserListItem, UserListResponse
+from app.schemas.user import (
+    UserCreateRequest,
+    UserListItem,
+    UserListResponse,
+    UserResponse,
+    UserStatusUpdateRequest,
+)
 from app.utils.security import get_password_hash
 
 
@@ -75,3 +81,21 @@ def get_user_list(
         for row in results
     ]
     return UserListResponse(users=user_list)
+
+#　引退・退部処理
+def update_user_status(
+    db: Session, user_id: int, status_data: UserStatusUpdateRequest
+) -> UserResponse:
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="指定されたユーザーが存在しません",
+        )
+
+    user.status = status_data.status
+    db.commit()
+
+    return UserResponse(message="退部・引退に変更しました。")

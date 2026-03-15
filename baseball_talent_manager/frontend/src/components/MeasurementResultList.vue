@@ -66,9 +66,16 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { dummyMeasurements } from "@/dummyData";
+import { getMeasurements } from "@/services/measurementService.js";
+
+const allMeasurements = ref([]);
+
+onMounted(async () => {
+  const res = await getMeasurements();
+  allMeasurements.value = res.data.measurements;
+});
 
 const authStore = useAuthStore();
 const role = computed(() => authStore.role);
@@ -79,12 +86,12 @@ const isStaff = computed(() =>
 
 const measurements = computed(() => {
   if (role.value === "member") {
-    return dummyMeasurements.filter(
+    return allMeasurements.value.filter(
       (m) => m.user_id === authStore.userId && m.status === "approved",
     );
   }
   if (isStaff.value) {
-    return dummyMeasurements.filter((m) => m.status === "approved");
+    return allMeasurements.value.filter((m) => m.status === "approved");
   }
 
   return [];

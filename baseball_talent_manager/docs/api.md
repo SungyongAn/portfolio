@@ -228,6 +228,30 @@ manager | coach | director
 }
 ```
 
+### 4.3 部員ステータス更新
+
+### PATCH /api/users/{user_id}/status
+
+### 認証
+必要
+
+### ロール
+coach | director
+
+### Request
+```JSON
+{
+  "status": "retired | withdrawn"
+}
+```
+
+### Response
+```JSON
+{
+  "message": "str"
+}
+```
+
 ---
 
 ## 5. 測定記録管理
@@ -306,6 +330,8 @@ manager
   ]
 }
 ```
+
+
 
 ### 備考
 - 測定記録の閲覧・グラフ表示の両方で使用する

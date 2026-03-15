@@ -91,7 +91,7 @@
                   田中 太郎: member1@jpt.com<br />
                   伊藤 コーチ: coach@jpt.com<br />
                   渡辺 監督: director@jpt.com<br />
-                  パスワード: null
+                  パスワード: test123
                 </small>
               </div>
             </div>

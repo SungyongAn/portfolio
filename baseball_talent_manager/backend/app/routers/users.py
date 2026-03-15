@@ -4,8 +4,13 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.dependencies.auth import require_roles
 from app.models.user import User
-from app.schemas.user import UserCreateRequest, UserListResponse, UserResponse
-from app.services.user_service import create_user, get_user_list
+from app.schemas.user import (
+    UserCreateRequest,
+    UserListResponse,
+    UserResponse,
+    UserStatusUpdateRequest,
+)
+from app.services.user_service import create_user, get_user_list, update_user_status
 
 router = APIRouter(prefix="/api/users", tags=["ユーザー管理"])
 
@@ -37,3 +42,16 @@ def get_users(
     users = get_user_list(db, role=role, limit=limit, offset=offset)
 
     return users
+
+
+@router.patch("/{user_id}/status", response_model=UserResponse)
+def update_user_status_endpoint(
+    user_id: int,
+    status_data: UserStatusUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(["coach", "director"])),
+):
+
+    result = update_user_status(db, user_id, status_data)
+
+    return result

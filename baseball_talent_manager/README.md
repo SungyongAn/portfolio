@@ -17,7 +17,7 @@ PoCとして最小構成で検証を行うものです。
 
 ## 開発状況
 
-現在は **フェーズC：バックエンド実装完了 / フェーズD：フロントエンド実装中** です。
+現在は **フェーズD：フロントエンドAPI接続完了 / 動作確認中** です。
 
 ### 完了
 - 課題精査
@@ -65,13 +65,8 @@ PoCとして最小構成で検証を行うものです。
 
 ### 次の予定
 - seed.sql作成
-- フロントエンド実装（モックUIからAPI接続への移行）
-  - 画面骨格
-  - ルーティング
-  - API接続
-  - 状態管理
-  - UI改善
 - 動作確認
+- 課題2実装
 ---
 
 ## 設計ドキュメント
@@ -135,6 +130,11 @@ baseball_talent_manager/
 ├── frontend/
 │   ├── Dockerfile.dev
 │   └── src/
+│       ├── services/
+│       │   ├── api.js
+│       │   ├── authService.js
+│       │   ├── measurementService.js
+│       │   └── userService.js
 │       ├── components/
 │       │   ├── AppHeader.vue
 │       │   ├── MeasurementResultReview.vue
@@ -187,23 +187,6 @@ baseball_talent_manager/
 ---
 
 ## 起動方法（開発環境）
-
-### DBのみ起動
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
-```
-
-### frontendのみ起動
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d frontend
-```
-
-### backendのみ起動
-```bash
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d backend
-```
-
-### 全サービス起動（フロント・バックエンド実装完了後）
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```

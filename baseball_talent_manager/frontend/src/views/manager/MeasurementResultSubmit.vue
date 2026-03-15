@@ -25,7 +25,7 @@
             <option disabled value="">部員を選択してください</option>
 
             <option
-              v-for="member in MEMBERS"
+              v-for="member in members"
               :key="member.user_id"
               :value="member.user_id"
             >
@@ -113,10 +113,19 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from "vue";
-import { dummyMembers } from "@/dummyData";
+import { reactive, ref, computed, onMounted } from "vue";
+import { getUsers } from "@/services/userService.js";
+import {
+  createMeasurement,
+  submitMeasurement,
+} from "@/services/measurementService.js";
 
-const MEMBERS = dummyMembers;
+const members = ref([]);
+
+onMounted(async () => {
+  const res = await getUsers("member");
+  members.value = res.data.users;
+});
 
 const MEASUREMENT_FIELDS = [
   {
@@ -128,7 +137,7 @@ const MEASUREMENT_FIELDS = [
   },
 
   {
-    key: "baseRunning",
+    key: "base_running",
     label: "ベースランニング (sec)",
     step: "0.01",
     placeholder: "例：12.50",
@@ -136,7 +145,7 @@ const MEASUREMENT_FIELDS = [
   },
 
   {
-    key: "throwingDistance",
+    key: "throwing_distance",
     label: "遠投 (m)",
     step: "0.1",
     placeholder: "例：64",
@@ -144,7 +153,7 @@ const MEASUREMENT_FIELDS = [
   },
 
   {
-    key: "pitchSpeed",
+    key: "pitch_speed",
     label: "ストレート球速 (km/h)",
     step: "0.1",
     placeholder: "例：118",
@@ -152,7 +161,7 @@ const MEASUREMENT_FIELDS = [
   },
 
   {
-    key: "battingSpeed",
+    key: "batting_speed",
     label: "打球速度 (km/h)",
     step: "0.1",
     placeholder: "例：108",
@@ -160,7 +169,7 @@ const MEASUREMENT_FIELDS = [
   },
 
   {
-    key: "swingSpeed",
+    key: "swing_speed",
     label: "スイング速度 (km/h)",
     step: "0.1",
     placeholder: "例：111",
@@ -168,7 +177,7 @@ const MEASUREMENT_FIELDS = [
   },
 
   {
-    key: "benchPress",
+    key: "bench_press",
     label: "ベンチプレス (kg)",
     step: "0.1",
     placeholder: "例：65",
@@ -233,10 +242,31 @@ const handleSubmit = async () => {
 
   loading.value = true;
 
-  setTimeout(() => {
-    successMessage.value = "測定結果を登録し、承認依頼を送信しました";
+  try {
+    // 1. 測定記録を登録
+    const res = await createMeasurement({
+      user_id: form.userId,
+      measurement_date: form.measurementDate,
+      sprint_50m: form.sprint_50m,
+      base_running: form.base_running,
+      throwing_distance: form.throwing_distance,
+      pitch_speed: form.pitch_speed,
+      batting_speed: form.batting_speed,
+      swing_speed: form.swing_speed,
+      bench_press: form.bench_press,
+      squat: form.squat,
+    });
 
+    // 2. 承認依頼を送信
+    await submitMeasurement(res.data.measurement_id);
+
+    successMessage.value = "測定結果を登録し、承認依頼を送信しました";
+  } catch (error) {
+    console.error(error);
+    successMessage.value = "";
+    alert("エラーが発生しました");
+  } finally {
     loading.value = false;
-  }, 800);
+  }
 };
 </script>

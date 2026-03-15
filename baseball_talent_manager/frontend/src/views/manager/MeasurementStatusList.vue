@@ -39,12 +39,17 @@
   </div>
 </template>
 <script setup>
-import { computed } from "vue";
-import { dummyMeasurements } from "@/dummyData";
+import { ref, computed, onMounted } from "vue";
+import { getMeasurements } from "@/services/measurementService.js";
 
-const measurements = dummyMeasurements;
+const measurements = ref([]);
 
-const hasMeasurements = computed(() => measurements.length > 0);
+onMounted(async () => {
+  const res = await getMeasurements();
+  measurements.value = res.data.measurements;
+});
+
+const hasMeasurements = computed(() => measurements.value.length > 0);
 
 const statusConfig = {
   approved: { label: "承認済み", badge: "bg-success" },

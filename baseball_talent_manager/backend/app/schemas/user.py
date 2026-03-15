@@ -20,5 +20,10 @@ class UserListItem(BaseModel):
     grade: int | None = None
     role: str
 
+
 class UserListResponse(BaseModel):
     users: list[UserListItem]
+
+
+class UserStatusUpdateRequest(BaseModel):
+    status: str

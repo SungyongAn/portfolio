@@ -149,6 +149,7 @@
 <script setup>
 import { ref, reactive, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import { createUser } from "@/services/userService.js";
 
 const authStore = useAuthStore();
 const role = computed(() => authStore.role);
@@ -194,12 +195,27 @@ const handleSubmit = () => {
 };
 
 // 登録ボタン押下
-const handleRegister = () => {
-  showModal.value = false;
-  successMessage.value = `${form.name}さんのアカウントを作成しました`;
-  // フォームリセット
-  Object.keys(form).forEach((key) => {
-    form[key] = "";
-  });
+const handleRegister = async () => {
+  try {
+    await createUser({
+      email: form.email,
+      name: form.name,
+      grade: parseInt(form.grade),
+      password: form.password,
+      role: "member",
+    });
+
+    showModal.value = false;
+    successMessage.value = `${form.name}さんのアカウントを作成しました`;
+
+    // フォームリセット
+    Object.keys(form).forEach((key) => {
+      form[key] = "";
+    });
+  } catch (error) {
+    console.error(error);
+    showModal.value = false;
+    alert("エラーが発生しました");
+  }
 };
 </script>

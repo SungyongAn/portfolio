@@ -1,54 +1,26 @@
-/**
- * モックUI用仮実装
- * バックエンド実装後は実際のAPI通信に差し替える
- */
-import { dummyUsers } from "@/dummyData";
+import api from "./api";
 
-/**
- * ログイン
- * バックエンド実装後は POST /api/auth/login に差し替える
- *
- * @param {string} email
- * @param {string} password
- * @returns {Promise<Object>} ログインレスポンス
- */
-export const login = async (email, password) => {
-  // バックエンド未実装のため、dummyUsersからメールアドレスで検索
-  const user = dummyUsers.find((u) => u.email === email);
+export async function login(email, password) {
+  const res = await api.post("/api/auth/login", { email, password });
+  return res.data; // ← データを返すだけ
+}
 
-  if (!user) {
-    throw new Error("メールアドレスまたはパスワードが正しくありません");
+export async function refreshAccessToken() {
+  try {
+    const res = await api.post("/api/auth/refresh");
+    return res.data; // ← データを返すだけ
+  } catch (error) {
+    if (error.response?.status === 401) {
+      return null;
+    }
+    throw error;
   }
+}
 
-  // バックエンドから返ってくるJSONを模倣
-  return {
-    access_token: "dummy_token",
-    expires_in: 900, // 15分（秒）
-    role: user.role,
-    user_id: user.user_id,
-    name: user.name,
-    grade: user.grade ?? null,
-  };
-};
-
-/**
- * トークン再発行
- * バックエンド実装後は POST /api/auth/refresh に差し替える
- * モックUI段階ではnullを返してリフレッシュ不要とする
- *
- * @returns {Promise<null>}
- */
-export const refreshAccessToken = async () => {
-  // モックUI段階ではリフレッシュ不要
-  return null;
-};
-
-/**
- * ログアウト
- * バックエンド実装後は POST /api/auth/logout に差し替える
- *
- * @returns {Promise<void>}
- */
-export const logout = async () => {
-  // モックUI段階ではAPI通信不要
-};
+export async function logout() {
+  try {
+    await api.post("/api/auth/logout");
+  } catch (e) {
+    // 無視
+  }
+}

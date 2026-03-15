@@ -103,12 +103,19 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { dummyMembers } from "@/dummyData";
+import { ref, computed, onMounted } from "vue";
+import { updateUserStatus, getUsers } from "@/services/userService.js";
+
+const allMembers = ref([]);
+
+onMounted(async () => {
+  const res = await getUsers("member");
+  allMembers.value = res.data.users;
+});
 
 // activeな部員のみ表示
 const activeMembers = computed(() =>
-  dummyMembers.filter((m) => m.status === "active"),
+  allMembers.value.filter((m) => m.status === "active"),
 );
 
 // モーダル制御
@@ -123,15 +130,12 @@ const openModal = (member, type) => {
   showModal.value = true;
 };
 
-const handleProcess = () => {
+const handleProcess = async () => {
   const label = actionType.value === "retired" ? "引退" : "退部";
-  // ステータス更新
-  const target = dummyMembers.find(
-    (m) => m.user_id === selectedMember.value.user_id,
-  );
-  if (target) {
-    target.status = actionType.value;
-  }
+  await updateUserStatus(selectedMember.value.user_id, actionType.value);
+  // 再取得
+  const res = await getUsers("member");
+  allMembers.value = res.data.users;
   successMessage.value = `${selectedMember.value.name}さんを${label}処理しました`;
   showModal.value = false;
 };
