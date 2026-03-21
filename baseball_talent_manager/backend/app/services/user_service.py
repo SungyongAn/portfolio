@@ -61,12 +61,11 @@ def get_user_list(
         User.email,
         User.grade,
         User.role,
+        User.status,
     )
 
     if role:
         query = query.filter(User.role == role)
-
-    query = query.filter(User.status == "active")
 
     results = query.limit(limit).offset(offset).all()
 
@@ -77,6 +76,7 @@ def get_user_list(
             name=row.name,
             grade=row.grade,
             role=row.role,
+            status=row.status,
         )
         for row in results
     ]

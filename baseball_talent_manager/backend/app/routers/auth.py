@@ -26,8 +26,9 @@ def login(
 @router.post("/refresh", response_model=TokenRefreshResponse)
 def refresh(
     request: Request,
+    db: Session = Depends(get_db),
 ):
-    return refresh_access_token(request)
+    return refresh_access_token(request, db)
 
 
 @router.post("/logout")

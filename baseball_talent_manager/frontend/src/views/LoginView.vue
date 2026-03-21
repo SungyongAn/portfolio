@@ -87,11 +87,11 @@
               <div class="text-center">
                 <small class="text-muted">
                   <strong>テストアカウント</strong><br />
-                  山田 花子: manager@jpt.com<br />
-                  田中 太郎: member1@jpt.com<br />
+                  山田 花子: manager1@jpt.com<br />
+                  田中 太郎: member1_1@jpt.com<br />
                   伊藤 コーチ: coach@jpt.com<br />
                   渡辺 監督: director@jpt.com<br />
-                  パスワード: test123
+                  パスワード: password123
                 </small>
               </div>
             </div>
@@ -122,11 +122,22 @@ const handleLogin = async () => {
 
   try {
     await authStore.login(email.value, password.value);
-
     router.push("/");
   } catch (error) {
     console.error(error);
-    errorMessage.value = "ログインに失敗しました";
+
+    const status = error.response?.status;
+
+    if (status === 401) {
+      errorMessage.value = "メールアドレスまたはパスワードが正しくありません";
+    } else if (status === 422) {
+      errorMessage.value = "入力内容に誤りがあります";
+    } else if (error.code === "ERR_NETWORK" || !status) {
+      errorMessage.value =
+        "サーバーに接続できません。しばらく経ってから再度お試しください";
+    } else {
+      errorMessage.value = "ログインに失敗しました";
+    }
   } finally {
     loading.value = false;
   }

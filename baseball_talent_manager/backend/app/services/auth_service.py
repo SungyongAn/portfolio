@@ -47,7 +47,6 @@ def login_user(
         samesite="Lax",
         max_age=60 * 60 * 24 * 7,
     )
-    
 
     return LoginResponse(
         access_token=access_token,
@@ -63,6 +62,7 @@ def login_user(
 # リフレッシュトークンからアクセストークンを再発行
 def refresh_access_token(
     request: Request,
+    db: Session,
 ) -> TokenRefreshResponse:
 
     refresh_token = request.cookies.get("refresh_token")
@@ -79,6 +79,14 @@ def refresh_access_token(
             detail="無効なリフレッシュトークンです",
         )
 
+    # DBからユーザー情報を取得
+    user = db.query(User).filter(User.email == payload.get("sub")).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="ユーザーが存在しません",
+        )
+
     token_data = {
         "sub": payload.get("sub"),
         "role": payload.get("role"),
@@ -91,6 +99,10 @@ def refresh_access_token(
         access_token=new_access_token,
         token_type="bearer",
         expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user_id=user.id,
+        name=user.name,
+        grade=user.grade,
+        role=user.role,
     )
 
 

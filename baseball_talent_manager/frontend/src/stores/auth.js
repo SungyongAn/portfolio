@@ -34,7 +34,11 @@ export const useAuthStore = defineStore("auth", {
     },
 
     maybeLoggedIn(state) {
-      return !!state.accessToken || !!state.tokenExpiry;
+      return (
+        !!state.accessToken ||
+        !!state.tokenExpiry ||
+        !!sessionStorage.getItem("tokenExpiry")
+      );
     },
 
     memberGrade() {
@@ -69,6 +73,7 @@ export const useAuthStore = defineStore("auth", {
         console.log("store login data:", data);
         this.accessToken = data.access_token;
         this.tokenExpiry = Date.now() + data.expires_in * 1000;
+        sessionStorage.setItem("tokenExpiry", this.tokenExpiry);
         this.role = data.role;
         this.userId = data.user_id;
         this.userName = data.name;
@@ -94,17 +99,31 @@ export const useAuthStore = defineStore("auth", {
       // ← ここでstateを更新
       this.accessToken = data.access_token;
       this.tokenExpiry = Date.now() + data.expires_in * 1000;
+      sessionStorage.setItem("tokenExpiry", this.tokenExpiry);
+      this.role = data.role;
+      this.userId = data.user_id;
+      this.userName = data.name;
+      this.member_grade = data.grade ?? null;
 
       return true;
     },
 
     async initAuth() {
+      const storedExpiry = sessionStorage.getItem("tokenExpiry");
+      if (storedExpiry) {
+        this.tokenExpiry = parseInt(storedExpiry);
+      }
+      console.log("initAuth開始 maybeLoggedIn:", this.maybeLoggedIn);
+
       if (!this.maybeLoggedIn) {
+        console.log("未ログイン状態のためinitAuth終了");
         this.isInitialized = true;
         return;
       }
 
+      console.log("refreshAccessToken開始");
       const refreshed = await this.refreshAccessToken();
+      console.log("refreshAccessToken結果:", refreshed);
 
       if (refreshed) {
         this.startInactivityTimer();
@@ -161,6 +180,7 @@ export const useAuthStore = defineStore("auth", {
       }
 
       this.clearInactivityTimer();
+      sessionStorage.removeItem("tokenExpiry"); 
       this.accessToken = null;
       this.tokenExpiry = null;
       this.role = null;

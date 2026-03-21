@@ -19,7 +19,7 @@ class UserListItem(BaseModel):
     name: str
     grade: int | None = None
     role: str
-
+    status: str
 
 class UserListResponse(BaseModel):
     users: list[UserListItem]

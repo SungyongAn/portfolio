@@ -24,6 +24,13 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // refreshエンドポイント自体が401の場合はループしない
+    if (originalRequest.url === "/api/auth/refresh") {
+      const authStore = useAuthStore();
+      await authStore.logout();
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
