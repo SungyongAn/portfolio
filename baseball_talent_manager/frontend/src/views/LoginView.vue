@@ -82,18 +82,6 @@
                 </button>
               </form>
 
-              <hr class="my-4" />
-
-              <div class="text-center">
-                <small class="text-muted">
-                  <strong>テストアカウント</strong><br />
-                  山田 花子: manager1@jpt.com<br />
-                  田中 太郎: member1_1@jpt.com<br />
-                  伊藤 コーチ: coach@jpt.com<br />
-                  渡辺 監督: director@jpt.com<br />
-                  パスワード: password123
-                </small>
-              </div>
             </div>
           </div>
         </div>
