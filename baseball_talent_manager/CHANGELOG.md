@@ -60,6 +60,7 @@
   - `compareValues`関数を分離してソートロジックを整理
   - computedの依存関係を整理（measurements → availableDates → filteredMeasurements → sortedMeasurements → paginatedMeasurements）
 
+<<<<<<< HEAD
 ## [バグ修正] AppHeader.vueのログアウト処理を修正
 
 ### Fixed
@@ -69,6 +70,8 @@
   - 修正前：ログアウト後にログイン画面へ遷移しない不具合があった
   - 修正後：ログアウト後に正常にログイン画面へ遷移するようになった
 
+=======
+>>>>>>> 379246a22d4f6bf54f6f036ba5363e7fe254bba1
 ## 2026-03-19
 
 ## [動作確認・バグ修正] seed.sql適用・各機能の動作確認
