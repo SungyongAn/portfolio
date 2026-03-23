@@ -93,10 +93,11 @@
 
 <script setup>
 import { computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
 
 // ユーザー情報
@@ -179,6 +180,7 @@ const showBreadcrumb = computed(() => {
 const handleLogout = async () => {
   if (confirm("ログアウトしてもよろしいですか？")) {
     await authStore.logout();
+    router.push("/login");
   }
 };
 </script>
