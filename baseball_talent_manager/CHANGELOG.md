@@ -1,5 +1,42 @@
 # CHANGELOG
 
+## 2026-03-23
+
+## [デプロイ] Oracle Cloud本番環境構築・デプロイ設定追加
+
+### Added
+- `frontend/Dockerfile.prod` を作成
+  - マルチステージビルド（node:20-alpineでビルド → nginx:alpineで配信）
+  - `npm run build` で生成した静的ファイルをnginxで配信
+- `frontend/nginx.conf` を作成
+  - Vue Router対応（`try_files $uri $uri/ /index.html`）
+  - `/api/` へのリクエストをbackendコンテナにプロキシ
+- `frontend/.env.production` を作成
+  - `VITE_API_URL=`（空文字）に設定
+  - 本番ビルド時にaxiosのbaseURLを相対パスにするための設定
+- `docker-compose.prod.yml` を作成
+  - backendの`--reload`を除いた本番用起動コマンドに変更
+  - frontendをnginx（80番ポート）で配信する設定に変更
+
+### Changed
+- `frontend/src/services/api.js`
+  - `baseURL`のフォールバック演算子を`||`から`??`に変更
+  - 空文字（`VITE_API_URL=`）を有効な値として扱うための修正
+
+### Infrastructure
+- Oracle Cloud Always Free（Ubuntu 22.04）にデプロイ環境を構築
+  - VCN・パブリックサブネット・インターネットゲートウェイ・ルート表を設定
+  - VMインスタンス（VM.Standard.E2.1.Micro）を作成（IP: 168.138.193.7）
+  - Docker 29.3.0 / Docker Compose v5.1.1 をインストール
+  - OCIセキュリティリストで80番・22番ポートを開放
+  - UFWで22番・80番ポートを許可
+
+### Technical Notes
+- 本番環境はdocker-compose.yml + docker-compose.prod.ymlの2ファイル構成
+  - `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+- nginxがフロントエンド配信とAPIプロキシを兼務するため、8000番ポートの外部開放は不要
+- `VITE_API_URL`が空文字の場合、axiosのbaseURLが空文字になり`/api/...`の相対パスでリクエストが送られる
+
 ## 2026-03-19
 
 ## [動作確認・バグ修正] seed.sql適用・各機能の動作確認

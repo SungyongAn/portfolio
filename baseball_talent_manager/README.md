@@ -131,6 +131,9 @@ baseball_talent_manager/
 │       └── measurements.py
 ├── frontend/
 │   ├── Dockerfile.dev
+│   ├── Dockerfile.prod
+│   ├── nginx.conf
+│   ├── .env.production
 │   └── src/
 │       ├── services/
 │       │   ├── api.js
@@ -198,6 +201,25 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 cd backend
 alembic upgrade head
 ```
+
+## 起動方法（本番環境）
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+### マイグレーション実行
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml exec backend alembic upgrade head
+```
+
+### 初期データ投入
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml exec db mysql -uroot -proot baseball_talent_manager < seed.sql
+```
+
+### アクセス
+- フロントエンド：`http://<サーバーIP>/`
+- APIドキュメント：`http://<サーバーIP>/api/docs`（開発確認用）
 
 ---
 
