@@ -73,7 +73,7 @@
               <div class="row g-3">
                 <div v-for="field in fields" :key="field.key" class="col-md-6">
                   <label class="form-label">
-                    {{ field.label }}
+                    {{ field.label }} ({{ field.unit }})
                     <span class="text-danger">*</span>
                   </label>
 
@@ -119,6 +119,7 @@ import {
   createMeasurement,
   submitMeasurement,
 } from "@/services/measurementService.js";
+import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
 
 const members = ref([]);
 
@@ -126,72 +127,6 @@ onMounted(async () => {
   const res = await getUsers("member");
   members.value = res.data.users;
 });
-
-const MEASUREMENT_FIELDS = [
-  {
-    key: "sprint_50m",
-    label: "50m走 (sec)",
-    step: "0.01",
-    placeholder: "例：6.30",
-    category: "走力",
-  },
-
-  {
-    key: "base_running",
-    label: "ベースランニング (sec)",
-    step: "0.01",
-    placeholder: "例：12.50",
-    category: "走力",
-  },
-
-  {
-    key: "throwing_distance",
-    label: "遠投 (m)",
-    step: "0.1",
-    placeholder: "例：64",
-    category: "肩力",
-  },
-
-  {
-    key: "pitch_speed",
-    label: "ストレート球速 (km/h)",
-    step: "0.1",
-    placeholder: "例：118",
-    category: "肩力",
-  },
-
-  {
-    key: "batting_speed",
-    label: "打球速度 (km/h)",
-    step: "0.1",
-    placeholder: "例：108",
-    category: "打力",
-  },
-
-  {
-    key: "swing_speed",
-    label: "スイング速度 (km/h)",
-    step: "0.1",
-    placeholder: "例：111",
-    category: "打力",
-  },
-
-  {
-    key: "bench_press",
-    label: "ベンチプレス (kg)",
-    step: "0.1",
-    placeholder: "例：65",
-    category: "筋力",
-  },
-
-  {
-    key: "squat",
-    label: "スクワット (kg)",
-    step: "0.1",
-    placeholder: "例：90",
-    category: "筋力",
-  },
-];
 
 const groupedFields = computed(() => {
   const groups = {};
@@ -244,17 +179,14 @@ const handleSubmit = async () => {
 
   try {
     // 1. 測定記録を登録
+    const measurementData = Object.fromEntries(
+      MEASUREMENT_FIELDS.map((f) => [f.key, form[f.key]]),
+    );
+
     const res = await createMeasurement({
       user_id: form.userId,
       measurement_date: form.measurementDate,
-      sprint_50m: form.sprint_50m,
-      base_running: form.base_running,
-      throwing_distance: form.throwing_distance,
-      pitch_speed: form.pitch_speed,
-      batting_speed: form.batting_speed,
-      swing_speed: form.swing_speed,
-      bench_press: form.bench_press,
-      squat: form.squat,
+      ...measurementData,
     });
 
     // 2. 承認依頼を送信

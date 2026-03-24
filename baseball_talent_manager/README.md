@@ -77,7 +77,16 @@ PoCとして最小構成で検証を行うものです。
   - 絞り込み機能（部員名・学年・計測日）
   - ページネーション機能
   - フィルタ・ソート条件のURL同期
-
+- 承認フローステータス一覧の改善（MeasurementStatusList.vue）
+  - ソート・絞り込み・ページネーション機能を追加
+- 部員退部・引退処理画面の改善（MemberRetire.vue）
+  - ソート・絞り込み・ページネーション機能を追加
+- 測定結果確認・承認画面の改善（MeasurementResultReview.vue）
+  - コーチ向けソート・絞り込み・ページネーション機能を追加
+- 共通コンポーネント・定数の整備
+  - usePagination.js（ページネーションロジック共通化）
+  - Pagination.vue（ページネーションUIコンポーネント）
+  - measurementFields.js（測定項目定義の定数化）
 ---
 
 ## 設計ドキュメント
@@ -149,13 +158,18 @@ baseball_talent_manager/
 │       │   ├── authService.js
 │       │   ├── measurementService.js
 │       │   └── userService.js
+│       ├── composables/
+│       │   └── usePagination.js
+│       ├── constants/
+│       │   └── measurementFields.js
 │       ├── components/
 │       │   ├── AppHeader.vue
 │       │   ├── MeasurementResultReview.vue
 │       │   ├── MeasurementResultList.vue
 │       │   ├── MemberManagement.vue
 │       │   ├── MemberCreate.vue
-│       │   └── MemberRetire.vue
+│       │   ├── MemberRetire.vue
+│       │   └── Pagination.vue 
 │       ├── views/
 │       │   ├── LoginView.vue
 │       │   ├── shared/

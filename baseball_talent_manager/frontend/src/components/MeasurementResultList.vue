@@ -94,7 +94,7 @@
         <!-- ボディ -->
         <tbody>
           <tr
-            v-for="measurement in paginatedMeasurements"
+            v-for="measurement in paginatedData"
             :key="measurement.measurement_id"
           >
             <td v-if="isStaff">{{ measurement.name }}</td>
@@ -114,35 +114,16 @@
 
       <!-- ページネーション / 件数選択 -->
       <div class="d-flex justify-content-between align-items-center mt-3">
-        <!-- 件数選択 -->
-        <div>
-          <select v-model="pageSize" class="form-select form-select-sm">
-            <option :value="10">10件</option>
-            <option :value="20">20件</option>
-            <option :value="50">50件</option>
-          </select>
-        </div>
-
-        <!-- ページ操作 -->
-        <div class="d-flex align-items-center gap-2">
-          <button
-            class="btn btn-sm btn-outline-secondary"
-            :disabled="currentPage === 1"
-            @click="currentPage--"
-          >
-            ←
-          </button>
-
-          <span>{{ currentPage }} / {{ totalPages }}</span>
-
-          <button
-            class="btn btn-sm btn-outline-secondary"
-            :disabled="currentPage === totalPages"
-            @click="currentPage++"
-          >
-            →
-          </button>
-        </div>
+        <Pagination
+          v-if="hasMeasurements"
+          v-model="currentPage"
+          :totalPages="totalPages"
+          :pageSize="pageSize"
+          @update:pageSize="
+            pageSize = $event;
+            currentPage = 1;
+          "
+        />
       </div>
     </div>
   </div>
@@ -153,6 +134,8 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { getMeasurements } from "@/services/measurementService.js";
 import { useRoute, useRouter } from "vue-router";
+import { usePagination } from "@/composables/usePagination";
+import Pagination from "@/components/Pagination.vue";
 
 /* -----------------------------
    ルーター・認証情報
@@ -166,11 +149,8 @@ const isStaff = computed(() =>
 );
 
 /* -----------------------------
-   ページネーション・フィルタ
+  フィルタ
 ----------------------------- */
-const currentPage = ref(1);
-const pageSize = ref(10);
-
 const filterName = ref(route.query.name || "");
 const filterGrade = ref(route.query.grade || "");
 const filterMeasurementDate = ref(route.query.date || "");
@@ -270,17 +250,10 @@ const sortedMeasurements = computed(() =>
   ),
 );
 
-// 5. ページネーション
-const paginatedMeasurements = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return sortedMeasurements.value.slice(start, end);
-});
+const hasMeasurements = computed(() => sortedMeasurements.value.length > 0);
 
-// 6. 総ページ数
-const totalPages = computed(() =>
-  Math.ceil(sortedMeasurements.value.length / pageSize.value),
-);
+const { currentPage, pageSize, totalPages, paginatedData } =
+  usePagination(sortedMeasurements);
 
 /* -----------------------------
    フィルタ・ソート・ページリセット
@@ -322,17 +295,6 @@ watch(
 );
 
 /* -----------------------------
-   ページ番号補正
------------------------------ */
-watch(totalPages, (newTotal) => {
-  if (newTotal === 0) {
-    currentPage.value = 1;
-  } else if (currentPage.value > newTotal) {
-    currentPage.value = newTotal;
-  }
-});
-
-/* -----------------------------
    リセットボタン無効判定
 ----------------------------- */
 const isResetDisabled = computed(() => {
@@ -345,3 +307,11 @@ const isResetDisabled = computed(() => {
   );
 });
 </script>
+
+<style>
+.table th,
+.table td {
+  text-align: center;
+  vertical-align: middle;
+}
+</style>

@@ -1,5 +1,62 @@
 # CHANGELOG
 
+## 2026-03-24
+
+## [課題2] コンポーネントのリファクタリング・機能追加
+
+### Added
+- `frontend/src/composables/usePagination.js` を新規作成
+  - ページネーションロジック（currentPage・pageSize・totalPages・paginatedData・ページ番号補正）を共通化
+- `frontend/src/components/Pagination.vue` を新規作成
+  - ページネーションUI（件数選択・ページ送りボタン）を共通コンポーネントとして分離
+- `frontend/src/constants/measurementFields.js` を新規作成
+  - 測定項目定義（key・label・unit・step・placeholder・category）を定数として切り出し
+
+### Changed
+- `frontend/src/components/MeasurementResultList.vue`
+  - usePagination・Paginationコンポーネントを適用
+  - MEASUREMENT_FIELDSを定数として参照するように変更（削除済みのインライン定義を整理）
+- `frontend/src/components/MemberRetire.vue`
+  - usePagination・Paginationコンポーネントを適用
+  - closeModal()関数を追加（selectedMember・actionTypeのリセット処理を含む）
+  - onMounted・handleProcessにtry/catchを追加
+  - URLからpageSizeを復元する処理を追加
+- `frontend/src/views/manager/MeasurementStatusList.vue`
+  - usePagination・Paginationコンポーネントを適用
+  - ソート・絞り込み・ページネーション機能を追加
+    - 部員名テキスト検索・学年・ステータス・計測日フィルタを追加
+    - ソート対象：部員名・学年・ステータス・計測日
+    - フィルタ・ソート条件をURLクエリパラメータに同期
+    - リセットボタンを追加（条件未設定時は無効化）
+  - セクションコメントを整理（インポート・定数・computed・メソッド・副作用の順）
+- `frontend/src/components/MeasurementResultReview.vue`
+  - usePagination・Paginationコンポーネントを適用
+  - MEASUREMENT_FIELDSを定数として参照するように変更
+  - コーチ向けにソート・絞り込み機能を追加
+    - 部員名テキスト検索・学年・計測日フィルタを追加
+    - ソート対象：部員名・学年・計測日
+    - コーチ以外（部員）はフィルタUIを非表示
+  - 部員・コーチで異なるタイトル表示を実装
+- `frontend/src/components/Pagination.vue`
+  - 件数選択に`w-auto`を追加（幅の最適化）
+  - ページ数表示に`white-space: nowrap`を追加（折り返し防止）
+  - ページ操作divに`flex-nowrap`を追加（折り返し防止）
+
+## [セキュリティ] ログイン画面からテストアカウント情報を削除
+
+### Changed
+- `frontend/src/views/LoginView.vue`
+  - テストアカウント情報（メールアドレス・パスワード）の表示を削除
+
+## [バグ修正] AppHeader.vueのログアウト処理を修正
+
+### Fixed
+- `frontend/src/components/AppHeader.vue`
+  - `handleLogout()`に`router.push("/login")`を追加
+  - `useRouter`のimportを追加
+  - 修正前：ログアウト後にログイン画面へ遷移しない不具合があった
+  - 修正後：ログアウト後に正常にログイン画面へ遷移するようになった
+
 ## 2026-03-23
 
 ## [デプロイ] Oracle Cloud本番環境構築・デプロイ設定追加
@@ -60,18 +117,6 @@
   - `compareValues`関数を分離してソートロジックを整理
   - computedの依存関係を整理（measurements → availableDates → filteredMeasurements → sortedMeasurements → paginatedMeasurements）
 
-<<<<<<< HEAD
-## [バグ修正] AppHeader.vueのログアウト処理を修正
-
-### Fixed
-- `frontend/src/components/AppHeader.vue`
-  - `handleLogout()`に`router.push("/login")`を追加
-  - `useRouter`のimportを追加
-  - 修正前：ログアウト後にログイン画面へ遷移しない不具合があった
-  - 修正後：ログアウト後に正常にログイン画面へ遷移するようになった
-
-=======
->>>>>>> 379246a22d4f6bf54f6f036ba5363e7fe254bba1
 ## 2026-03-19
 
 ## [動作確認・バグ修正] seed.sql適用・各機能の動作確認
