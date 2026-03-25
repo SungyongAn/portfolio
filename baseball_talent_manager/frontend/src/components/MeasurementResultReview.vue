@@ -1,60 +1,29 @@
 <template>
   <div class="container mt-4">
-    <h2 v-if="!isCoach" class="mb-4">測定結果の確認/承認</h2>
+    <!-- ヘッダー -->
     <div
-      v-if="isCoach"
-      class="d-flex justify-content-between align-items-center mb-4"
+      class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2"
     >
-      <h2 class="mb-4">測定結果の確認/承認</h2>
+      <h2 class="mb-0">測定結果の確認/承認</h2>
 
-      <div class="d-flex flex-wrap gap-2 align-items-center">
-        <!-- ソート項目 -->
-        <select v-model="sortKey" class="form-select form-select-sm w-auto">
-          <option value="name">部員名</option>
-          <option value="grade">学年</option>
-          <option value="measurement_date">計測日</option>
-        </select>
-
-        <!-- 昇順 / 降順 -->
-        <button
-          class="btn btn-outline-secondary btn-sm"
-          @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'"
-        >
-          {{ sortOrder === "asc" ? "昇順" : "降順" }}
-        </button>
-
-        <!-- 名前検索 -->
-        <input
-          v-model="filterName"
-          type="text"
-          class="form-control form-control-sm w-auto"
-          placeholder="部員名"
-        />
-
-        <!-- 学年 -->
-        <select v-model="filterGrade" class="form-select form-select-sm w-auto">
-          <option value="">全学年</option>
-          <option value="1">1年</option>
-          <option value="2">2年</option>
-          <option value="3">3年</option>
-        </select>
-
-        <!-- 計測日 -->
-        <select
-          v-model="filterMeasurementDate"
-          class="form-select form-select-sm w-auto"
-        >
-          <option value="">全期間</option>
-          <option v-for="date in availableDates" :key="date" :value="date">
-            {{ date }}
-          </option>
-        </select>
-
-        <!-- リセット -->
-        <button class="btn btn-outline-danger btn-sm" @click="resetFilters">
-          リセット
-        </button>
-      </div>
+      <!-- コーチのみフィルタ表示 -->
+      <MeasurementFilterBar
+        v-if="isCoach"
+        :sortKey="sortKey"
+        :sortOrder="sortOrder"
+        :filterName="filterName"
+        :filterGrade="filterGrade"
+        :filterMeasurementDate="filterMeasurementDate"
+        :availableDates="availableDates"
+        :isStaff="true"
+        :isResetDisabled="isResetDisabled"
+        @update:sortKey="sortKey = $event"
+        @update:filterName="filterName = $event"
+        @update:filterGrade="filterGrade = $event"
+        @update:filterMeasurementDate="filterMeasurementDate = $event"
+        @toggleOrder="toggleOrder"
+        @reset="resetFilters"
+      />
     </div>
 
     <!-- データなし -->
@@ -63,70 +32,18 @@
     </div>
 
     <!-- テーブル -->
-    <div v-else class="table-responsive">
-      <table class="table table-hover align-middle">
-        <!-- ヘッダー -->
-        <thead class="table-light">
-          <tr>
-            <th v-if="isCoach">部員名</th>
-            <th v-if="isCoach">学年</th>
-            <th>計測日</th>
+    <MeasurementTable
+      v-else
+      :measurements="paginatedData"
+      :isStaff="isCoach"
+      :showActions="true"
+      :submittingId="submittingId"
+      @approve="handleApprove"
+      @reject="handleReject"
+    />
 
-            <th
-              v-for="field in MEASUREMENT_FIELDS"
-              :key="field.key"
-              class="break"
-            >
-              {{ field.label }} ({{ field.unit }})
-            </th>
-
-            <th>承認の有無</th>
-          </tr>
-        </thead>
-
-        <!-- データ -->
-        <tbody>
-          <tr
-            v-for="measurement in paginatedData"
-            :key="measurement.measurement_id"
-          >
-            <td v-if="isCoach">
-              {{ measurement.name }}
-            </td>
-            <td v-if="isCoach">{{ measurement.grade }}年</td>
-            <td>{{ measurement.measurement_date }}</td>
-            <td
-              v-for="field in MEASUREMENT_FIELDS"
-              :key="`${measurement.measurement_id}-${field.key}`"
-            >
-              {{ measurement[field.key] }} {{ field.unit }}
-            </td>
-            <td>
-              <div class="d-flex flex-wrap gap-2">
-                <button
-                  @click="handleApprove(measurement.measurement_id)"
-                  class="btn btn-primary"
-                  type="button"
-                >
-                  承認
-                </button>
-
-                <button
-                  @click="handleReject(measurement.measurement_id)"
-                  class="btn btn-danger"
-                  type="button"
-                >
-                  否認
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ページネーション / 件数選択 -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
+    <!-- ページネーション -->
+    <div class="d-flex justify-content-center mt-3">
       <Pagination
         v-if="hasMeasurements"
         v-model="currentPage"
@@ -144,9 +61,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
 import { usePagination } from "@/composables/usePagination";
+
 import Pagination from "@/components/Pagination.vue";
+import MeasurementFilterBar from "@/components/measurement/MeasurementFilterBar.vue";
+import MeasurementTable from "@/components/measurement/MeasurementTable.vue";
 
 import {
   getMeasurements,
@@ -159,7 +78,7 @@ import {
 ----------------------------- */
 const allMeasurements = ref([]);
 
-/*フィルタ */
+/* フィルタ */
 const filterName = ref("");
 const filterGrade = ref("");
 const filterMeasurementDate = ref("");
@@ -202,50 +121,50 @@ const measurements = computed(() => {
 });
 
 /* -----------------------------
-   ソート設定
+   ソート
 ----------------------------- */
 const sortKey = ref("measurement_date");
 const sortOrder = ref("asc");
+
+const toggleOrder = () => {
+  sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+};
 
 const compareValues = (a, b, key, order = "asc") => {
   const valA = a[key];
   const valB = b[key];
 
-  // 数値判定
   if (!isNaN(valA) && !isNaN(valB)) {
     return order === "asc"
       ? Number(valA) - Number(valB)
       : Number(valB) - Number(valA);
   }
 
-  // 日付判定
   if (key === "measurement_date") {
     return order === "asc"
       ? new Date(valA) - new Date(valB)
       : new Date(valB) - new Date(valA);
   }
 
-  // 文字列判定
   return order === "asc"
     ? String(valA).localeCompare(String(valB), "ja")
     : String(valB).localeCompare(String(valA), "ja");
 };
 
+/* -----------------------------
+   フィルタ
+----------------------------- */
 const filteredMeasurements = computed(() => {
-  // コーチ以外はそのまま
   if (!isCoach.value) return measurements.value;
 
   return measurements.value.filter((m) => {
-    // 名前（部分一致）
     const matchName =
       !filterName.value ||
       (m.name ?? "").toLowerCase().includes(filterName.value.toLowerCase());
 
-    // 学年
     const matchGrade =
       !filterGrade.value || String(m.grade) === String(filterGrade.value);
 
-    // 計測日（YYYY-MM一致）
     const matchDate =
       !filterMeasurementDate.value ||
       m.measurement_date.startsWith(filterMeasurementDate.value);
@@ -254,23 +173,39 @@ const filteredMeasurements = computed(() => {
   });
 });
 
-/* ソート */
-const sortedMeasurements = computed(() => {
-  return [...filteredMeasurements.value].sort((a, b) =>
+/* -----------------------------
+   ソート適用
+----------------------------- */
+const sortedMeasurements = computed(() =>
+  [...filteredMeasurements.value].sort((a, b) =>
     compareValues(a, b, sortKey.value, sortOrder.value),
-  );
-});
+  ),
+);
 
+/* -----------------------------
+   ページネーション
+----------------------------- */
 const { currentPage, pageSize, totalPages, paginatedData } =
   usePagination(sortedMeasurements);
 
-// 表示データがあるか
 const hasMeasurements = computed(() => sortedMeasurements.value.length > 0);
 
-// 登録済み計測年月（重複なし）
+/* -----------------------------
+   フィルタ用データ
+----------------------------- */
 const availableDates = computed(() => {
   const dates = measurements.value.map((m) => m.measurement_date.slice(0, 7));
   return [...new Set(dates)].sort();
+});
+
+const isResetDisabled = computed(() => {
+  return (
+    !filterName.value &&
+    !filterGrade.value &&
+    !filterMeasurementDate.value &&
+    sortKey.value === "measurement_date" &&
+    sortOrder.value === "asc"
+  );
 });
 
 const resetFilters = () => {
@@ -279,27 +214,41 @@ const resetFilters = () => {
   filterMeasurementDate.value = "";
   sortKey.value = "measurement_date";
   sortOrder.value = "asc";
+  currentPage.value = 1;
 };
 
-/* 承認 / 否認*/
-const handleApprove = async (measurementId) => {
-  if (role.value === "member") {
-    await memberApprove(measurementId, "approve");
-  } else if (role.value === "coach") {
-    await coachApprove(measurementId, "approve");
+/* -----------------------------
+   承認 / 否認
+----------------------------- */
+// 二重クリック防止
+const submittingId = ref(null);
+
+const handleAction = async (id, action) => {
+  if (submittingId.value) return;
+
+  submittingId.value = id;
+  try {
+    if (role.value === "member") {
+      await memberApprove(id, action);
+    } else {
+      await coachApprove(id, action);
+    }
+
+    await fetchMeasurements();
+  } catch (error) {
+    console.error(error);
+    alert(`${action === "approve" ? "承認" : "否認"}に失敗しました`);
+  } finally {
+    submittingId.value = null;
   }
-  await fetchMeasurements();
 };
 
-const handleReject = async (measurementId) => {
-  if (role.value === "member") {
-    await memberApprove(measurementId, "reject");
-  } else if (role.value === "coach") {
-    await coachApprove(measurementId, "reject");
-  }
-  await fetchMeasurements();
-};
+const handleApprove = (id) => handleAction(id, "approve");
+const handleReject = (id) => handleAction(id, "reject");
 
+/* -----------------------------
+   ページリセット
+----------------------------- */
 watch(
   [filterName, filterGrade, filterMeasurementDate, sortKey, sortOrder],
   () => {
@@ -307,14 +256,3 @@ watch(
   },
 );
 </script>
-
-<style>
-.table th,
-.table td {
-  text-align: center;
-  vertical-align: middle;
-}
-.table th {
-  white-space: nowrap;
-}
-</style>

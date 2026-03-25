@@ -87,6 +87,19 @@ PoCとして最小構成で検証を行うものです。
   - usePagination.js（ページネーションロジック共通化）
   - Pagination.vue（ページネーションUIコンポーネント）
   - measurementFields.js（測定項目定義の定数化）
+- 重複登録防止（measurement_service.py・MeasurementResultSubmit.vue）
+  - 同一部員・同一計測日の重複チェック追加
+  - rejected レコードの上書き更新対応
+  - 確認モーダルによる登録フロー
+- コンポーネント分離・リファクタリング
+  - MeasurementFilterBar.vue（measurement/配下）
+  - MeasurementTable.vue（measurement/配下）
+  - MemberFilterBar.vue（member/配下）
+  - MemberTable.vue（member/配下）
+  - MemberConfirmModal.vue（member/配下）
+- 可視化ダッシュボード骨格実装
+  - ChartView.vue（views/shared/配下）
+  - visualization/配下に4コンポーネント作成（実装中）
 ---
 
 ## 設計ドキュメント
@@ -163,6 +176,18 @@ baseball_talent_manager/
 │       ├── constants/
 │       │   └── measurementFields.js
 │       ├── components/
+│       │   ├── measurement/
+│       │   │   ├── MeasurementFilterBar.vue
+│       │   │   └── MeasurementTable.vue
+│       │   ├── member/
+│       │   │   ├── MemberFilterBar.vue
+│       │   │   ├── MemberTable.vue
+│       │   │   └── MemberConfirmModal.vue
+│       │   ├── visualization/
+│       │   │   ├── TeamTrendChart.vue
+│       │   │   ├── PlayerTrendChart.vue
+│       │   │   ├── RadarChart.vue
+│       │   │   └── RankingTable.vue
 │       │   ├── AppHeader.vue
 │       │   ├── MeasurementResultReview.vue
 │       │   ├── MeasurementResultList.vue
@@ -195,6 +220,7 @@ baseball_talent_manager/
 - Vite
 - Vue Router
 - Pinia
+- ECharts / vue-echarts（可視化ダッシュボード）
 
 ### Backend
 - FastAPI

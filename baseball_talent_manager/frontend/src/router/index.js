@@ -85,6 +85,15 @@ const router = createRouter({
             breadcrumbs: [{ name: "ダッシュボード", to: "/member/dashboard" }],
           },
         },
+        {
+          path: "chart",
+          name: "member-chart", // ロール名に合わせて変更
+          component: () => import("@/views/shared/ChartView.vue"),
+          meta: {
+            title: "可視化ダッシュボード",
+            breadcrumbs: [{ name: "ダッシュボード", to: "/member/dashboard" }],
+          },
+        },
       ],
     },
 
@@ -148,6 +157,15 @@ const router = createRouter({
             breadcrumbs: [{ name: "部員管理", to: "/coach/members" }],
           },
         },
+        {
+          path: "chart",
+          name: "coach-chart", // ロール名に合わせて変更
+          component: () => import("@/views/shared/ChartView.vue"),
+          meta: {
+            title: "可視化ダッシュボード",
+            breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
+          },
+        },
       ],
     },
 
@@ -205,6 +223,17 @@ const router = createRouter({
             breadcrumbs: [{ name: "部員管理", to: "/director/members" }],
           },
         },
+        {
+          path: "chart",
+          name: "director-chart", // ロール名に合わせて変更
+          component: () => import("@/views/shared/ChartView.vue"),
+          meta: {
+            title: "可視化ダッシュボード",
+            breadcrumbs: [
+              { name: "ダッシュボード", to: "/director/dashboard" },
+            ],
+          },
+        },
       ],
     },
     // === 404 ===
@@ -217,7 +246,7 @@ const router = createRouter({
 });
 
 // ナビゲーションガード
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
   // ログイン画面では初期化しない

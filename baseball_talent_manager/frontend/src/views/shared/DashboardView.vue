@@ -41,6 +41,21 @@
           </div>
         </div>
       </div>
+
+      <!-- 可視化ダッシュボード -->
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5>可視化ダッシュボード</h5>
+            <router-link
+              :to="`/${role}/chart`"
+              class="btn btn-outline-success mt-3"
+            >
+              グラフを見る
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

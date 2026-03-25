@@ -146,6 +146,7 @@ const sortOrder = ref(route.query.order || "asc");
    定数
 ----------------------------- */
 const statusConfig = {
+  draft: { label: "入力済み（未依頼）", badge: "bg-secondary" },
   approved: { label: "承認済み", badge: "bg-success" },
   pending_member: { label: "部員承認待ち", badge: "bg-warning text-dark" },
   pending_coach: { label: "コーチ承認待ち", badge: "bg-primary" },

@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -26,6 +28,43 @@ def create_measurement(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="指定されたユーザーが存在しません",
         )
+
+    # 同じユーザー・同じ計測日の重複チェック
+    existing_measurement = (
+        db.query(Measurement)
+        .filter(
+            Measurement.user_id == measurement_data.user_id,
+            Measurement.measurement_date == measurement_data.measurement_date,
+        )
+        .first()
+    )
+
+    # ステータスチェック
+    if existing_measurement:
+        if existing_measurement.status == "rejected":
+            # 上書き更新
+            existing_measurement.sprint_50m = measurement_data.sprint_50m
+            existing_measurement.base_running = measurement_data.base_running
+            existing_measurement.throwing_distance = measurement_data.throwing_distance
+            existing_measurement.pitch_speed = measurement_data.pitch_speed
+            existing_measurement.batting_speed = measurement_data.batting_speed
+            existing_measurement.swing_speed = measurement_data.swing_speed
+            existing_measurement.bench_press = measurement_data.bench_press
+            existing_measurement.squat = measurement_data.squat
+            existing_measurement.status = "draft"
+            existing_measurement.updated_at = datetime.now(timezone.utc)
+            db.commit()
+            db.refresh(existing_measurement)
+            return MeasurementCreateResponse(
+                measurement_id=existing_measurement.id,
+                message="否認済みの測定記録を上書き更新しました",
+            )
+        else:
+            # draft / pending_member / pending_coach / approved はエラー
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="同じ日の測定記録が既に存在します",
+            )
 
     measurement = Measurement(
         user_id=measurement_data.user_id,
@@ -116,6 +155,7 @@ def submit_measurement(
         )
 
     measurement.status = "pending_member"
+    measurement.updated_at = datetime.now(timezone.utc)
     db.commit()
 
     return MeasurementSubmitResponse(
@@ -153,10 +193,12 @@ def member_approve(
 
     if action == "reject":
         measurement.status = "rejected"
+        
 
     elif action == "approve":
         measurement.status = "pending_coach"
 
+    measurement.updated_at = datetime.now(timezone.utc)
     db.commit()
 
     message = "承認しました" if action == "approve" else "否認しました"
@@ -196,9 +238,11 @@ def coach_approve(
 
     if action == "reject":
         measurement.status = "rejected"
+        measurement.updated_at = datetime.now(timezone.utc)
 
     elif action == "approve":
         measurement.status = "approved"
+        measurement.updated_at = datetime.now(timezone.utc)
 
     db.commit()
 

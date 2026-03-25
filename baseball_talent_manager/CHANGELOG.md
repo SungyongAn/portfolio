@@ -1,5 +1,93 @@
 # CHANGELOG
 
+## 2026-03-25
+
+## [課題2] 重複登録防止・確認フロー追加
+
+### Added
+- `frontend/src/views/manager/MeasurementResultSubmit.vue`
+  - 確認モーダルを追加（登録前に入力内容を確認してから承認依頼を送信）
+  - `errorMessage` を追加（エラー種別に応じたメッセージ表示）
+
+### Changed
+- `backend/app/services/measurement_service.py`
+  - `create_measurement()` に同一部員・同一計測日の重複チェックを追加
+    - `rejected`ステータスのレコードが存在する場合は上書き更新して`draft`に戻す
+    - `draft` / `pending_member` / `pending_coach` / `approved` の場合は400エラーを返す
+  - `submit_measurement()` / `member_approve()` / `coach_approve()` に`updated_at`の明示的な更新を追加
+  - `datetime` / `timezone` のimportを追加
+- `frontend/src/views/manager/MeasurementResultSubmit.vue`
+  - 登録処理を確認モーダル経由に変更（`handleSubmit` → モーダル表示、`handleConfirm` → API呼び出し）
+  - 新規登録・上書き更新どちらも承認依頼まで自動送信する設計に変更
+  - エラーハンドリングを`alert()`からインライン表示に変更
+- `frontend/src/views/manager/MeasurementStatusList.vue`
+  - `statusConfig`に`draft`を追加（label: 「入力済み（未依頼）」・badge: `bg-secondary`）
+
+## [リファクタリング] AppHeader・各コンポーネントのCSS整理
+
+### Changed
+- `frontend/src/components/AppHeader.vue`
+  - パンくずリスト（`showBreadcrumb`・`breadcrumbs`）を削除
+  - `<style scoped>`を削除しBootstrapユーティリティクラスに統一
+  - `sticky-top`・`fw-semibold`をHTMLクラスに移動
+- 各コンポーネントのカスタムCSSをBootstrapユーティリティクラスで代用する形に統一
+
+### Technical Notes
+- `updated_at`はPython側（`datetime.now(timezone.utc)`）で明示的に管理する方針を全サービス関数に適用
+- カスタムCSSはBootstrapで再現できない箇所のみ使用する方針に統一
+
+## [課題2] コンポーネント分離・リファクタリング
+
+### Added
+- `frontend/src/components/measurement/MeasurementFilterBar.vue` を新規作成
+  - ソート・絞り込みUIを共通コンポーネントとして分離
+- `frontend/src/components/measurement/MeasurementTable.vue` を新規作成
+  - 測定記録テーブルを共通コンポーネントとして分離
+  - `showActions` propsで承認・否認ボタンの表示を制御
+  - `submittingId` propsで二重クリック防止を制御
+  - `MEASUREMENT_FIELDS`を使ってヘッダー・ボディを動的生成
+- `frontend/src/components/member/MemberFilterBar.vue` を新規作成
+  - 部員管理向けソート・絞り込みUIを分離
+- `frontend/src/components/member/MemberTable.vue` を新規作成
+  - 部員一覧テーブルを共通コンポーネントとして分離
+- `frontend/src/components/member/MemberConfirmModal.vue` を新規作成
+  - 退部・引退処理の確認モーダルを分離
+
+### Changed
+- `frontend/src/components/MeasurementResultList.vue`
+  - `MeasurementFilterBar`・`MeasurementTable`を適用
+  - `components/measurement/`配下のコンポーネントを利用する形に変更
+- `frontend/src/components/MeasurementResultReview.vue`
+  - `MeasurementFilterBar`・`MeasurementTable`を適用
+  - `handleAction()`を追加して承認・否認処理を共通化
+  - 二重クリック防止（`submittingId`）を追加
+  - エラーハンドリングを`handleApprove`・`handleReject`に追加
+- `frontend/src/components/MemberRetire.vue`
+  - `MemberFilterBar`・`MemberTable`・`MemberConfirmModal`を適用
+
+## [課題2] 可視化ダッシュボード骨格実装
+
+### Added
+- `frontend/src/views/shared/ChartView.vue` を新規作成
+  - タブ切り替えによる4グラフ表示の骨格を実装
+  - ロール別タブ表示制御（member：2タブ、coach・director：4タブ）
+- `frontend/src/components/visualization/TeamTrendChart.vue` を新規作成（実装中）
+- `frontend/src/components/visualization/PlayerTrendChart.vue` を新規作成（実装中）
+- `frontend/src/components/visualization/RadarChart.vue` を新規作成（実装中）
+- `frontend/src/components/visualization/RankingTable.vue` を新規作成（実装中）
+- `frontend/src/views/shared/DashboardView.vue`
+  - 「可視化ダッシュボード」カードを追加
+
+### Changed
+- `frontend/src/router/index.js`
+  - `member`・`coach`・`director`ルートに`chart`を追加
+  - `breadcrumbs`のダッシュボードリンクをロール別に修正
+
+### Technical Notes
+- ECharts・vue-echartsをインストール（`echarts`・`vue-echarts`）
+- タブ定義はキー・ラベル・表示ロール配列で管理
+- 各グラフコンポーネントは`components/visualization/`配下に配置
+
 ## 2026-03-24
 
 ## [課題2] コンポーネントのリファクタリング・機能追加
