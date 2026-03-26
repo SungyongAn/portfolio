@@ -90,9 +90,12 @@ def create_measurement(
 
 
 # 測定結果の取得ロールに応じた分岐あり
-def get_measurements(db: Session, current_user: User) -> MeasurementListResponse:
+def get_measurements(
+    db: Session, current_user: User, include_all: bool = False  # 追加
+) -> MeasurementListResponse:
 
-    if current_user.role == "member":
+    # memberでもinclude_all=Trueなら全件取得
+    if current_user.role == "member" and not include_all:
         query = (
             db.query(Measurement, User.name, User.grade)
             .join(User, Measurement.user_id == User.id)
@@ -193,7 +196,6 @@ def member_approve(
 
     if action == "reject":
         measurement.status = "rejected"
-        
 
     elif action == "approve":
         measurement.status = "pending_coach"

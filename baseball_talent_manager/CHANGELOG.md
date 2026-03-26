@@ -1,5 +1,59 @@
 # CHANGELOG
 
+## 2026-03-26
+
+## [課題2] 可視化ダッシュボード実装・コンポーネント責務分離
+
+### Added
+- `frontend/src/composables/useTrendData.js` を新規作成
+  - 推移データ加工ロジックを分離（チーム平均・個人推移の時系列データ生成）
+  - `getTrendSeries({ fieldKey, userId })` で統一インターフェース化
+- `frontend/src/composables/useRadarData.js` を新規作成
+  - レーダーチャート用データ加工ロジックを分離
+  - 正規化処理・`lowerIsBetter`反転処理を含む
+  - `getRadarSeries(playerIds)` / `getTeamAvgSeries()` を提供
+- `frontend/src/composables/useRankingData.js` を新規作成
+  - ランキングデータ加工ロジックを分離
+  - `lowerIsBetter`対応・同率順位対応
+  - `getRanking(fieldKey)` を提供
+- `frontend/src/components/visualization/TrendChart.vue` を新規作成
+  - ECharts折れ線グラフの描画専用コンポーネント
+  - `series` / `labels` / `unit` をpropsで受け取る
+- `frontend/src/components/visualization/TrendChartView.vue` を新規作成
+  - 推移分析コンテナコンポーネント
+  - `useTrendData`を使用してチーム推移・個人推移を切り替え表示
+  - staffロールのみチーム推移タブを表示
+- `frontend/src/views/shared/ChartView.vue` を新規作成
+  - 3タブ構成（成長推移・能力比較・チーム内順位）
+  - `getAllMeasurements()`で全件取得してpropsで渡す
+
+### Changed
+- `frontend/src/components/visualization/RadarChart.vue`
+  - `useRadarData`を使用してUI特化に書き換え
+  - データ加工ロジックを`useRadarData.js`に分離
+- `frontend/src/components/visualization/RankingTable.vue`
+  - `useRankingData`を使用してUI特化に書き換え
+  - データ加工ロジックを`useRankingData.js`に分離
+- `frontend/src/constants/measurementFields.js`
+  - `lowerIsBetter`フラグを追加（sprint_50m・base_running）
+- `frontend/src/stores/auth.js`
+  - `isStaff` getterを追加（coach・directorの場合にtrue）
+- `backend/app/routers/measurements.py`
+  - `GET /api/measurements/all` エンドポイントを追加（可視化用全件取得）
+- `backend/app/services/measurement_service.py`
+  - `get_measurements()`に`include_all`引数を追加
+  - memberロールでも`include_all=True`の場合は全件取得
+
+### Removed
+- `frontend/src/components/visualization/TeamTrendChart.vue`（TrendChartView.vueに統合）
+- `frontend/src/components/visualization/PlayerTrendChart.vue`（TrendChartView.vueに統合）
+
+### Technical Notes
+- composablesパターンでデータ加工ロジックとUI描画を分離
+- `toValue()`を使用してref・computed・生配列の全パターンに対応
+- EChartsは`autoresize` + `style="height: 400px"`でDOMサイズエラーを回避
+- 可視化用全件取得はバックエンド側で制御（フロントエンドからフラグ渡し不可）
+
 ## 2026-03-25
 
 ## [課題2] 重複登録防止・確認フロー追加

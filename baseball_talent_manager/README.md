@@ -97,9 +97,15 @@ PoCとして最小構成で検証を行うものです。
   - MemberFilterBar.vue（member/配下）
   - MemberTable.vue（member/配下）
   - MemberConfirmModal.vue（member/配下）
-- 可視化ダッシュボード骨格実装
-  - ChartView.vue（views/shared/配下）
-  - visualization/配下に4コンポーネント作成（実装中）
+- 可視化ダッシュボード実装完了
+  - ChartView.vue（3タブ：成長推移・能力比較・チーム内順位）
+  - TrendChartView.vue（推移分析コンテナ）
+  - TrendChart.vue（ECharts折れ線グラフ描画専用）
+  - RadarChart.vue（EChartsレーダーチャート描画専用）
+  - RankingTable.vue（順位表示専用）
+  - useTrendData.js（推移データ加工ロジック）
+  - useRadarData.js（レーダーデータ加工ロジック）
+  - useRankingData.js（ランキングデータ加工ロジック）
 ---
 
 ## 設計ドキュメント
@@ -172,7 +178,10 @@ baseball_talent_manager/
 │       │   ├── measurementService.js
 │       │   └── userService.js
 │       ├── composables/
-│       │   └── usePagination.js
+│       │   ├── usePagination.js
+│       │   ├── useTrendData.js
+│       │   ├── useRadarData.js
+│       │   └── useRankingData.js  
 │       ├── constants/
 │       │   └── measurementFields.js
 │       ├── components/
@@ -184,10 +193,10 @@ baseball_talent_manager/
 │       │   │   ├── MemberTable.vue
 │       │   │   └── MemberConfirmModal.vue
 │       │   ├── visualization/
-│       │   │   ├── TeamTrendChart.vue
-│       │   │   ├── PlayerTrendChart.vue
-│       │   │   ├── RadarChart.vue
-│       │   │   └── RankingTable.vue
+│       │   ├── TrendChart.vue
+│       │   ├── TrendChartView.vue
+│       │   ├── RadarChart.vue
+│       │   └── RankingTable.vue
 │       │   ├── AppHeader.vue
 │       │   ├── MeasurementResultReview.vue
 │       │   ├── MeasurementResultList.vue
@@ -198,7 +207,8 @@ baseball_talent_manager/
 │       ├── views/
 │       │   ├── LoginView.vue
 │       │   ├── shared/
-│       │   │   └── DashboardView.vue
+│       │   │   ├──DashboardView.vue
+│       │   │   └── ChartView.vue
 │       │   └── manager/
 │       │       ├── DashboardView.vue
 │       │       ├── MeasurementResultSubmit.vue

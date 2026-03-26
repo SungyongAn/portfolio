@@ -28,3 +28,8 @@ export function coachApprove(measurementId, action) {
     action,
   });
 }
+
+// 測定結果の全件取得
+export const getAllMeasurements = () => {
+  return api.get("/api/measurements/all");
+};

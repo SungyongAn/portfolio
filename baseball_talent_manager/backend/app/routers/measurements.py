@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.dependencies.auth import get_current_user, require_roles
+from app.models.user import User
 from app.schemas.measurement import (
     ApproveRequest,
     ApproveResponse,
@@ -41,6 +42,14 @@ def get_measurements_endpoint(
     result = get_measurements(db, current_user)
 
     return result
+
+
+@router.get("/all")
+def get_all_measurements(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_measurements(db, current_user, include_all=True)
 
 
 @router.post("/{measurement_id}/submit", response_model=MeasurementSubmitResponse)

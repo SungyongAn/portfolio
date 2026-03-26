@@ -17,30 +17,26 @@
 
     <!-- タブコンテンツ -->
     <div class="tab-content">
-      <div v-if="activeTab === 'teamTrend'">
-        <TeamTrendChart />
-      </div>
-
-      <div v-if="activeTab === 'playerTrend'">
-        <PlayerTrendChart />
+      <div v-if="activeTab === 'trend'">
+        <TrendChartView :measurements="allMeasurements" />
       </div>
 
       <div v-if="activeTab === 'radar'">
-        <RadarChart />
+        <RadarChart :measurements="allMeasurements" />
       </div>
 
       <div v-if="activeTab === 'ranking'">
-        <RankingTable />
+        <RankingTable :measurements="allMeasurements" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import TeamTrendChart from "@/components/visualization/TeamTrendChart.vue";
-import PlayerTrendChart from "@/components/visualization/PlayerTrendChart.vue";
+import { getAllMeasurements } from "@/services/measurementService.js";
+import TrendChartView from "@/components/visualization/TrendChartView.vue";
 import RadarChart from "@/components/visualization/RadarChart.vue";
 import RankingTable from "@/components/visualization/RankingTable.vue";
 
@@ -48,15 +44,28 @@ const authStore = useAuthStore();
 
 const role = computed(() => authStore.role);
 
+// データ取得
+const allMeasurements = ref([]);
+
+onMounted(async () => {
+  const res = await getAllMeasurements();
+  allMeasurements.value = res.data.measurements.filter(
+    (m) => m.status === "approved",
+  );
+});
+
 // タブ定義
 const tabs = [
-  { key: "teamTrend", label: "チームの成長推移", roles: ["coach", "director"] },
   {
-    key: "playerTrend",
-    label: "個人の成長推移",
+    key: "trend",
+    label: "成長推移",
     roles: ["coach", "director", "member"],
   },
-  { key: "radar", label: "能力比較", roles: ["coach", "director"] },
+  {
+    key: "radar",
+    label: "能力比較",
+    roles: ["coach", "director"],
+  },
   {
     key: "ranking",
     label: "チーム内順位",

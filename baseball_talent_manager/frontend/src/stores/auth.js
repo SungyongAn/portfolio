@@ -64,6 +64,10 @@ export const useAuthStore = defineStore("auth", {
     isDirector() {
       return this.role === "director";
     },
+
+    isStaff() {
+      return this.role === "coach" || this.role === "director";
+    },
   },
 
   actions: {
@@ -180,7 +184,7 @@ export const useAuthStore = defineStore("auth", {
       }
 
       this.clearInactivityTimer();
-      sessionStorage.removeItem("tokenExpiry"); 
+      sessionStorage.removeItem("tokenExpiry");
       this.accessToken = null;
       this.tokenExpiry = null;
       this.role = null;
