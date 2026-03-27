@@ -1,3 +1,42 @@
+## 2026-03-27
+
+## [ドキュメント] 提出物・手順書の整備
+
+### Added
+- `docs/test_accounts.md` を新規作成
+  - seed.sqlを元にしたテストアカウント一覧
+  - 動作確認推奨アカウントを記載
+- `docs/presentation.md` を新規作成
+  - 課題1の工夫点・アピール
+  - 課題2の提案内容・実装済み機能・技術証明
+  - デプロイ環境情報
+
+### Changed
+- `docs/CHANGELOG.md` を更新
+  - インデックス＋フェーズA（設計・環境構築）として整理
+- `docs/CHANGELOG_phase_b.md` を新規作成
+  - 日付順（03-09→03-04→03-03）に整理
+- `docs/CHANGELOG_phase_c.md` を新規作成
+- `docs/CHANGELOG_phase_d.md` を新規作成
+- `docs/CHANGELOG_phase_e.md` を新規作成
+- `README.md` を更新
+  - 「次の予定」セクションを更新（完了済み項目を削除・残タスクを整理）
+  - `visualization/`配下のディレクトリ構成を修正
+  - `composables/`・`views/shared/`配下を最新状態に更新
+
+## [DB] インデックス追加
+
+### Added
+- `backend/alembic/versions/003_add_indexes.py` を新規作成
+  - `ix_users_role`：ロール別絞り込みの高速化
+  - `ix_users_status`：在籍状況での絞り込みの高速化
+  - `ix_measurements_status`：承認フローの絞り込みの高速化
+  - `ix_measurements_measurement_date`：計測日での絞り込みの高速化
+  - `ix_measurements_user_id_measurement_date`：重複チェック用複合インデックス
+
+### Technical Notes
+- インデックスは別マイグレーションファイル（003）で管理
+
 ## 2026-03-26
 
 ## [課題2] 可視化ダッシュボード実装・コンポーネント責務分離
