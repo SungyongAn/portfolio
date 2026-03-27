@@ -65,10 +65,10 @@ PoCとして最小構成で検証を行うものです。
 
 ### 次の予定
 - 課題2実装
-  - EChartsによる可視化ダッシュボード
-  - 重複登録防止
+  - マネージャー入力履歴管理
   - スマートフォン対応
   - 提案書作成（proposal_ux.md・proposal_system.md・proposal_technical.md）
+  - DBインデックス設計
 
 ### 課題2実装済み
 - 測定結果閲覧画面の改善（MeasurementResultList.vue）
@@ -193,10 +193,10 @@ baseball_talent_manager/
 │       │   │   ├── MemberTable.vue
 │       │   │   └── MemberConfirmModal.vue
 │       │   ├── visualization/
-│       │   ├── TrendChart.vue
-│       │   ├── TrendChartView.vue
-│       │   ├── RadarChart.vue
-│       │   └── RankingTable.vue
+│       │   │   ├── TrendChart.vue
+│       │   │   ├── TrendChartView.vue
+│       │   │   ├── RadarChart.vue
+│       │   │   └── RankingTable.vue
 │       │   ├── AppHeader.vue
 │       │   ├── MeasurementResultReview.vue
 │       │   ├── MeasurementResultList.vue
