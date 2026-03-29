@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, measurements, users
+from app.routers import auth, measurements, notifications, users
 
 load_dotenv()
 
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(measurements.router)
+app.include_router(notifications.router)
 
 
 # ルートエンドポイント

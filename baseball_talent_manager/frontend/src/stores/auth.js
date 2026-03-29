@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
 import * as authAPI from "@/services/authService";
 import router from "@/router";
+import { useNotificationStore } from "@/stores/notification";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessToken: null,
-    tokenExpiry: null, // トークンの有効期限
+    tokenExpiry: null,
     role: null,
     userName: null,
     userId: null,
@@ -83,6 +84,9 @@ export const useAuthStore = defineStore("auth", {
         this.userName = data.name;
         this.member_grade = data.grade ?? null;
 
+        const notificationStore = useNotificationStore();
+        notificationStore.connect(this.accessToken);
+
         this.updateActivity();
         this.startInactivityTimer();
 
@@ -131,6 +135,10 @@ export const useAuthStore = defineStore("auth", {
 
       if (refreshed) {
         this.startInactivityTimer();
+        const notificationStore = useNotificationStore();
+        if (!notificationStore.isConnected) {
+          notificationStore.connect(this.accessToken);
+        }
       }
 
       this.isInitialized = true;
@@ -182,6 +190,9 @@ export const useAuthStore = defineStore("auth", {
       } catch (e) {
         // エラー無視
       }
+
+      const notificationStore = useNotificationStore();
+      notificationStore.disconnect();
 
       this.clearInactivityTimer();
       sessionStorage.removeItem("tokenExpiry");

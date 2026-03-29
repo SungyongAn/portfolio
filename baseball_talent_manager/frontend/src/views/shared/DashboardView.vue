@@ -57,17 +57,71 @@
         </div>
       </div>
     </div>
+    <!-- 通知サマリー -->
+    <div v-if="!isDirector" class="row g-4 mt-1">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="mb-3">通知サマリー</h5>
+
+            <!-- 部員向け -->
+            <div v-if="isMember">
+              <div v-if="hasPendingMember" class="alert alert-warning mb-0">
+                承認依頼があります
+              </div>
+              <div v-else class="text-muted">承認依頼はありません</div>
+            </div>
+
+            <!-- コーチ向け -->
+            <div v-else-if="isCoach">
+              <span class="badge bg-info text-dark">
+                承認待ち件数: {{ pendingCoachCount }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import { useNotificationStore } from "@/stores/notification";
+import { getMeasurements } from "@/services/measurementService";
 
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 
 const role = computed(() => authStore.role);
 const isMember = computed(() => authStore.isMember);
 const isCoach = computed(() => authStore.isCoach);
 const isDirector = computed(() => authStore.isDirector);
+
+const measurements = ref([]);
+
+const fetchMeasurements = async () => {
+  try {
+    const res = await getMeasurements();
+    measurements.value = res.data.measurements ?? [];
+  } catch (e) {
+    measurements.value = [];
+  }
+};
+
+onMounted(fetchMeasurements);
+
+// 通知受信時にデータを再取得
+watch(() => notificationStore.notifications.length, fetchMeasurements);
+
+// 部員：承認待ちがあるか
+const hasPendingMember = computed(() =>
+  measurements.value.some((m) => m.status === "pending_member"),
+);
+
+// コーチ：承認待ち件数
+const pendingCoachCount = computed(
+  () => measurements.value.filter((m) => m.status === "pending_coach").length,
+);
 </script>

@@ -14,6 +14,7 @@ from app.schemas.measurement import (
 )
 from app.services.measurement_service import (
     coach_approve,
+    confirm_measurement,
     create_measurement,
     get_measurements,
     member_approve,
@@ -53,43 +54,44 @@ def get_all_measurements(
 
 
 @router.post("/{measurement_id}/submit", response_model=MeasurementSubmitResponse)
-def submit_measurement_endpoint(
+async def submit_measurement_endpoint(
     measurement_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(["manager"])),
 ):
-
-    result = submit_measurement(db, measurement_id, current_user)
-
-    return result
+    return await submit_measurement(db, measurement_id, current_user)
 
 
 @router.patch("/{measurement_id}/member-approve", response_model=ApproveResponse)
-def member_approve_endpoint(
+async def member_approve_endpoint(
     measurement_id: int,
     request: ApproveRequest,
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(["member"])),
 ):
-
-    result = member_approve(
+    return await member_approve(
         db,
         measurement_id,
         request.action,
         current_user,
     )
 
-    return result
-
 
 @router.patch("/{measurement_id}/coach-approve", response_model=ApproveResponse)
-def coach_approve_endpoint(
+async def coach_approve_endpoint(
     measurement_id: int,
     request: ApproveRequest,
     db: Session = Depends(get_db),
     current_user=Depends(require_roles(["coach"])),
 ):
+    return await coach_approve(db, measurement_id, request.action, current_user)
 
-    result = coach_approve(db, measurement_id, request.action, current_user)
 
+@router.patch("/{measurement_id}/confirm", response_model=ApproveResponse)
+def confirm_measurement_endpoint(
+    measurement_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles(["manager"])),
+):
+    result = confirm_measurement(db, measurement_id, current_user)
     return result

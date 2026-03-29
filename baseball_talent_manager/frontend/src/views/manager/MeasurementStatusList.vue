@@ -123,12 +123,14 @@ import { getMeasurements } from "@/services/measurementService.js";
 import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
+import { useNotificationStore } from "@/stores/notification";
 
 /* -----------------------------
    ルーター・リアクティブ変数
 ----------------------------- */
 const route = useRoute();
 const router = useRouter();
+const notificationStore = useNotificationStore();
 
 const measurements = ref([]);
 
@@ -294,6 +296,15 @@ watch(
         pageSize: pageSize.value !== 10 ? pageSize.value : undefined,
       },
     });
+  },
+);
+
+// 通知受信時のwatch（独立して追加）
+watch(
+  () => notificationStore.notifications.length,
+  async () => {
+    const res = await getMeasurements();
+    measurements.value = res.data.measurements ?? [];
   },
 );
 </script>

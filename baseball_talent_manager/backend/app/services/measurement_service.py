@@ -13,6 +13,7 @@ from app.schemas.measurement import (
     MeasurementListResponse,
     MeasurementSubmitResponse,
 )
+from app.services.notification_service import notify_user, notify_role
 
 
 # マネージャーによる測定結果の登録
@@ -124,6 +125,7 @@ def get_measurements(
             bench_press=row.Measurement.bench_press,
             squat=row.Measurement.squat,
             status=row.Measurement.status,
+            manager_confirmed=row.Measurement.manager_confirmed,
         )
         for row in results
     ]
@@ -137,7 +139,7 @@ def get_measurement_by_id(db: Session, measurement_id: int) -> Measurement | Non
 
 
 # マネージャーから部員への測定結果の承認依頼
-def submit_measurement(
+async def submit_measurement(
     db: Session,
     measurement_id: int,
     current_user: User,
@@ -161,13 +163,22 @@ def submit_measurement(
     measurement.updated_at = datetime.now(timezone.utc)
     db.commit()
 
+    # 🔔 通知追加
+    await notify_user(
+        measurement.user_id,
+        {
+            "type": "approval_requested",
+            "message": "測定記録の確認依頼が届いています",
+        },
+    )
+
     return MeasurementSubmitResponse(
         measurement_id=measurement.id,
         message="承認依頼を行いました。",
     )
 
 
-def member_approve(
+async def member_approve(
     db: Session,
     measurement_id: int,
     action: str,
@@ -188,7 +199,7 @@ def member_approve(
             detail="この測定記録は承認フローを発行できません",
         )
 
-    if action != "reject" and action != "approve":
+    if action not in ["approve", "reject"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="actionはapproveまたはrejectを指定してください",
@@ -203,6 +214,17 @@ def member_approve(
     measurement.updated_at = datetime.now(timezone.utc)
     db.commit()
 
+    # 🔔 approve時のみ通知
+    if action == "approve":
+        await notify_role(
+            "coach",
+            {
+                "type": "approval_requested",
+                "message": "測定記録の承認依頼が届いています",
+            },
+            db,
+        )
+
     message = "承認しました" if action == "approve" else "否認しました"
 
     return ApproveResponse(
@@ -211,7 +233,7 @@ def member_approve(
     )
 
 
-def coach_approve(
+async def coach_approve(
     db: Session,
     measurement_id: int,
     action: str,
@@ -232,7 +254,7 @@ def coach_approve(
             detail="この測定記録は承認フローを発行できません",
         )
 
-    if action != "reject" and action != "approve":
+    if action not in ["approve", "reject"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="actionはapproveまたはrejectを指定してください",
@@ -241,16 +263,91 @@ def coach_approve(
     if action == "reject":
         measurement.status = "rejected"
         measurement.updated_at = datetime.now(timezone.utc)
+        db.commit()
+
+        # 🔔 否認通知
+        await notify_user(
+            measurement.user_id,
+            {
+                "type": "rejected",
+                "message": "測定記録が否認されました",
+            },
+        )
+        await notify_role(
+            "manager",
+            {
+                "type": "rejected",
+                "message": "測定記録が否認されました",
+            },
+            db,
+        )
 
     elif action == "approve":
         measurement.status = "approved"
         measurement.updated_at = datetime.now(timezone.utc)
+        db.commit()
 
-    db.commit()
+        # 🔔 承認通知
+        await notify_user(
+            measurement.user_id,
+            {
+                "type": "approved",
+                "message": "測定記録が承認されました",
+            },
+        )
+        await notify_role(
+            "manager",
+            {
+                "type": "approved",
+                "message": "測定記録が承認されました",
+            },
+            db,
+        )
 
     message = "承認しました" if action == "approve" else "否認しました"
 
     return ApproveResponse(
         message=message,
+        status=measurement.status,
+    )
+
+
+def confirm_measurement(
+    db: Session,
+    measurement_id: int,
+    current_user: User,
+) -> ApproveResponse:
+    # 1. レコード取得（存在チェック）
+    measurement = get_measurement_by_id(db, measurement_id)
+
+    if not measurement:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="測定記録が存在しません",
+        )
+
+    # 2. ステータスチェック（approved のみ）
+    if measurement.status != "approved":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="承認済みの測定記録のみ確定できます",
+        )
+
+    # 3. 既にconfirm済みの場合（任意だが推奨）
+    if measurement.manager_confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="既に確定済みです",
+        )
+
+    # 4. manager_confirmed = True に更新
+    measurement.manager_confirmed = True
+    measurement.updated_at = datetime.now(timezone.utc)
+
+    # 5. commit
+    db.commit()
+
+    return ApproveResponse(
+        message="確定しました",
         status=measurement.status,
     )

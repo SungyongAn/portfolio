@@ -170,6 +170,9 @@ const showModal = ref(false);
 const loading = ref(false);
 const successMessage = ref("");
 const errorMessage = ref("");
+const selectedMember = computed(() =>
+  members.value.find((m) => m.user_id === form.userId),
+);
 
 const form = reactive({
   userId: "",

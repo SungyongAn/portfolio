@@ -1,3 +1,68 @@
+## 2026-03-29
+
+## [課題2] ダッシュボード通知機能・WebSocketリアルタイム通知・承認済みレコード確認済み管理
+
+### Added
+
+**バックエンド**
+- `backend/alembic/versions/004_add_manager_confirmed.py` を新規作成
+  - `measurements` テーブルに `manager_confirmed` カラムを追加（BOOLEAN・NOT NULL・DEFAULT FALSE）
+  - 既存の `approved` レコードは `TRUE`、それ以外は `FALSE` で初期化
+- `backend/app/routers/notifications.py` を新規作成
+  - `ConnectionManager` クラス（`user_id → WebSocket` のマッピングで接続管理）
+  - `GET /ws/notifications` WebSocketエンドポイント（クエリパラメータでJWT認証）
+- `backend/app/services/notification_service.py` を新規作成
+  - `notify_user(user_id, message)` — 特定ユーザーへの通知
+  - `notify_role(role, message, db)` — ロール全体への通知
+
+**フロントエンド**
+- `frontend/src/services/notificationService.js` を新規作成
+  - WebSocket接続・切断・自動再接続ロジック
+- `frontend/src/stores/notification.js` を新規作成
+  - 通知リスト管理（Pinia）
+  - `isConnected` フラグによる重複接続防止
+
+### Changed
+
+**バックエンド**
+- `backend/app/models/measurement.py`
+  - `manager_confirmed` カラムを追加
+- `backend/app/schemas/measurement.py`
+  - `MeasurementItem` に `manager_confirmed: bool` を追加
+- `backend/app/services/measurement_service.py`
+  - `submit_measurement()`・`member_approve()`・`coach_approve()` を `async def` に変更
+  - 各関数に通知呼び出しを追加
+  - `confirm_measurement()` を新規追加
+  - `get_measurements()` の `MeasurementItem` 生成に `manager_confirmed` を追加
+- `backend/app/routers/measurements.py`
+  - `submit_measurement_endpoint()`・`member_approve_endpoint()`・`coach_approve_endpoint()` を `async def` に変更
+  - `PATCH /api/measurements/{measurement_id}/confirm` エンドポイントを追加
+- `backend/app/main.py`
+  - `notifications` ルーターを登録
+- `backend/requirements.txt`
+  - `websockets==16.0` を追加
+
+**フロントエンド**
+- `frontend/src/stores/auth.js`
+  - `login()` にWebSocket接続を追加
+  - `initAuth()` にWebSocket接続を追加（重複接続防止付き）
+  - `logout()` にWebSocket切断を追加
+- `frontend/src/views/manager/DashboardView.vue`
+  - 通知サマリーカードを追加（否認件数・部員承認待ち件数・コーチ承認待ち件数・新着通知）
+  - 通知受信時のデータ再取得（`watch`）を追加
+- `frontend/src/views/shared/DashboardView.vue`
+  - 通知サマリーカードを追加（部員：承認依頼の有無、コーチ：承認待ち件数）
+  - 通知受信時のデータ再取得（`watch`）を追加
+- `frontend/vite.config.js`
+  - WebSocket接続調査のため追加したプロキシ設定を削除（調査用途のため最終的に不使用）
+
+### Technical Notes
+- WebSocketはHTTPヘッダーを使用できないため、クエリパラメータでAccess Tokenを渡しJWT検証を行う
+- PoCのシングルワーカー構成では問題ないが、本番運用時の複数ワーカー構成ではRedis Pub/Subの導入が必要
+- `manager_confirmed` のデフォルト値はAlembicの `op.execute()` で条件付き設定（`approved` → TRUE、それ以外 → FALSE）
+- WebSocketライブラリとして `websockets==16.0` を追加（`uvicorn[standard]` 相当）
+- Viteの開発サーバーとWebSocketのパス競合を避けるため、直接 `ws://localhost:8000` へ接続する方式を採用
+
 ## 2026-03-27
 
 ## [ドキュメント] 提出物・手順書の整備

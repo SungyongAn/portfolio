@@ -54,6 +54,7 @@ def create_refresh_token(data: dict):
 
 # トークンをデコード
 def decode_token(token: str):
+    
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except ExpiredSignatureError:

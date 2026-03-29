@@ -65,10 +65,7 @@ PoCとして最小構成で検証を行うものです。
 
 ### 次の予定
 - 課題2実装
-  - マネージャー入力履歴管理
-  - スマートフォン対応
-  - 提案書作成（proposal_ux.md・proposal_system.md・proposal_technical.md）
-  - DBインデックス設計
+  - MeasurementStatusList.vue への確認ボタン追加（manager_confirmed フロントエンド実装）
 
 ### 課題2実装済み
 - 測定結果閲覧画面の改善（MeasurementResultList.vue）
@@ -106,6 +103,16 @@ PoCとして最小構成で検証を行うものです。
   - useTrendData.js（推移データ加工ロジック）
   - useRadarData.js（レーダーデータ加工ロジック）
   - useRankingData.js（ランキングデータ加工ロジック）
+- ダッシュボード通知機能・WebSocketリアルタイム通知
+  - notifications.py（WebSocketエンドポイント・ConnectionManager）
+  - notification_service.py（通知送信サービス）
+  - notificationService.js（WebSocket接続管理）
+  - stores/notification.js（通知状態管理・Pinia）
+  - 各ダッシュボードに通知サマリー表示を追加
+- 承認済みレコードの確認済み管理
+  - measurements テーブルに manager_confirmed カラムを追加（Alembic 004）
+  - PATCH /api/measurements/{measurement_id}/confirm エンドポイントを追加
+
 ---
 
 ## 設計ドキュメント
@@ -160,12 +167,14 @@ baseball_talent_manager/
 │   │   ├── __init__.py
 │   │   ├── auth_service.py
 │   │   ├── user_service.py
-│   │   └── measurement_service.py
+│   │   ├── measurement_service.py
+│   │   └── notification_service.py
 │   └── routers/
 │       ├── __init__.py
 │       ├── auth.py
 │       ├── users.py
-│       └── measurements.py
+│       ├── measurements.py
+│       └── notifications.py
 ├── frontend/
 │   ├── Dockerfile.dev
 │   ├── Dockerfile.prod
@@ -176,12 +185,13 @@ baseball_talent_manager/
 │       │   ├── api.js
 │       │   ├── authService.js
 │       │   ├── measurementService.js
-│       │   └── userService.js
+│       │   ├── userService.js
+│       │   └── notificationService.js
 │       ├── composables/
 │       │   ├── usePagination.js
 │       │   ├── useTrendData.js
 │       │   ├── useRadarData.js
-│       │   └── useRankingData.js  
+│       │   └── useRankingData.js
 │       ├── constants/
 │       │   └── measurementFields.js
 │       ├── components/
@@ -203,11 +213,11 @@ baseball_talent_manager/
 │       │   ├── MemberManagement.vue
 │       │   ├── MemberCreate.vue
 │       │   ├── MemberRetire.vue
-│       │   └── Pagination.vue 
+│       │   └── Pagination.vue
 │       ├── views/
 │       │   ├── LoginView.vue
 │       │   ├── shared/
-│       │   │   ├──DashboardView.vue
+│       │   │   ├── DashboardView.vue
 │       │   │   └── ChartView.vue
 │       │   └── manager/
 │       │       ├── DashboardView.vue
@@ -216,7 +226,8 @@ baseball_talent_manager/
 │       ├── router/
 │       │   └── index.js
 │       ├── stores/
-│       │   └── auth.js
+│       │   ├── auth.js
+│       │   └── notification.js
 │       └── dummyData.js
 ├── scripts/
 │   └── wait_for_db.py
@@ -278,7 +289,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml exec db mysql -u
 
 ### アクセス
 - フロントエンド：`http://<サーバーIP>/`
-- APIドキュメント：`http://<サーバーIP>/api/docs`（開発確認用）
+- APIドキュメント：`http://<サーバーIP>/docs`（開発確認用）
 
 ---
 

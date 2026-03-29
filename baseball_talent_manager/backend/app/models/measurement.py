@@ -1,6 +1,15 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+)
 from sqlalchemy.orm import relationship
 
 from app.db import Base
@@ -21,6 +30,15 @@ class Measurement(Base):
     bench_press = Column(Float, nullable=False)
     squat = Column(Float, nullable=False)
     status = Column(String(20), nullable=False, server_default="draft")
+
+    # 👇 ここを追加
+    manager_confirmed = Column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",  # DB側デフォルトも合わせる
+    )
+
     created_at = Column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
