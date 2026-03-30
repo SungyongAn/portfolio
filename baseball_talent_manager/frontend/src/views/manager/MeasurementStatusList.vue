@@ -78,7 +78,7 @@
           <tr>
             <th>部員名</th>
             <th>学年</th>
-            <th>計測日</th>
+            <th>計測年月</th>
             <th>ステータス</th>
             <th>アクション</th>
           </tr>
@@ -90,7 +90,7 @@
           >
             <td>{{ measurement.name }}</td>
             <td>{{ measurement.grade }}年</td>
-            <td>{{ measurement.measurement_date }}</td>
+            <td>{{ measurement.measurement_date.slice(0, 7) }}</td>
             <td>
               <span :class="['badge', getStatus(measurement.status).badge]">
                 {{ getStatus(measurement.status).label }}

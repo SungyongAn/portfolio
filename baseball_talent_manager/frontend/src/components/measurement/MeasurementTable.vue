@@ -5,7 +5,7 @@
         <tr>
           <th v-if="isStaff" class="text-nowrap">部員名</th>
           <th v-if="isStaff" class="text-nowrap">学年</th>
-          <th class="text-nowrap">計測日</th>
+          <th class="text-nowrap">計測年月</th>
 
           <!-- ✅ ここ1回だけ -->
           <th
@@ -24,7 +24,7 @@
         <tr v-for="m in measurements" :key="m.measurement_id">
           <td v-if="isStaff">{{ m.name }}</td>
           <td v-if="isStaff">{{ m.grade }}年</td>
-          <td>{{ m.measurement_date }}</td>
+          <td>{{ m.measurement_date.slice(0, 7) }}</td>
 
           <!-- ✅ tbodyも同じ構造 -->
           <td

@@ -45,7 +45,7 @@
             >計測日 <span class="text-danger">*</span></label
           >
           <input
-            type="date"
+            type="month"
             v-model="form.measurementDate"
             class="form-control"
             :class="{ 'is-invalid': errors.measurementDate }"
@@ -126,10 +126,6 @@
                 <tr>
                   <th>計測日</th>
                   <td>{{ form.measurementDate }}</td>
-                </tr>
-                <tr v-for="field in MEASUREMENT_FIELDS" :key="field.key">
-                  <th>{{ field.label }} ({{ field.unit }})</th>
-                  <td>{{ form[field.key] }}</td>
                 </tr>
               </tbody>
             </table>
@@ -222,7 +218,7 @@ const handleConfirm = async () => {
 
     const res = await createMeasurement({
       user_id: form.userId,
-      measurement_date: form.measurementDate,
+      measurement_date: form.measurementDate + "-01",
       ...measurementData,
     });
 
@@ -261,6 +257,12 @@ const handleConfirm = async () => {
 
 // 初回メンバー取得
 onMounted(async () => {
+  // 当月を初期値として設定
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  form.measurementDate = `${yyyy}-${mm}`;
+
   const res = await getUsers("member");
   members.value = res.data.users;
 });
