@@ -63,10 +63,6 @@ PoCとして最小構成で検証を行うものです。
 - [x] `components/MemberCreate.vue`（部員作成）
 - [x] `components/MemberRetire.vue`（退部・引退処理）
 
-### 次の予定
-- 課題2実装
-  - MeasurementStatusList.vue への確認ボタン追加（manager_confirmed フロントエンド実装）
-
 ### 課題2実装済み
 - 測定結果閲覧画面の改善（MeasurementResultList.vue）
   - 学年列の分離表示
@@ -76,6 +72,7 @@ PoCとして最小構成で検証を行うものです。
   - フィルタ・ソート条件のURL同期
 - 承認フローステータス一覧の改善（MeasurementStatusList.vue）
   - ソート・絞り込み・ページネーション機能を追加
+  - 確認ボタン追加（manager_confirmed によるDB永続化）
 - 部員退部・引退処理画面の改善（MemberRetire.vue）
   - ソート・絞り込み・ページネーション機能を追加
 - 測定結果確認・承認画面の改善（MeasurementResultReview.vue）
@@ -112,6 +109,15 @@ PoCとして最小構成で検証を行うものです。
 - 承認済みレコードの確認済み管理
   - measurements テーブルに manager_confirmed カラムを追加（Alembic 004）
   - PATCH /api/measurements/{measurement_id}/confirm エンドポイントを追加
+- 退部・引退日付の記録と履歴閲覧
+  - users テーブルに status_changed_at カラムを追加（Alembic 005）
+  - MemberHistory.vue（退部・引退済み部員の履歴画面）を新規作成
+- 測定日の年月表示対応
+  - 計測日入力を年月ピッカーに変更（type="month"）
+  - 表示を年月のみ（YYYY-MM）に統一
+- 測定進捗確認画面
+  - MeasurementProgressView.vue を新規作成
+  - 対象月の測定登録状況を部員ごとに一覧表示
 
 ---
 
@@ -213,12 +219,14 @@ baseball_talent_manager/
 │       │   ├── MemberManagement.vue
 │       │   ├── MemberCreate.vue
 │       │   ├── MemberRetire.vue
+│       │   ├── MemberHistory.vue
 │       │   └── Pagination.vue
 │       ├── views/
 │       │   ├── LoginView.vue
 │       │   ├── shared/
 │       │   │   ├── DashboardView.vue
-│       │   │   └── ChartView.vue
+│       │   │   ├── ChartView.vue
+│       │   │   └── MeasurementProgressView.vue
 │       │   └── manager/
 │       │       ├── DashboardView.vue
 │       │       ├── MeasurementResultSubmit.vue

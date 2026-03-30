@@ -1,3 +1,66 @@
+## 2026-03-30
+
+## [課題2] 退部・引退日付記録・測定日年月変更・測定進捗確認・ヘッダー更新
+
+### Added
+
+**バックエンド**
+- `backend/alembic/versions/005_add_status_changed_at.py` を新規作成
+  - `users` テーブルに `status_changed_at` カラムを追加（DATETIME・NULL許容）
+  - 既存データへの初期値：NULL（過去の処理日は不明なため）
+
+**フロントエンド**
+- `frontend/src/components/MemberHistory.vue` を新規作成
+  - 退部・引退済み部員の履歴画面
+  - 部員名・学年・ステータス・退部/引退日付を一覧表示
+  - ソート・絞り込み・ページネーション機能を追加
+- `frontend/src/views/shared/MeasurementProgressView.vue` を新規作成
+  - 対象月の測定登録状況を部員ごとに一覧表示
+  - 年月ピッカーで対象月を選択（初期値は当月）
+  - 在籍中の全部員と測定記録を突き合わせて登録状況・ステータスを表示
+  - ページネーション機能を追加
+
+### Changed
+
+**バックエンド**
+- `backend/app/models/user.py`
+  - `status_changed_at` カラムを追加
+- `backend/app/schemas/user.py`
+  - `UserListItem` に `status_changed_at: datetime | None` を追加
+- `backend/app/services/user_service.py`
+  - `get_user_list()` のクエリに `User.status_changed_at` を追加
+  - `update_user_status()` で退部・引退処理時に `status_changed_at` を記録
+
+**フロントエンド**
+- `frontend/src/components/MemberManagement.vue`
+  - 「退部・引退履歴」カードを追加
+- `frontend/src/views/manager/MeasurementResultSubmit.vue`
+  - 計測日入力を `type="date"` から `type="month"` に変更
+  - 当月を初期値として自動設定
+  - 送信時に `measurement_date` を月初（YYYY-MM-01）に変換
+- `frontend/src/components/measurement/MeasurementTable.vue`
+  - 計測日表示を年月のみ（YYYY-MM）に変更（`.slice(0, 7)`）
+- `frontend/src/views/manager/MeasurementStatusList.vue`
+  - 計測日表示を年月のみ（YYYY-MM）に変更
+- `frontend/src/views/manager/DashboardView.vue`
+  - 「測定登録状況」カードを追加
+- `frontend/src/views/shared/DashboardView.vue`
+  - 「測定登録状況」カードを追加（コーチ・監督のみ表示）
+- `frontend/src/components/AppHeader.vue`
+  - 各ロールのメニューに不足していた項目を追加
+    - manager: 測定登録状況
+    - member: 可視化ダッシュボード
+    - coach: 測定登録状況・可視化ダッシュボード
+    - director: 測定登録状況・可視化ダッシュボード
+- `frontend/src/router/index.js`
+  - コーチ・監督ルートに `members/member-history` を追加
+  - マネージャー・コーチ・監督ルートに `progress` を追加
+
+### Technical Notes
+- 測定日はDBの `date` 型（YYYY-MM-01）を維持しフロントエンドのUIのみ年月に変更（案A）
+- `MeasurementProgressView.vue` はAPIの追加なしで既存の `getUsers()` と `getAllMeasurements()` を流用
+- `status_changed_at` は退部・引退処理時に `datetime.now(timezone.utc)` で記録
+
 ## 2026-03-29
 
 ## [課題2] ダッシュボード通知機能・WebSocketリアルタイム通知・承認済みレコード確認済み管理
