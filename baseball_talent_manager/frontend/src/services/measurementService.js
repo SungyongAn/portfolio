@@ -33,3 +33,8 @@ export function coachApprove(measurementId, action) {
 export const getAllMeasurements = () => {
   return api.get("/api/measurements/all");
 };
+
+// 測定結果の確認済みマーク（マネージャー）
+export function confirmMeasurement(measurementId) {
+  return api.patch(`/api/measurements/${measurementId}/confirm`);
+}

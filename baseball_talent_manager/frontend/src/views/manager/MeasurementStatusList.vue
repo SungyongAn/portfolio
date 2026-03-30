@@ -80,6 +80,7 @@
             <th>学年</th>
             <th>計測日</th>
             <th>ステータス</th>
+            <th>アクション</th>
           </tr>
         </thead>
         <tbody>
@@ -94,6 +95,18 @@
               <span :class="['badge', getStatus(measurement.status).badge]">
                 {{ getStatus(measurement.status).label }}
               </span>
+            </td>
+            <td>
+              <button
+                v-if="
+                  measurement.status === 'approved' &&
+                  !measurement.manager_confirmed
+                "
+                class="btn btn-sm btn-outline-success"
+                @click="handleConfirm(measurement.measurement_id)"
+              >
+                確認
+              </button>
             </td>
           </tr>
         </tbody>
@@ -124,6 +137,7 @@ import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
 import { useNotificationStore } from "@/stores/notification";
+import { confirmMeasurement } from "@/services/measurementService.js";
 
 /* -----------------------------
    ルーター・リアクティブ変数
@@ -162,6 +176,9 @@ const statusConfig = {
 // フィルタ適用
 const filteredMeasurements = computed(() =>
   measurements.value.filter((m) => {
+    //確認済みは除外
+    if (m.manager_confirmed === true) return false;
+
     const gradeMatch =
       filterGrade.value === "" || m.grade === Number(filterGrade.value);
 
@@ -260,6 +277,18 @@ const resetFilters = () => {
   filterStatus.value = "";
   filterMeasurementDate.value = "";
   currentPage.value = 1;
+};
+
+const handleConfirm = async (measurementId) => {
+  try {
+    await confirmMeasurement(measurementId);
+
+    // 再取得（推奨）
+    const res = await getMeasurements();
+    measurements.value = res.data.measurements ?? [];
+  } catch (e) {
+    console.error("確認処理失敗", e);
+  }
 };
 
 /* -----------------------------
