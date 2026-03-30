@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -62,6 +64,7 @@ def get_user_list(
         User.grade,
         User.role,
         User.status,
+        User.status_changed_at,
     )
 
     if role:
@@ -77,12 +80,14 @@ def get_user_list(
             grade=row.grade,
             role=row.role,
             status=row.status,
+            status_changed_at=row.status_changed_at, 
         )
         for row in results
     ]
     return UserListResponse(users=user_list)
 
-#　引退・退部処理
+
+# 　引退・退部処理
 def update_user_status(
     db: Session, user_id: int, status_data: UserStatusUpdateRequest
 ) -> UserResponse:
@@ -96,6 +101,7 @@ def update_user_status(
         )
 
     user.status = status_data.status
+    user.status_changed_at = datetime.now(timezone.utc)
     db.commit()
 
     return UserResponse(message="退部・引退に変更しました。")

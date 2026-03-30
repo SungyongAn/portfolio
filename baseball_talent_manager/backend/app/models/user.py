@@ -26,5 +26,6 @@ class User(Base):
         onupdate=lambda: datetime.now(timezone.utc),
     )
     deleted_at = Column(DateTime, nullable=True)
+    status_changed_at = Column(DateTime(timezone=True), nullable=True)
 
     measurements = relationship("Measurement", back_populates="user")

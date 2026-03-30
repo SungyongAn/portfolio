@@ -18,7 +18,6 @@ erDiagram
         string status
         datetime created_at
         datetime updated_at
-        datetime deleted_at
     }
 
     measurements {
@@ -55,7 +54,6 @@ erDiagram
         string status
         datetime created_at
         datetime updated_at
-        datetime deleted_at
     }
 
     measurements {
@@ -71,32 +69,12 @@ erDiagram
         float bench_press
         float squat
         string status
+        boolean manager_confirmed
         datetime created_at
         datetime updated_at
     }
 
-    approval_histories {
-        int id PK
-        int measurement_id FK
-        int user_id FK
-        string action
-        string comment
-        datetime created_at
-    }
-
-    role_histories {
-        int id PK
-        int user_id FK
-        string old_role
-        string new_role
-        datetime changed_at
-        int changed_by FK
-    }
-
     users ||--o{ measurements : "1対多"
-    measurements ||--o{ approval_histories : "1対多"
-    users ||--o{ approval_histories : "1対多"
-    users ||--o{ role_histories : "1対多"
 ```
 
 ---
@@ -120,7 +98,6 @@ erDiagram
 | status | varchar(20) | NOT NULL, DEFAULT 'active' | active / retired / withdrawn |
 | created_at | datetime | NOT NULL | 作成日時 |
 | updated_at | datetime | NOT NULL | 更新日時 |
-| deleted_at | datetime | NULL | ソフトデリート日時 |
 
 ---
 
@@ -149,33 +126,35 @@ erDiagram
 
 ---
 
-#### approval_historiesテーブル
+#### measurementsテーブル（追加カラム）
 
 | カラム名 | 型 | 制約 | 説明 |
 |---|---|---|---|
-| id | int | PK, AUTO INCREMENT | 承認履歴ID |
-| measurement_id | int | FK, NOT NULL | 測定記録ID（measurements.id） |
-| user_id | int | FK, NOT NULL | 承認者ID（users.id） |
-| action | varchar(20) | NOT NULL | approve / reject |
-| comment | text | NULL | 承認コメント（課題2） |
-| created_at | datetime | NOT NULL | 承認日時 |
+| manager_confirmed | tinyint(1) | NOT NULL, DEFAULT 0 | マネージャー確認済みフラグ（0: 未確認 / 1: 確認済み） |
 
 ---
 
-#### role_historiesテーブル
+## 3. インデックス設計
 
-| カラム名 | 型 | 制約 | 説明 |
-|---|---|---|---|
-| id | int | PK, AUTO INCREMENT | ロール履歴ID |
-| user_id | int | FK, NOT NULL | 対象ユーザーID（users.id） |
-| old_role | varchar(20) | NOT NULL | 変更前ロール |
-| new_role | varchar(20) | NOT NULL | 変更後ロール |
-| changed_at | datetime | NOT NULL | 変更日時 |
-| changed_by | int | FK, NOT NULL | 変更者ID（users.id） |
+### usersテーブル
+
+| インデックス名 | カラム | 用途 |
+|---|---|---|
+| ix_users_role | role | ロール別部員一覧取得の高速化 |
+| ix_users_status | status | 在籍状況での絞り込みの高速化 |
+
+### measurementsテーブル
+
+| インデックス名 | カラム | 用途 |
+|---|---|---|
+| ix_measurements_user_id | user_id | 部員別測定記録取得の高速化 |
+| ix_measurements_status | status | 承認フローの絞り込みの高速化 |
+| ix_measurements_measurement_date | measurement_date | 計測日での絞り込みの高速化 |
+| ix_measurements_user_id_measurement_date | user_id, measurement_date | 重複チェック用複合インデックス |
 
 ---
 
-## 3. ステータス定義
+## 4. ステータス定義
 
 ### usersテーブル status
 
@@ -197,11 +176,12 @@ erDiagram
 
 ---
 
-## 4. 設計方針
+## 5. 設計方針
 
 | 項目 | 内容 |
 |---|---|
-| ソフトデリート | usersテーブルはdeleted_atとstatusで管理 |
-| 課題1→課題2の拡張 | measurementsのstatusカラムを残しつつapproval_historiesを追加 |
-| ロール管理 | 課題1はroleカラムのみ、課題2でrole_historiesを追加 |
+| ソフトデリート | usersテーブルはstatusで管理（deleted_atは未実装） |
+| タイムスタンプ管理 | created_at / updated_at はPython側（datetime.now(timezone.utc)）で明示的に管理 |
+| manager_confirmed | localStorageではなくDBに永続化（複数デバイス・複数マネージャー対応） |
 | NULL許容 | gradeはcoach・director・managerの場合はNULL |
+| 将来の拡張（未実装） | approval_histories（承認履歴）・role_histories（ロール変更履歴）は提案として検討中 |

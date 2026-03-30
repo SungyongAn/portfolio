@@ -158,6 +158,16 @@ const router = createRouter({
           },
         },
         {
+          path: "members/member-history",
+          name: "coach-member-history",
+          component: () => import("@/components/MemberHistory.vue"),
+          meta: {
+            title: "退部・引退履歴",
+            breadcrumbs: [{ name: "部員管理", to: "/coach/members" }],
+          },
+        },
+
+        {
           path: "chart",
           name: "coach-chart", // ロール名に合わせて変更
           component: () => import("@/views/shared/ChartView.vue"),
@@ -220,6 +230,15 @@ const router = createRouter({
           component: () => import("@/components/MemberRetire.vue"),
           meta: {
             title: "部員退部・引退処理",
+            breadcrumbs: [{ name: "部員管理", to: "/director/members" }],
+          },
+        },
+        {
+          path: "members/member-history",
+          name: "director-member-history",
+          component: () => import("@/components/MemberHistory.vue"),
+          meta: {
+            title: "退部・引退履歴",
             breadcrumbs: [{ name: "部員管理", to: "/director/members" }],
           },
         },

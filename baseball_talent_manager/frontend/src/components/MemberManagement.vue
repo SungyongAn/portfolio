@@ -34,6 +34,22 @@
           </div>
         </div>
       </div>
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">退部・引退履歴</h5>
+            <p class="card-text text-muted">
+              退部・引退した部員の履歴を確認します。
+            </p>
+            <router-link
+              :to="`/${role}/members/member-history`"
+              class="btn btn-outline-secondary mt-3"
+            >
+              履歴を見る
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

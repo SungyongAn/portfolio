@@ -1,4 +1,3 @@
-
 ---
 
 # api.md
@@ -44,7 +43,6 @@ Authorization: Bearer {access_token}
   "grade": "int | null",
   "name": "str",
   "role": "member | manager | coach | director"
-  
 }
 ```
 
@@ -58,13 +56,11 @@ Authorization: Bearer {access_token}
 ### POST /api/auth/refresh
 
 ### 認証
-
 Refreshトークン（HttpOnly Cookie）
 
 ### Request
 ```JSON
-{
-}
+{}
 ```
 
 ### Response
@@ -85,8 +81,7 @@ Refreshトークン（HttpOnly Cookie）
 
 ### Request
 ```JSON
-{
-}
+{}
 ```
 
 ### Response
@@ -98,7 +93,7 @@ Refreshトークン（HttpOnly Cookie）
 
 ---
 
-## 3 承認フロー管理
+## 3. 承認フロー管理
 
 ---
 
@@ -111,12 +106,13 @@ Refreshトークン（HttpOnly Cookie）
 
 ### ロール
 manager
-- 測定記録を部員確認待ち状態にする
+
+### 説明
+測定記録を部員確認待ち状態にする
 
 ### Request
 ```JSON
-{
-}
+{}
 ```
 
 ### Response
@@ -126,6 +122,8 @@ manager
   "message": "str"
 }
 ```
+
+---
 
 ### 3.2 部員承認・否認
 
@@ -137,7 +135,10 @@ manager
 ### ロール
 member
 
-- 部員が承認または否認する
+### 説明
+部員が承認または否認する
+
+---
 
 ### 3.3 コーチ最終承認・否認
 
@@ -148,22 +149,61 @@ member
 
 ### ロール
 coach
-- コーチが最終承認または否認する
+
+### 説明
+コーチが最終承認または否認する
+
+---
 
 ### 3.2・3.3 共通Request
-```Json
+```JSON
 {
   "action": "approve | reject"
 }
 ```
 
 ### 共通Response
-```Json
+```JSON
 {
   "message": "str",
   "status": "pending_member | pending_coach | approved | rejected"
 }
 ```
+
+---
+
+### 3.4 承認済みレコードの確認済みマーク
+
+### PATCH /api/measurements/{measurement_id}/confirm
+
+### 認証
+必要
+
+### ロール
+manager
+
+### 説明
+- `approved` ステータスのレコードを確認済みとしてマークする
+- `manager_confirmed` を `true` に更新し、`MeasurementStatusList` から非表示にする
+- 既に確認済みのレコードに対しては400エラーを返す
+
+### Request
+```JSON
+{}
+```
+
+### Response
+```JSON
+{
+  "message": "str",
+  "status": "approved"
+}
+```
+
+### エラー
+- 対象レコードが存在しない（404）
+- ステータスが `approved` 以外（400）
+- 既に確認済み（400）
 
 ---
 
@@ -213,8 +253,7 @@ manager | coach | director
 
 ### Request
 ```JSON
-{
-}
+{}
 ```
 
 ### Response
@@ -222,11 +261,13 @@ manager | coach | director
 {
   "user_id": "int",
   "email": "EmailStr",
-  "memberName": "str",
+  "name": "str",
   "grade": "int",
   "role": "str"
 }
 ```
+
+---
 
 ### 4.3 部員ステータス更新
 
@@ -257,7 +298,9 @@ coach | director
 ## 5. 測定記録管理
 
 ---
+
 ### 5.1 測定記録登録
+
 ### POST /api/measurements
 
 ### 認証
@@ -265,6 +308,11 @@ coach | director
 
 ### ロール
 manager
+
+### 備考
+- 同一部員・同一計測日の重複チェックを実施
+- `rejected` ステータスのレコードが存在する場合は上書き更新して `draft` に戻す
+- `draft` / `pending_member` / `pending_coach` / `approved` の場合は400エラーを返す
 
 ### Request
 ```JSON
@@ -278,7 +326,7 @@ manager
   "batting_speed": "float",
   "swing_speed": "float",
   "bench_press": "float",
-  "squat": "float",
+  "squat": "float"
 }
 ```
 
@@ -290,7 +338,10 @@ manager
 }
 ```
 
+---
+
 ### 5.2 測定記録取得
+
 ### GET /api/measurements
 
 ### 認証
@@ -303,14 +354,13 @@ manager
 
 ### Request
 ```JSON
-{
-}
+{}
 ```
 
 ### Response
 ```JSON
 {
-    "measurements": [
+  "measurements": [
     {
       "measurement_id": "int",
       "user_id": "int",
@@ -325,17 +375,74 @@ manager
       "swing_speed": "float",
       "bench_press": "float",
       "squat": "float",
-      "status": "pending_member | pending_coach | approved | rejected"
+      "status": "draft | pending_member | pending_coach | approved | rejected",
+      "manager_confirmed": "bool"
     }
   ]
 }
 ```
 
+---
 
+### 5.3 測定記録全件取得（可視化用）
+
+### GET /api/measurements/all
+
+### 認証
+必要（全ロール）
 
 ### 備考
-- 測定記録の閲覧・グラフ表示の両方で使用する
-- グラフ描画はフロントエンド側で処理する
-- 初回アクセス時に全データを一括取得する
-- 本番運用時はデータ量に応じてページネーション対応を検討する
+- ロールに関わらず全部員の測定記録を返す
+- 可視化ダッシュボードのグラフ描画用途
+- アクセス制御はバックエンド側で実施
+
+### Request
+```JSON
+{}
 ```
+
+### Response
+5.2 と同じ形式
+
+---
+
+## 6. リアルタイム通知
+
+---
+
+### 6.1 WebSocket接続
+
+### WebSocket /ws/notifications
+
+### 認証
+クエリパラメータでAccess Tokenを渡す
+
+```
+ws://host/ws/notifications?token={access_token}
+```
+
+### 説明
+- 接続時にJWTトークンを検証し、ユーザーを特定する
+- 承認フローのステータス変化をリアルタイムに通知する
+- WebSocketはHTTPヘッダーを使用できないため、クエリパラメータでトークンを渡す方式を採用
+
+### 通知イベント一覧
+
+| イベント | 通知先 | type フィールド |
+|---------|--------|---------------|
+| マネージャーが承認フロー発行 | 対象部員 | `approval_requested` |
+| 部員が承認 | コーチ全員 | `approval_requested` |
+| コーチが承認 | マネージャー全員・対象部員 | `approved` |
+| コーチが否認 | マネージャー全員・対象部員 | `rejected` |
+
+### 通知メッセージ形式
+```JSON
+{
+  "type": "approval_requested | approved | rejected",
+  "message": "str"
+}
+```
+
+### 備考
+- PoCのシングルワーカー構成では問題なく動作する
+- 本番運用時の複数ワーカー構成ではRedis Pub/Subなどのメッセージブローカーの導入が必要

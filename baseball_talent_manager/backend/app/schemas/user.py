@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -20,6 +22,8 @@ class UserListItem(BaseModel):
     grade: int | None = None
     role: str
     status: str
+    status_changed_at: datetime | None = None
+
 
 class UserListResponse(BaseModel):
     users: list[UserListItem]
