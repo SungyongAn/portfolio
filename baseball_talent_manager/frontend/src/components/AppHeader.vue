@@ -98,6 +98,7 @@ const menuMap = {
     { label: "ダッシュボード", to: "/manager/dashboard", icon: "bi-house" },
     { label: "測定結果の入力", to: "/manager/record", icon: "bi-pencil" },
     { label: "ステータス確認", to: "/manager/status", icon: "bi-list-check" },
+    { label: "測定登録状況", to: "/manager/progress", icon: "bi-bar-chart" },
   ],
   member: [
     { label: "ダッシュボード", to: "/member/dashboard", icon: "bi-house" },
@@ -107,11 +108,14 @@ const menuMap = {
       to: "/member/history",
       icon: "bi-clock-history",
     },
+    { label: "可視化ダッシュボード", to: "/member/chart", icon: "bi-graph-up" },
   ],
   coach: [
     { label: "ダッシュボード", to: "/coach/dashboard", icon: "bi-house" },
     { label: "測定結果の承認", to: "/coach/review", icon: "bi-check-circle" },
     { label: "測定記録の閲覧", to: "/coach/history", icon: "bi-clock-history" },
+    { label: "測定登録状況", to: "/coach/progress", icon: "bi-bar-chart" },
+    { label: "可視化ダッシュボード", to: "/coach/chart", icon: "bi-graph-up" },
     { label: "部員管理", to: "/coach/members", icon: "bi-people" },
   ],
   director: [
@@ -120,6 +124,12 @@ const menuMap = {
       label: "測定記録の閲覧",
       to: "/director/history",
       icon: "bi-clock-history",
+    },
+    { label: "測定登録状況", to: "/director/progress", icon: "bi-bar-chart" },
+    {
+      label: "可視化ダッシュボード",
+      to: "/director/chart",
+      icon: "bi-graph-up",
     },
     { label: "部員管理", to: "/director/members", icon: "bi-people" },
   ],
