@@ -56,6 +56,21 @@
           </div>
         </div>
       </div>
+
+      <!-- 測定登録状況（コーチ・監督のみ） -->
+      <div v-if="isCoach || isDirector" class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5>測定登録状況</h5>
+            <router-link
+              :to="`/${role}/progress`"
+              class="btn btn-outline-info mt-3"
+            >
+              登録状況を確認
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- 通知サマリー -->
     <div v-if="!isDirector" class="row g-4 mt-1">

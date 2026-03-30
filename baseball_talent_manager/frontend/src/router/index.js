@@ -50,6 +50,15 @@ const router = createRouter({
             breadcrumbs: [{ name: "ダッシュボード", to: "/manager/dashboard" }],
           },
         },
+        {
+          path: "progress",
+          name: "manager-progress",
+          component: () => import("@/views/shared/MeasurementProgressView.vue"),
+          meta: {
+            title: "測定進捗確認",
+            breadcrumbs: [{ name: "ダッシュボード", to: "/manager/dashboard" }],
+          },
+        },
       ],
     },
 
@@ -87,7 +96,7 @@ const router = createRouter({
         },
         {
           path: "chart",
-          name: "member-chart", // ロール名に合わせて変更
+          name: "member-chart",
           component: () => import("@/views/shared/ChartView.vue"),
           meta: {
             title: "可視化ダッシュボード",
@@ -129,7 +138,15 @@ const router = createRouter({
             breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
           },
         },
-
+        {
+          path: "progress",
+          name: "coach-progress",
+          component: () => import("@/views/shared/MeasurementProgressView.vue"),
+          meta: {
+            title: "測定進捗確認",
+            breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
+          },
+        },
         {
           path: "members",
           name: "coach-members",
@@ -166,10 +183,9 @@ const router = createRouter({
             breadcrumbs: [{ name: "部員管理", to: "/coach/members" }],
           },
         },
-
         {
           path: "chart",
-          name: "coach-chart", // ロール名に合わせて変更
+          name: "coach-chart",
           component: () => import("@/views/shared/ChartView.vue"),
           meta: {
             title: "可視化ダッシュボード",
@@ -199,6 +215,17 @@ const router = createRouter({
           component: () => import("@/components/MeasurementResultList.vue"),
           meta: {
             title: "測定記録の閲覧",
+            breadcrumbs: [
+              { name: "ダッシュボード", to: "/director/dashboard" },
+            ],
+          },
+        },
+        {
+          path: "progress",
+          name: "director-progress",
+          component: () => import("@/views/shared/MeasurementProgressView.vue"),
+          meta: {
+            title: "測定進捗確認",
             breadcrumbs: [
               { name: "ダッシュボード", to: "/director/dashboard" },
             ],
@@ -244,7 +271,7 @@ const router = createRouter({
         },
         {
           path: "chart",
-          name: "director-chart", // ロール名に合わせて変更
+          name: "director-chart",
           component: () => import("@/views/shared/ChartView.vue"),
           meta: {
             title: "可視化ダッシュボード",

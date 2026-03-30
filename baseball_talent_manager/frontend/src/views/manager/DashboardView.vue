@@ -26,6 +26,21 @@
           </div>
         </div>
       </div>
+
+      <!-- 測定登録状況カード-->
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5>測定登録状況</h5>
+            <router-link
+              to="/manager/progress"
+              class="btn btn-outline-info mt-3"
+            >
+              登録状況を確認
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 通知サマリー -->
