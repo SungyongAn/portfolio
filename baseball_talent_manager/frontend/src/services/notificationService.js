@@ -1,6 +1,7 @@
 let socket = null;
 let onMessageCallback = null;
 let reconnectTimer = null;
+let isIntentionalClose = false;
 
 export function connectNotifications(token, onMessage) {
   // コールバック保存
@@ -8,6 +9,7 @@ export function connectNotifications(token, onMessage) {
 
   // 既に接続中なら一度切断
   if (socket) {
+    isIntentionalClose = true;
     socket.close();
     socket = null;
   }
@@ -40,6 +42,11 @@ export function connectNotifications(token, onMessage) {
   socket.onclose = () => {
     console.log("WebSocket disconnected");
 
+    if (isIntentionalClose) {
+      isIntentionalClose = false; // フラグをリセット
+      return; // 意図的な切断なので再接続しない
+    }
+
     // 自動再接続（3秒後）
     reconnectTimer = setTimeout(() => {
       console.log("Reconnecting WebSocket...");
@@ -60,6 +67,7 @@ export function disconnectNotifications() {
   }
 
   if (socket) {
+    isIntentionalClose = true;
     socket.close();
     socket = null;
   }
