@@ -1,3 +1,22 @@
+## 2026-04-02
+
+## [バグ修正] WebSocket再接続ループ・別タブでのセッション復元
+
+### Fixed
+- `frontend/src/services/notificationService.js`
+  - `isIntentionalClose` フラグを追加
+  - `login()` と `initAuth()` の両方から接続が試みられた際の再接続ループを防止
+  - 意図的な切断（既存ソケット差し替え・ログアウト）と予期しない切断を区別
+
+- `frontend/src/stores/auth.js`
+  - `BroadcastChannel` を使ったタブ間セッション共有を実装
+  - 別タブで開いた際に `sessionStorage` が空でも他タブからセッション情報を取得して自動復元
+
+### Technical Notes
+- `BroadcastChannel("auth_channel")` でタブ間通信を実現
+- 別タブが `REQUEST_SESSION` を送信 → メインタブが `SESSION_RESPONSE` で応答する設計
+- 500ms以内に応答がなければ未ログインとして扱う
+
 ## 2026-03-30
 
 ## [課題2] 退部・引退日付記録・測定日年月変更・測定進捗確認・ヘッダー更新

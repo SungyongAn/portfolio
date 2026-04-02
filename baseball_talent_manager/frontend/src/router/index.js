@@ -300,6 +300,7 @@ router.beforeEach(async (to) => {
     await authStore.initAuth();
   }
 
+
   // 未ログインで認証必須ページ
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: "login" };

@@ -3,6 +3,20 @@ import * as authAPI from "@/services/authService";
 import router from "@/router";
 import { useNotificationStore } from "@/stores/notification";
 
+const authChannel = new BroadcastChannel("auth_channel");
+
+authChannel.onmessage = (event) => {
+  if (event.data.type === "REQUEST_SESSION") {
+    const expiry = sessionStorage.getItem("tokenExpiry");
+    if (expiry) {
+      authChannel.postMessage({
+        type: "SESSION_RESPONSE",
+        tokenExpiry: expiry,
+      });
+    }
+  }
+};
+
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     accessToken: null,
@@ -120,7 +134,27 @@ export const useAuthStore = defineStore("auth", {
       const storedExpiry = sessionStorage.getItem("tokenExpiry");
       if (storedExpiry) {
         this.tokenExpiry = parseInt(storedExpiry);
+      } else {
+        await new Promise((resolve) => {
+          const channel = new BroadcastChannel("auth_channel");
+          const timer = setTimeout(() => {
+            channel.close();
+            resolve();
+          }, 500);
+
+          channel.onmessage = (event) => {
+            if (event.data.type === "SESSION_RESPONSE") {
+              sessionStorage.setItem("tokenExpiry", event.data.tokenExpiry);
+              this.tokenExpiry = parseInt(event.data.tokenExpiry);
+              clearTimeout(timer);
+              channel.close();
+              resolve();
+            }
+          };
+          authChannel.postMessage({ type: "REQUEST_SESSION" });
+        });
       }
+
       console.log("initAuth開始 maybeLoggedIn:", this.maybeLoggedIn);
 
       if (!this.maybeLoggedIn) {
