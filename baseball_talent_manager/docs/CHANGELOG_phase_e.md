@@ -1,8 +1,68 @@
+## 2026-04-04
+
+## [課題2] AIアドバイス機能追加・バグ修正・ESLint修正
+
+### Added
+
+**バックエンド**
+
+- `backend/app/services/advice_service.py` を新規作成
+  - 部員の承認済み測定記録をもとにGemini APIでアドバイスを生成
+  - 適性ポジション・強化項目・練習メニューを提案
+- `backend/app/routers/advice.py` を新規作成
+  - `POST /api/advice/{user_id}` エンドポイント（coach・directorのみ）
+- `backend/requirements.txt`
+  - `google-genai` を追加（`google-generativeai` から移行）
+
+**フロントエンド**
+
+- `frontend/src/services/adviceService.js` を新規作成
+  - `getAdvice(userId)` でAIアドバイスを取得
+- `frontend/src/views/shared/AdviceView.vue` を新規作成
+  - 部員選択ドロップダウン・アドバイス取得ボタン・Markdown表示
+
+### Changed
+
+**バックエンド**
+
+- `backend/app/main.py`
+  - `advice` ルーターを登録
+
+**フロントエンド**
+
+- `frontend/src/router/index.js`
+  - コーチ・監督ルートに `advice` を追加
+- `frontend/src/components/AppHeader.vue`
+  - コーチ・監督メニューに「AIアドバイス」を追加
+- `frontend/src/views/shared/DashboardView.vue`
+  - AIアドバイスカードを追加（コーチ・監督のみ）
+
+### Fixed
+
+- `frontend/src/services/notificationService.js`
+  - `isIntentionalClose` フラグを追加し再接続ループを防止
+- `frontend/src/stores/auth.js`
+  - `BroadcastChannel` でタブ間セッション共有を実装し別タブでの自動復元を実現
+- ESLintエラー修正（`catch(e)` → `catch` に変更）
+  - `authService.js`・`auth.js`・`manager/DashboardView.vue`・`shared/DashboardView.vue`
+- `.vscode/settings.json`
+  - `formatOnSave` を `true` に変更し自動整形を復旧
+
+### Technical Notes
+
+- `google.generativeai` パッケージが非推奨のため `google.genai` パッケージに移行
+- 使用モデル：`gemini-2.0-flash`
+- APIキーは `backend/.env` の `GEMINI_API_KEY` で管理
+- 無料枠：1分あたり15リクエスト・1日100万トークン
+- `BroadcastChannel("auth_channel")` で `REQUEST_SESSION` / `SESSION_RESPONSE` 方式を採用
+- 別タブ起動時に500ms以内に応答がなければ未ログインとして扱う
+
 ## 2026-04-02
 
 ## [バグ修正] WebSocket再接続ループ・別タブでのセッション復元
 
 ### Fixed
+
 - `frontend/src/services/notificationService.js`
   - `isIntentionalClose` フラグを追加
   - `login()` と `initAuth()` の両方から接続が試みられた際の再接続ループを防止
@@ -13,6 +73,7 @@
   - 別タブで開いた際に `sessionStorage` が空でも他タブからセッション情報を取得して自動復元
 
 ### Technical Notes
+
 - `BroadcastChannel("auth_channel")` でタブ間通信を実現
 - 別タブが `REQUEST_SESSION` を送信 → メインタブが `SESSION_RESPONSE` で応答する設計
 - 500ms以内に応答がなければ未ログインとして扱う
@@ -24,11 +85,13 @@
 ### Added
 
 **バックエンド**
+
 - `backend/alembic/versions/005_add_status_changed_at.py` を新規作成
   - `users` テーブルに `status_changed_at` カラムを追加（DATETIME・NULL許容）
   - 既存データへの初期値：NULL（過去の処理日は不明なため）
 
 **フロントエンド**
+
 - `frontend/src/components/MemberHistory.vue` を新規作成
   - 退部・引退済み部員の履歴画面
   - 部員名・学年・ステータス・退部/引退日付を一覧表示
@@ -42,6 +105,7 @@
 ### Changed
 
 **バックエンド**
+
 - `backend/app/models/user.py`
   - `status_changed_at` カラムを追加
 - `backend/app/schemas/user.py`
@@ -51,6 +115,7 @@
   - `update_user_status()` で退部・引退処理時に `status_changed_at` を記録
 
 **フロントエンド**
+
 - `frontend/src/components/MemberManagement.vue`
   - 「退部・引退履歴」カードを追加
 - `frontend/src/views/manager/MeasurementResultSubmit.vue`
@@ -76,6 +141,7 @@
   - マネージャー・コーチ・監督ルートに `progress` を追加
 
 ### Technical Notes
+
 - 測定日はDBの `date` 型（YYYY-MM-01）を維持しフロントエンドのUIのみ年月に変更（案A）
 - `MeasurementProgressView.vue` はAPIの追加なしで既存の `getUsers()` と `getAllMeasurements()` を流用
 - `status_changed_at` は退部・引退処理時に `datetime.now(timezone.utc)` で記録
@@ -87,6 +153,7 @@
 ### Added
 
 **バックエンド**
+
 - `backend/alembic/versions/004_add_manager_confirmed.py` を新規作成
   - `measurements` テーブルに `manager_confirmed` カラムを追加（BOOLEAN・NOT NULL・DEFAULT FALSE）
   - 既存の `approved` レコードは `TRUE`、それ以外は `FALSE` で初期化
@@ -98,6 +165,7 @@
   - `notify_role(role, message, db)` — ロール全体への通知
 
 **フロントエンド**
+
 - `frontend/src/services/notificationService.js` を新規作成
   - WebSocket接続・切断・自動再接続ロジック
 - `frontend/src/stores/notification.js` を新規作成
@@ -107,6 +175,7 @@
 ### Changed
 
 **バックエンド**
+
 - `backend/app/models/measurement.py`
   - `manager_confirmed` カラムを追加
 - `backend/app/schemas/measurement.py`
@@ -125,6 +194,7 @@
   - `websockets==16.0` を追加
 
 **フロントエンド**
+
 - `frontend/src/stores/auth.js`
   - `login()` にWebSocket接続を追加
   - `initAuth()` にWebSocket接続を追加（重複接続防止付き）
@@ -139,6 +209,7 @@
   - WebSocket接続調査のため追加したプロキシ設定を削除（調査用途のため最終的に不使用）
 
 ### Technical Notes
+
 - WebSocketはHTTPヘッダーを使用できないため、クエリパラメータでAccess Tokenを渡しJWT検証を行う
 - PoCのシングルワーカー構成では問題ないが、本番運用時の複数ワーカー構成ではRedis Pub/Subの導入が必要
 - `manager_confirmed` のデフォルト値はAlembicの `op.execute()` で条件付き設定（`approved` → TRUE、それ以外 → FALSE）
@@ -150,6 +221,7 @@
 ## [ドキュメント] 提出物・手順書の整備
 
 ### Added
+
 - `docs/test_accounts.md` を新規作成
   - seed.sqlを元にしたテストアカウント一覧
   - 動作確認推奨アカウントを記載
@@ -159,6 +231,7 @@
   - デプロイ環境情報
 
 ### Changed
+
 - `docs/CHANGELOG.md` を更新
   - インデックス＋フェーズA（設計・環境構築）として整理
 - `docs/CHANGELOG_phase_b.md` を新規作成
@@ -174,6 +247,7 @@
 ## [DB] インデックス追加
 
 ### Added
+
 - `backend/alembic/versions/003_add_indexes.py` を新規作成
   - `ix_users_role`：ロール別絞り込みの高速化
   - `ix_users_status`：在籍状況での絞り込みの高速化
@@ -182,6 +256,7 @@
   - `ix_measurements_user_id_measurement_date`：重複チェック用複合インデックス
 
 ### Technical Notes
+
 - インデックスは別マイグレーションファイル（003）で管理
 
 ## 2026-03-26
@@ -189,6 +264,7 @@
 ## [課題2] 可視化ダッシュボード実装・コンポーネント責務分離
 
 ### Added
+
 - `frontend/src/composables/useTrendData.js` を新規作成
   - 推移データ加工ロジックを分離（チーム平均・個人推移の時系列データ生成）
   - `getTrendSeries({ fieldKey, userId })` で統一インターフェース化
@@ -212,6 +288,7 @@
   - `getAllMeasurements()`で全件取得してpropsで渡す
 
 ### Changed
+
 - `frontend/src/components/visualization/RadarChart.vue`
   - `useRadarData`を使用してUI特化に書き換え
   - データ加工ロジックを`useRadarData.js`に分離
@@ -229,10 +306,12 @@
   - memberロールでも`include_all=True`の場合は全件取得
 
 ### Removed
+
 - `frontend/src/components/visualization/TeamTrendChart.vue`（TrendChartView.vueに統合）
 - `frontend/src/components/visualization/PlayerTrendChart.vue`（TrendChartView.vueに統合）
 
 ### Technical Notes
+
 - composablesパターンでデータ加工ロジックとUI描画を分離
 - `toValue()`を使用してref・computed・生配列の全パターンに対応
 - EChartsは`autoresize` + `style="height: 400px"`でDOMサイズエラーを回避
@@ -243,11 +322,13 @@
 ## [課題2] 重複登録防止・確認フロー追加
 
 ### Added
+
 - `frontend/src/views/manager/MeasurementResultSubmit.vue`
   - 確認モーダルを追加（登録前に入力内容を確認してから承認依頼を送信）
   - `errorMessage` を追加（エラー種別に応じたメッセージ表示）
 
 ### Changed
+
 - `backend/app/services/measurement_service.py`
   - `create_measurement()` に同一部員・同一計測日の重複チェックを追加
     - `rejected`ステータスのレコードが存在する場合は上書き更新して`draft`に戻す
@@ -264,6 +345,7 @@
 ## [リファクタリング] AppHeader・各コンポーネントのCSS整理
 
 ### Changed
+
 - `frontend/src/components/AppHeader.vue`
   - パンくずリスト（`showBreadcrumb`・`breadcrumbs`）を削除
   - `<style scoped>`を削除しBootstrapユーティリティクラスに統一
@@ -271,12 +353,14 @@
 - 各コンポーネントのカスタムCSSをBootstrapユーティリティクラスで代用する形に統一
 
 ### Technical Notes
+
 - `updated_at`はPython側（`datetime.now(timezone.utc)`）で明示的に管理する方針を全サービス関数に適用
 - カスタムCSSはBootstrapで再現できない箇所のみ使用する方針に統一
 
 ## [課題2] コンポーネント分離・リファクタリング
 
 ### Added
+
 - `frontend/src/components/measurement/MeasurementFilterBar.vue` を新規作成
   - ソート・絞り込みUIを共通コンポーネントとして分離
 - `frontend/src/components/measurement/MeasurementTable.vue` を新規作成
@@ -292,6 +376,7 @@
   - 退部・引退処理の確認モーダルを分離
 
 ### Changed
+
 - `frontend/src/components/MeasurementResultList.vue`
   - `MeasurementFilterBar`・`MeasurementTable`を適用
   - `components/measurement/`配下のコンポーネントを利用する形に変更
@@ -306,6 +391,7 @@
 ## [課題2] 可視化ダッシュボード骨格実装
 
 ### Added
+
 - `frontend/src/views/shared/ChartView.vue` を新規作成
   - タブ切り替えによる4グラフ表示の骨格を実装
   - ロール別タブ表示制御（member：2タブ、coach・director：4タブ）
@@ -317,11 +403,13 @@
   - 「可視化ダッシュボード」カードを追加
 
 ### Changed
+
 - `frontend/src/router/index.js`
   - `member`・`coach`・`director`ルートに`chart`を追加
   - `breadcrumbs`のダッシュボードリンクをロール別に修正
 
 ### Technical Notes
+
 - ECharts・vue-echartsをインストール（`echarts`・`vue-echarts`）
 - タブ定義はキー・ラベル・表示ロール配列で管理
 - 各グラフコンポーネントは`components/visualization/`配下に配置
@@ -331,6 +419,7 @@
 ## [課題2] コンポーネントのリファクタリング・機能追加
 
 ### Added
+
 - `frontend/src/composables/usePagination.js` を新規作成
   - ページネーションロジック（currentPage・pageSize・totalPages・paginatedData・ページ番号補正）を共通化
 - `frontend/src/components/Pagination.vue` を新規作成
@@ -339,6 +428,7 @@
   - 測定項目定義（key・label・unit・step・placeholder・category）を定数として切り出し
 
 ### Changed
+
 - `frontend/src/components/MeasurementResultList.vue`
   - usePagination・Paginationコンポーネントを適用
   - MEASUREMENT_FIELDSを定数として参照するように変更（削除済みのインライン定義を整理）
@@ -371,12 +461,14 @@
 ## [セキュリティ] ログイン画面からテストアカウント情報を削除
 
 ### Changed
+
 - `frontend/src/views/LoginView.vue`
   - テストアカウント情報（メールアドレス・パスワード）の表示を削除
 
 ## [バグ修正] AppHeader.vueのログアウト処理を修正
 
 ### Fixed
+
 - `frontend/src/components/AppHeader.vue`
   - `handleLogout()`に`router.push("/login")`を追加
   - `useRouter`のimportを追加
@@ -388,6 +480,7 @@
 ## [デプロイ] Oracle Cloud本番環境構築・デプロイ設定追加
 
 ### Added
+
 - `frontend/Dockerfile.prod` を作成
   - マルチステージビルド（node:20-alpineでビルド → nginx:alpineで配信）
   - `npm run build` で生成した静的ファイルをnginxで配信
@@ -402,11 +495,13 @@
   - frontendをnginx（80番ポート）で配信する設定に変更
 
 ### Changed
+
 - `frontend/src/services/api.js`
   - `baseURL`のフォールバック演算子を`||`から`??`に変更
   - 空文字（`VITE_API_URL=`）を有効な値として扱うための修正
 
 ### Infrastructure
+
 - Oracle Cloud Always Free（Ubuntu 22.04）にデプロイ環境を構築
   - VCN・パブリックサブネット・インターネットゲートウェイ・ルート表を設定
   - VMインスタンス（VM.Standard.E2.1.Micro）を作成（IP: 168.138.193.7）
@@ -415,6 +510,7 @@
   - UFWで22番・80番ポートを許可
 
 ### Technical Notes
+
 - 本番環境はdocker-compose.yml + docker-compose.prod.ymlの2ファイル構成
   - `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
 - nginxがフロントエンド配信とAPIプロキシを兼務するため、8000番ポートの外部開放は不要
@@ -423,6 +519,7 @@
 ## [課題2] 測定結果閲覧画面の改善
 
 ### Changed
+
 - `frontend/src/components/MeasurementResultList.vue`
   - 部員名から学年を分離して独立した列として表示（staffのみ）
   - ヘッダークリック式ソートをドロップダウン形式に変更

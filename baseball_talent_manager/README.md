@@ -118,6 +118,13 @@ PoCとして最小構成で検証を行うものです。
 - 測定進捗確認画面
   - MeasurementProgressView.vue を新規作成
   - 対象月の測定登録状況を部員ごとに一覧表示
+- AIアドバイス機能（Gemini API連携）
+  - AdviceView.vue（AIアドバイス画面）を新規作成
+  - advice_service.py・routers/advice.py を新規作成
+  - POST /api/advice/{user_id} エンドポイント（コーチ・監督のみ）
+- WebSocket再接続ループ修正・別タブセッション復元
+  - isIntentionalCloseフラグで再接続ループを防止
+  - BroadcastChannelでタブ間セッション共有を実装
 
 ---
 
@@ -174,13 +181,15 @@ baseball_talent_manager/
 │   │   ├── auth_service.py
 │   │   ├── user_service.py
 │   │   ├── measurement_service.py
-│   │   └── notification_service.py
+│   │   ├── notification_service.py
+│   │   └── advice_service.py
 │   └── routers/
 │       ├── __init__.py
 │       ├── auth.py
 │       ├── users.py
 │       ├── measurements.py
-│       └── notifications.py
+│       ├── notifications.py
+│       └── advice.py
 ├── frontend/
 │   ├── Dockerfile.dev
 │   ├── Dockerfile.prod
@@ -192,7 +201,8 @@ baseball_talent_manager/
 │       │   ├── authService.js
 │       │   ├── measurementService.js
 │       │   ├── userService.js
-│       │   └── notificationService.js
+│       │   ├── notificationService.js
+│       │   └── adviceService.js
 │       ├── composables/
 │       │   ├── usePagination.js
 │       │   ├── useTrendData.js
@@ -226,7 +236,8 @@ baseball_talent_manager/
 │       │   ├── shared/
 │       │   │   ├── DashboardView.vue
 │       │   │   ├── ChartView.vue
-│       │   │   └── MeasurementProgressView.vue
+│       │   │   ├── MeasurementProgressView.vue
+│       │   │   └── AdviceView.vue 
 │       │   └── manager/
 │       │       ├── DashboardView.vue
 │       │       ├── MeasurementResultSubmit.vue
@@ -266,6 +277,9 @@ baseball_talent_manager/
 
 ### 開発環境
 - Docker / docker-compose
+
+### 外部API
+- Google Gemini API（AIアドバイス生成）
 
 ---
 

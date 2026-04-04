@@ -71,6 +71,20 @@
           </div>
         </div>
       </div>
+      <!-- AIアドバイス（コーチ・監督のみ） -->
+      <div v-if="isCoach || isDirector" class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5>AIアドバイス</h5>
+            <router-link
+              :to="`/${role}/advice`"
+              class="btn btn-outline-dark mt-3"
+            >
+              アドバイスを見る
+            </router-link>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- 通知サマリー -->
     <div v-if="!isDirector" class="row g-4 mt-1">
@@ -120,7 +134,7 @@ const fetchMeasurements = async () => {
   try {
     const res = await getMeasurements();
     measurements.value = res.data.measurements ?? [];
-  } catch (e) {
+  } catch {
     measurements.value = [];
   }
 };

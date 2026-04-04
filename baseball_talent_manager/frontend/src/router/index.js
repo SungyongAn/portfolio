@@ -192,6 +192,15 @@ const router = createRouter({
             breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
           },
         },
+        {
+          path: "advice",
+          name: "coach-advice",
+          component: () => import("@/views/shared/AdviceView.vue"),
+          meta: {
+            title: "AIアドバイス",
+            breadcrumbs: [{ name: "ダッシュボード", to: "/coach/dashboard" }],
+          },
+        },
       ],
     },
 
@@ -280,6 +289,17 @@ const router = createRouter({
             ],
           },
         },
+        {
+          path: "advice",
+          name: "director-advice",
+          component: () => import("@/views/shared/AdviceView.vue"),
+          meta: {
+            title: "AIアドバイス",
+            breadcrumbs: [
+              { name: "ダッシュボード", to: "/director/dashboard" },
+            ],
+          },
+        },
       ],
     },
     // === 404 ===
@@ -299,7 +319,6 @@ router.beforeEach(async (to) => {
   if (!authStore.isInitialized && to.name !== "login") {
     await authStore.initAuth();
   }
-
 
   // 未ログインで認証必須ページ
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {

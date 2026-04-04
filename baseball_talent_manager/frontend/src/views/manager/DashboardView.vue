@@ -95,7 +95,7 @@ const fetchMeasurements = async () => {
   try {
     const res = await getMeasurements();
     measurements.value = res.data.measurements ?? [];
-  } catch (e) {
+  } catch {
     measurements.value = [];
   }
 };

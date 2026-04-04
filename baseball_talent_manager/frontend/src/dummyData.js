@@ -87,7 +87,7 @@ export const dummyMeasurements = [
     squat: 90,
     status: "approved",
   },
-   {
+  {
     measurement_id: 1,
     user_id: 2,
     name: "田中 太郎",

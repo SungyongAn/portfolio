@@ -446,3 +446,41 @@ ws://host/ws/notifications?token={access_token}
 ### 備考
 - PoCのシングルワーカー構成では問題なく動作する
 - 本番運用時の複数ワーカー構成ではRedis Pub/Subなどのメッセージブローカーの導入が必要
+
+---
+
+## 7. AIアドバイス
+
+---
+
+### 7.1 AIアドバイス取得
+
+### POST /api/advice/{user_id}
+
+### 認証
+必要
+
+### ロール
+coach | director
+
+### 説明
+指定した部員の全測定記録をもとにGemini APIがアドバイスを生成する
+
+### Request
+```JSON
+{}
+```
+
+### Response
+```JSON
+{
+  "user_id": "int",
+  "name": "str",
+  "advice": "str"
+}
+```
+
+### エラー
+- 対象ユーザーが存在しない（404）
+- 測定記録が存在しない（404）
+- Gemini APIのレート制限超過（429）

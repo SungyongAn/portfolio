@@ -117,6 +117,7 @@ const menuMap = {
     { label: "測定登録状況", to: "/coach/progress", icon: "bi-bar-chart" },
     { label: "可視化ダッシュボード", to: "/coach/chart", icon: "bi-graph-up" },
     { label: "部員管理", to: "/coach/members", icon: "bi-people" },
+    { label: "AIアドバイス", to: "/coach/advice", icon: "bi-robot" },
   ],
   director: [
     { label: "ダッシュボード", to: "/director/dashboard", icon: "bi-house" },
@@ -132,6 +133,7 @@ const menuMap = {
       icon: "bi-graph-up",
     },
     { label: "部員管理", to: "/director/members", icon: "bi-people" },
+    { label: "AIアドバイス", to: "/director/advice", icon: "bi-robot" },
   ],
 };
 

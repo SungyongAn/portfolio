@@ -221,7 +221,7 @@ export const useAuthStore = defineStore("auth", {
     async logout() {
       try {
         await authAPI.logout();
-      } catch (e) {
+      } catch {
         // エラー無視
       }
 

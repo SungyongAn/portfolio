@@ -20,7 +20,7 @@ export async function refreshAccessToken() {
 export async function logout() {
   try {
     await api.post("/api/auth/logout");
-  } catch (e) {
+  } catch {
     // 無視
   }
 }
