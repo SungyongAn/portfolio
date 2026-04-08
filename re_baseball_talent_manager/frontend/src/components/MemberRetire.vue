@@ -29,7 +29,7 @@
     <MemberTable
       :members="paginatedData"
       @retire="(member) => openModal(member, 'retired')"
-      @withdraw="(member) => openModal(member, 'withdrawn')"
+      @withdraw="(member) => openModal(member, 'inactive')"
     />
 
     <!-- 確認モーダル -->
@@ -69,6 +69,7 @@ import MemberTable from "@/components/member/MemberTable.vue";
 // ✅ 型import
 import type { User, UserStatus } from "@/services/userService";
 import type { ActionType } from "@/components/member/MemberConfirmModal.vue";
+import type { SortKey } from "@/components/member/MemberFilterBar.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -107,14 +108,14 @@ const showModal = ref<boolean>(false);
 const selectedMember = ref<User | null>(null);
 
 // ✅ ActionType
-const actionType = ref<ActionType | "">("");
+const actionType = ref<ActionType | null>(null);
 
 const successMessage = ref<string>("");
 
 const closeModal = (): void => {
   showModal.value = false;
   selectedMember.value = null;
-  actionType.value = "";
+  actionType.value = null;
 };
 
 const openModal = (member: User, type: ActionType): void => {
@@ -127,14 +128,14 @@ const openModal = (member: User, type: ActionType): void => {
    処理実行
 ----------------------------- */
 const handleProcess = async (): Promise<void> => {
-  if (!selectedMember.value) return;
+  if (!selectedMember.value || !actionType.value) return;
 
   try {
     const label = actionType.value === "retired" ? "引退" : "退部";
 
     // ❗ 修正ポイント：user_id → id
     await updateUserStatus(
-      selectedMember.value.id,
+      selectedMember.value.user_id,
       actionType.value as UserStatus,
     );
 
@@ -155,7 +156,7 @@ const handleProcess = async (): Promise<void> => {
 const compareValues = (
   a: User,
   b: User,
-  key: keyof User,
+  key: SortKey,
   order: "asc" | "desc" = "asc",
 ): number => {
   const valA = a[key];
@@ -178,7 +179,7 @@ const compareValues = (
 const getQueryString = (v: unknown): string => (typeof v === "string" ? v : "");
 
 const filterName = ref<string>(getQueryString(route.query.name));
-const filterGrade = ref<string>(getQueryString(route.query.grade));
+const filterGrade = ref<string | number>("");
 
 const filteredMembers = computed<User[]>(() => {
   return activeMembers.value.filter((m) => {
@@ -196,8 +197,8 @@ const filteredMembers = computed<User[]>(() => {
 /* -----------------------------
    ソート状態
 ----------------------------- */
-const sortKey = ref<keyof User>(
-  (getQueryString(route.query.sort) as keyof User) || "grade",
+const sortKey = ref<SortKey>(
+  (getQueryString(route.query.sort) as SortKey) || "grade",
 );
 
 const sortOrder = ref<"asc" | "desc">(

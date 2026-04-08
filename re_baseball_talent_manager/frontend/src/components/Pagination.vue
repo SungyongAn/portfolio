@@ -39,8 +39,8 @@ import { computed } from "vue";
    Props（省略形）
 ----------------------------- */
 
-defineProps<{
-  modelValue: number; // currentPage
+const props = defineProps<{
+  modelValue: number;
   totalPages: number;
   pageSize: number;
 }>();
@@ -59,7 +59,7 @@ const emit = defineEmits<{
 ----------------------------- */
 
 const localPageSize = computed<number>({
-  get: () => pageSize,
+  get: () => props.pageSize,
   set: (val) => emit("update:pageSize", Number(val)),
 });
 </script>

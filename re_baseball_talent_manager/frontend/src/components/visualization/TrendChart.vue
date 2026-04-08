@@ -54,8 +54,10 @@ const props = defineProps<{
 const chartOption = computed<EChartsOption>(() => ({
   tooltip: {
     trigger: "axis",
-    valueFormatter: (value: number) =>
-      props.unit ? `${value} ${props.unit}` : value,
+    valueFormatter: (value: unknown) => {
+      const num = typeof value === "number" ? value : "";
+      return props.unit ? `${num} ${props.unit}` : String(num);
+    },
   },
   legend: {
     data: props.series.map((s) => s.name),

@@ -35,7 +35,7 @@ export type AuthState = {
 };
 
 // APIレスポンス型
-type AuthResponse = {
+export type AuthResponse = {
   access_token: string;
   expires_in: number;
   role: Role;

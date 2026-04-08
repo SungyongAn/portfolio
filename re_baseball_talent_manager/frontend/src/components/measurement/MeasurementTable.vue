@@ -61,18 +61,23 @@
 
 <script setup lang="ts">
 import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
-import type { Measurement } from "@/services/measurement";
+import type { Measurement } from "@/services/measurementService";
 
 /* -----------------------------
    Props（省略形）
 ----------------------------- */
 
-defineProps<{
-  measurements: Measurement[];
-  isStaff: boolean;
-  showActions: boolean;
-  submittingId?: number; // optional
-}>();
+withDefaults(
+  defineProps<{
+    measurements: Measurement[];
+    isStaff: boolean;
+    showActions?: boolean;
+    submittingId?: number;
+  }>(),
+  {
+    showActions: false,
+  },
+);
 
 /* -----------------------------
    Emits

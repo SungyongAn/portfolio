@@ -132,11 +132,16 @@
 /* -----------------------------
    インポート
 ----------------------------- */
+import Pagination from "@/components/Pagination.vue"
 import { ref, computed, onMounted, watch } from "vue";
-import { getMeasurements, confirmMeasurement } from "@/services/measurementService.js";
+import {
+  getMeasurements,
+  confirmMeasurement,
+} from "@/services/measurementService.js";
 import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import { useNotificationStore } from "@/stores/notification";
+import type { Measurement } from "@/services/measurementService";
 
 /* -----------------------------
    型定義
@@ -150,22 +155,9 @@ type MeasurementStatus =
   | "pending_coach"
   | "rejected";
 
-// Measurement型
-interface Measurement {
-  id: number;
-  name: string;
-  grade: number;
-  status: MeasurementStatus;
-  measurement_date: string;
-  manager_confirmed: boolean;
-  [key: string]: unknown;
-}
 
 // statusConfigの型
-type StatusConfig = Record<
-  MeasurementStatus,
-  { label: string; badge: string }
->;
+type StatusConfig = Record<MeasurementStatus, { label: string; badge: string }>;
 
 /* -----------------------------
    ルーター・リアクティブ変数
@@ -192,9 +184,11 @@ const filterStatus = ref<string>(getQueryString(route.query.status));
 const filterMeasurementDate = ref<string>(getQueryString(route.query.date));
 
 /* ソート情報 */
-const sortKey = ref<string>(getQueryString(route.query.sort) || "measurement_date");
+const sortKey = ref<string>(
+  getQueryString(route.query.sort) || "measurement_date",
+);
 const sortOrder = ref<"asc" | "desc">(
-  getQueryString(route.query.order) === "desc" ? "desc" : "asc"
+  getQueryString(route.query.order) === "desc" ? "desc" : "asc",
 );
 
 /* -----------------------------
@@ -254,10 +248,8 @@ const compareValues = (
 
   if (key === "measurement_date") {
     return order === "asc"
-      ? new Date(valA as string).getTime() -
-          new Date(valB as string).getTime()
-      : new Date(valB as string).getTime() -
-          new Date(valA as string).getTime();
+      ? new Date(valA as string).getTime() - new Date(valB as string).getTime()
+      : new Date(valB as string).getTime() - new Date(valA as string).getTime();
   }
 
   return order === "asc"
@@ -279,15 +271,11 @@ const { currentPage, pageSize, totalPages, paginatedData } =
 // URLから初期値
 pageSize.value = Number(route.query.pageSize) || 10;
 
-const hasMeasurements = computed(
-  () => paginatedData.value.length > 0,
-);
+const hasMeasurements = computed(() => paginatedData.value.length > 0);
 
 // 日付一覧
 const availableDates = computed(() => {
-  const dates = measurements.value.map((m) =>
-    m.measurement_date.slice(0, 7),
-  );
+  const dates = measurements.value.map((m) => m.measurement_date.slice(0, 7));
   return [...new Set(dates)].sort();
 });
 

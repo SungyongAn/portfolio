@@ -39,7 +39,7 @@
                 <span
                   class="badge"
                   :class="{
-                    'bg-secondary': m.status === 'withdrawn',
+                    'bg-secondary': m.status === 'inactive',
                     'bg-warning text-dark': m.status === 'retired',
                   }"
                 >
@@ -83,6 +83,7 @@ import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
 import MemberFilterBar from "@/components/member/MemberFilterBar.vue";
+import type { SortKey } from "@/components/member/MemberFilterBar.vue";
 
 // 型
 import type { User, UserStatus } from "@/services/userService";
@@ -118,20 +119,19 @@ onMounted(async (): Promise<void> => {
    非activeのみ（履歴）
 ----------------------------- */
 const historyMembers = computed<User[]>(() =>
-  allMembers.value.filter((m) => m.status !== "active")
+  allMembers.value.filter((m) => m.status !== "active"),
 );
 
 /* -----------------------------
    フィルタ
 ----------------------------- */
 const filterName = ref<string>(getQueryString(route.query.name));
-const filterGrade = ref<string>(getQueryString(route.query.grade));
+const filterGrade = ref<string | number>("");
 
 const filteredMembers = computed<User[]>(() => {
   return historyMembers.value.filter((m) => {
     const gradeMatch =
-      filterGrade.value === "" ||
-      m.grade === Number(filterGrade.value);
+      filterGrade.value === "" || m.grade === Number(filterGrade.value);
 
     const nameMatch =
       filterName.value === "" ||
@@ -144,12 +144,12 @@ const filteredMembers = computed<User[]>(() => {
 /* -----------------------------
    ソート
 ----------------------------- */
-const sortKey = ref<keyof User>(
-  (getQueryString(route.query.sort) as keyof User) || "grade"
+const sortKey = ref<SortKey>(
+  (getQueryString(route.query.sort) as SortKey) || "grade",
 );
 
 const sortOrder = ref<"asc" | "desc">(
-  getQueryString(route.query.order) === "desc" ? "desc" : "asc"
+  getQueryString(route.query.order) === "desc" ? "desc" : "asc",
 );
 
 const toggleOrder = () => {
@@ -159,27 +159,16 @@ const toggleOrder = () => {
 const compareValues = (
   a: User,
   b: User,
-  key: keyof User,
-  order: "asc" | "desc" = "asc"
+  key: SortKey,
+  order: "asc" | "desc" = "asc",
 ): number => {
   const valA = a[key];
   const valB = b[key];
 
-  // 数値
   if (typeof valA === "number" && typeof valB === "number") {
     return order === "asc" ? valA - valB : valB - valA;
   }
 
-  // 日付（status_changed_atなど想定）
-  if (key === "status_changed_at") {
-    return order === "asc"
-      ? new Date(valA as string).getTime() -
-          new Date(valB as string).getTime()
-      : new Date(valB as string).getTime() -
-          new Date(valA as string).getTime();
-  }
-
-  // 文字列
   return order === "asc"
     ? String(valA).localeCompare(String(valB), "ja")
     : String(valB).localeCompare(String(valA), "ja");
@@ -187,8 +176,8 @@ const compareValues = (
 
 const sortedMembers = computed<User[]>(() =>
   [...filteredMembers.value].sort((a, b) =>
-    compareValues(a, b, sortKey.value, sortOrder.value)
-  )
+    compareValues(a, b, sortKey.value, sortOrder.value),
+  ),
 );
 
 /* -----------------------------
@@ -229,23 +218,19 @@ const resetFilters = () => {
 /* -----------------------------
    URL同期
 ----------------------------- */
-watch(
-  [filterName, filterGrade, sortKey, sortOrder, pageSize],
-  () => {
-    currentPage.value = 1;
+watch([filterName, filterGrade, sortKey, sortOrder, pageSize], () => {
+  currentPage.value = 1;
 
-    router.replace({
-      query: {
-        name: filterName.value || undefined,
-        grade: filterGrade.value || undefined,
-        sort: sortKey.value,
-        order: sortOrder.value,
-        pageSize:
-          pageSize.value !== 10 ? pageSize.value : undefined,
-      },
-    });
-  }
-);
+  router.replace({
+    query: {
+      name: filterName.value || undefined,
+      grade: filterGrade.value || undefined,
+      sort: sortKey.value,
+      order: sortOrder.value,
+      pageSize: pageSize.value !== 10 ? pageSize.value : undefined,
+    },
+  });
+});
 
 /* -----------------------------
    リセットボタン制御

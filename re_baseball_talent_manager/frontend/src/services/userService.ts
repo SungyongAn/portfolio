@@ -8,7 +8,7 @@ import type { Role } from "@/stores/auth";
 
 // ユーザー
 export type User = {
-  id: number;
+  user_id: number;
   name: string;
   email: string;
   role: Role;
@@ -23,10 +23,15 @@ export type CreateUserParams = {
   email: string;
   password: string;
   role: Role;
+  grade: number;
 };
 
 // ステータス（引退・退部）
 export type UserStatus = "active" | "retired" | "inactive";
+
+type UsersResponse = {
+  users: User[];
+};
 
 // ==============================
 // API
@@ -42,7 +47,7 @@ export function createUser(
 // ユーザー情報の取得
 export function getUsers(
   role: Role | null = null,
-): Promise<AxiosResponse<User[]>> {
+): Promise<AxiosResponse<UsersResponse>> {
   return api.get("/api/users", { params: { role } });
 }
 

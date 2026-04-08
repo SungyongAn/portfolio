@@ -66,6 +66,10 @@ import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
 import MeasurementFilterBar from "@/components/measurement/MeasurementFilterBar.vue";
 import MeasurementTable from "@/components/measurement/MeasurementTable.vue";
+import type {
+  SortKey,
+  Grade,
+} from "@/components/measurement/MeasurementFilterBar.vue";
 
 import {
   getMeasurements,
@@ -87,7 +91,6 @@ const allMeasurements = ref<Measurement[]>([]);
 
 /* フィルタ */
 const filterName = ref<string>("");
-const filterGrade = ref<string>("");
 const filterMeasurementDate = ref<string>("");
 
 /* -----------------------------
@@ -120,15 +123,11 @@ onMounted(fetchMeasurements);
 const measurements = computed<Measurement[]>(() => {
   if (role.value === "member") {
     return allMeasurements.value.filter(
-      (m) =>
-        m.user_id === authStore.userId &&
-        m.status === "pending_member"
+      (m) => m.user_id === authStore.userId && m.status === "pending_member",
     );
   }
   if (role.value === "coach") {
-    return allMeasurements.value.filter(
-      (m) => m.status === "pending_coach"
-    );
+    return allMeasurements.value.filter((m) => m.status === "pending_coach");
   }
   return [];
 });
@@ -136,7 +135,9 @@ const measurements = computed<Measurement[]>(() => {
 /* -----------------------------
    ソート
 ----------------------------- */
-const sortKey = ref<keyof Measurement>("measurement_date");
+const sortKey = ref<SortKey>("measurement_date");
+
+const filterGrade = ref<Grade>("");
 
 const sortOrder = ref<"asc" | "desc">("asc");
 
@@ -148,7 +149,7 @@ const compareValues = (
   a: Measurement,
   b: Measurement,
   key: keyof Measurement,
-  order: "asc" | "desc" = "asc"
+  order: "asc" | "desc" = "asc",
 ): number => {
   const valA = a[key];
   const valB = b[key];
@@ -161,10 +162,8 @@ const compareValues = (
   // 日付
   if (key === "measurement_date") {
     return order === "asc"
-      ? new Date(valA as string).getTime() -
-          new Date(valB as string).getTime()
-      : new Date(valB as string).getTime() -
-          new Date(valA as string).getTime();
+      ? new Date(valA as string).getTime() - new Date(valB as string).getTime()
+      : new Date(valB as string).getTime() - new Date(valA as string).getTime();
   }
 
   // 文字列
@@ -182,19 +181,14 @@ const filteredMeasurements = computed<Measurement[]>(() => {
   return measurements.value.filter((m) => {
     const matchName =
       !filterName.value ||
-      (m.name ?? "")
-        .toLowerCase()
-        .includes(filterName.value.toLowerCase());
+      (m.name ?? "").toLowerCase().includes(filterName.value.toLowerCase());
 
     const matchGrade =
-      !filterGrade.value ||
-      String(m.grade) === String(filterGrade.value);
+      !filterGrade.value || String(m.grade) === String(filterGrade.value);
 
     const matchDate =
       !filterMeasurementDate.value ||
-      m.measurement_date.startsWith(
-        filterMeasurementDate.value
-      );
+      m.measurement_date.startsWith(filterMeasurementDate.value);
 
     return matchName && matchGrade && matchDate;
   });
@@ -205,8 +199,8 @@ const filteredMeasurements = computed<Measurement[]>(() => {
 ----------------------------- */
 const sortedMeasurements = computed<Measurement[]>(() =>
   [...filteredMeasurements.value].sort((a, b) =>
-    compareValues(a, b, sortKey.value, sortOrder.value)
-  )
+    compareValues(a, b, sortKey.value, sortOrder.value),
+  ),
 );
 
 /* -----------------------------
@@ -216,16 +210,14 @@ const { currentPage, pageSize, totalPages, paginatedData } =
   usePagination(sortedMeasurements);
 
 const hasMeasurements = computed<boolean>(
-  () => sortedMeasurements.value.length > 0
+  () => sortedMeasurements.value.length > 0,
 );
 
 /* -----------------------------
    フィルタ用データ
 ----------------------------- */
 const availableDates = computed<string[]>(() => {
-  const dates = measurements.value.map((m) =>
-    m.measurement_date.slice(0, 7)
-  );
+  const dates = measurements.value.map((m) => m.measurement_date.slice(0, 7));
   return [...new Set(dates)].sort();
 });
 
@@ -252,12 +244,12 @@ const resetFilters = () => {
    承認 / 否認
 ----------------------------- */
 // ✅ number | null
-const submittingId = ref<number | null>(null);
+const submittingId = ref<number | undefined>(undefined);
 
 // ✅ 型付けが今回のメイン
 const handleAction = async (
   id: number,
-  action: ApproveAction
+  action: ApproveAction,
 ): Promise<void> => {
   if (submittingId.value) return;
 
@@ -273,19 +265,15 @@ const handleAction = async (
     await fetchMeasurements();
   } catch (error) {
     console.error(error);
-    alert(
-      `${action === "approve" ? "承認" : "否認"}に失敗しました`
-    );
+    alert(`${action === "approve" ? "承認" : "否認"}に失敗しました`);
   } finally {
-    submittingId.value = null;
+    submittingId.value = undefined; 
   }
 };
 
-const handleApprove = (id: number) =>
-  handleAction(id, "approve");
+const handleApprove = (id: number) => handleAction(id, "approve");
 
-const handleReject = (id: number) =>
-  handleAction(id, "reject");
+const handleReject = (id: number) => handleAction(id, "reject");
 
 /* -----------------------------
    ページリセット
@@ -294,6 +282,6 @@ watch(
   [filterName, filterGrade, filterMeasurementDate, sortKey, sortOrder],
   () => {
     currentPage.value = 1;
-  }
+  },
 );
 </script>

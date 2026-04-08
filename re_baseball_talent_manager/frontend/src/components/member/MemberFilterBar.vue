@@ -56,10 +56,10 @@
 ----------------------------- */
 
 // ソートキー
-type SortKey = "name" | "grade";
+export type SortKey = "name" | "grade";
 
 // ソート順
-type SortOrder = "asc" | "desc";
+export type SortOrder = "asc" | "desc";
 
 /* -----------------------------
   Props

@@ -170,9 +170,8 @@ const loading = ref(false);
 const successMessage = ref("");
 const errorMessage = ref("");
 const selectedMember = computed(() =>
-  members.value.find((m) => m.user_id === form.userId),
+  members.value.find((m) => m.user_id === Number(form.userId)) ?? { grade: "", name: "" }
 );
-
 type FormData = {
   userId: string;
   measurementDate: string;
@@ -183,17 +182,17 @@ type FormErrors = {
   measurementDate: boolean;
 } & Record<MeasurementFieldKey, boolean>;
 
-const form = reactive<FormData>({
+const form = reactive({
   userId: "",
   measurementDate: "",
   ...Object.fromEntries(MEASUREMENT_FIELDS.map((f) => [f.key, null])),
-});
+}) as FormData;
 
-const errors = reactive<FormErrors>({
+const errors = reactive({
   userId: false,
   measurementDate: false,
   ...Object.fromEntries(MEASUREMENT_FIELDS.map((f) => [f.key, false])),
-});
+}) as FormErrors;
 
 // 入力バリデーション
 const validate = () => {
@@ -249,23 +248,23 @@ const handleConfirm = async () => {
     form.measurementDate = "";
     MEASUREMENT_FIELDS.forEach((f) => (form[f.key] = null));
   } catch (err: unknown) {
-  const error = err as AxiosError<any>;
+    const error = err as AxiosError<any>;
 
-  console.error(error);
+    console.error(error);
 
-  if (error.response?.status === 400) {
-    errorMessage.value =
-      error.response.data.detail || "同じ日の測定記録が既に存在します";
-  } else if (error.response?.status === 404) {
-    errorMessage.value =
-      error.response.data.detail || "指定された部員が見つかりません";
-  } else if (error.code === "ERR_NETWORK") {
-    errorMessage.value = "サーバーに接続できません";
-  } else {
-    errorMessage.value = "エラーが発生しました";
-  }
+    if (error.response?.status === 400) {
+      errorMessage.value =
+        error.response.data.detail || "同じ日の測定記録が既に存在します";
+    } else if (error.response?.status === 404) {
+      errorMessage.value =
+        error.response.data.detail || "指定された部員が見つかりません";
+    } else if (error.code === "ERR_NETWORK") {
+      errorMessage.value = "サーバーに接続できません";
+    } else {
+      errorMessage.value = "エラーが発生しました";
+    }
 
-  showModal.value = false;
+    showModal.value = false;
   } finally {
     loading.value = false;
   }

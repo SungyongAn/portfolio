@@ -17,13 +17,12 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import VChart from "vue-echarts";
-import { useRadarData } from "@/composables/useRadarData.js";
+import { useRadarData } from "@/composables/useRadarData";
 import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
-
-// ECharts
+import type { Measurement } from "@/services/measurementService";
 import { use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { RadarChart } from "echarts/charts";
@@ -32,12 +31,9 @@ import { TooltipComponent, LegendComponent } from "echarts/components";
 use([CanvasRenderer, RadarChart, TooltipComponent, LegendComponent]);
 
 // props
-const props = defineProps({
-  measurements: {
-    type: Array,
-    default: () => [],
-  },
-});
+const props = defineProps<{
+  measurements: Measurement[];
+}>();
 
 // composable
 const { players, getRadarSeries, getTeamAvgSeries } = useRadarData(
@@ -45,7 +41,7 @@ const { players, getRadarSeries, getTeamAvgSeries } = useRadarData(
 );
 
 // 選択状態
-const selectedPlayerIds = ref([]);
+const selectedPlayerIds = ref<number[]>([]);
 
 // 初期選択（全員 or 先頭1人など用途に応じて調整可）
 watch(

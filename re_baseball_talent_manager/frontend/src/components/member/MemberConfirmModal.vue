@@ -59,7 +59,7 @@ export type ActionType = Extract<UserStatus, "retired" | "inactive">;
 defineProps<{
   show: boolean;
   member: User | null;
-  actionType: ActionType;
+  actionType: ActionType | null; 
 }>();
 
 /* -----------------------------

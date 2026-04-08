@@ -57,6 +57,7 @@ import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
 import MeasurementFilterBar from "@/components/measurement/MeasurementFilterBar.vue";
 import MeasurementTable from "@/components/measurement/MeasurementTable.vue";
+import type { SortKey, Grade } from "@/components/measurement/MeasurementFilterBar.vue";
 
 // 型
 import type { Measurement } from "@/services/measurementService";
@@ -89,7 +90,7 @@ const getQueryString = (value: unknown): string => {
   フィルタ
 ----------------------------- */
 const filterName = ref<string>(getQueryString(route.query.name));
-const filterGrade = ref<string>(getQueryString(route.query.grade));
+const filterGrade = ref<Grade>("");
 const filterMeasurementDate = ref<string>(
   getQueryString(route.query.date)
 );
@@ -97,9 +98,7 @@ const filterMeasurementDate = ref<string>(
 /* -----------------------------
    ソート情報
 ----------------------------- */
-const sortKey = ref<string>(
-  getQueryString(route.query.sort) || "measurement_date"
-);
+const sortKey = ref<SortKey>("measurement_date");
 
 const sortOrder = ref<"asc" | "desc">(
   getQueryString(route.query.order) === "desc" ? "desc" : "asc"

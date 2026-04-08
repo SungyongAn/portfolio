@@ -4,7 +4,7 @@
     <select
       class="form-select form-select-sm w-auto"
       :value="sortKey"
-      @change="$emit('update:sortKey', $event.target.value)"
+       @change="onSortChange"
     >
       <option value="measurement_date">計測日</option>
       <option v-if="isStaff" value="name">部員名</option>
@@ -33,14 +33,14 @@
       type="text"
       placeholder="名前検索"
       :value="filterName"
-      @input="$emit('update:filterName', $event.target.value)"
+      @input="onNameInput" 
     />
 
     <!-- 計測日 -->
     <select
       class="form-select form-select-sm w-auto"
       :value="filterMeasurementDate"
-      @change="$emit('update:filterMeasurementDate', $event.target.value)"
+      @change="onDateChange"
     >
       <option value="">計測日（全て）</option>
       <option v-for="date in availableDates" :key="date" :value="date">
@@ -52,7 +52,7 @@
     <select
       class="form-select form-select-sm w-auto"
       :value="filterGrade"
-      @change="$emit('update:filterGrade', $event.target.value)"
+      @change="onGradeChange"
     >
       <option value="">学年（全て）</option>
       <option value="1">1年</option>
@@ -76,7 +76,7 @@
    型定義
 ----------------------------- */
 
-type SortKey =
+export type SortKey = 
   | "measurement_date"
   | "name"
   | "grade"
@@ -91,7 +91,7 @@ type SortKey =
 
 type SortOrder = "asc" | "desc";
 
-type Grade = "" | "1" | "2" | "3";
+export type Grade = "" | "1" | "2" | "3";
 
 /* -----------------------------
    Props（省略形）

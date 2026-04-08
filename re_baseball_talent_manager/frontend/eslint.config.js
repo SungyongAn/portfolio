@@ -4,6 +4,7 @@ import pluginVue from "eslint-plugin-vue";
 import prettier from "eslint-plugin-prettier";
 import configPrettier from "eslint-config-prettier";
 import { defineConfig } from "eslint/config";
+import tsParser from "@typescript-eslint/parser";
 
 export default defineConfig([
   {
@@ -13,12 +14,20 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
 
-  pluginVue.configs["flat/essential"],
+  {
+    ...pluginVue.configs["flat/essential"],
+    files: ["**/*.vue"],
+    languageOptions: {
+      parser: pluginVue.processors ? undefined : tsParser,
+      parserOptions: {
+        parser: tsParser,
+        extraFileExtensions: [".vue"],
+      },
+    },
+  },
 
   {
-    plugins: {
-      prettier,
-    },
+    plugins: { prettier },
     rules: {
       "prettier/prettier": "error",
     },
