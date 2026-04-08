@@ -1,3 +1,39 @@
+## 2026-04-08
+
+## [TypeScript移行] フロントエンドのTypeScript化完了
+
+### Changed
+
+**フロントエンド**
+- `frontend/src/services/` 配下を `.js` → `.ts` に移行
+  - `api.ts` / `authService.ts` / `measurementService.ts` / `userService.ts` / `notificationService.ts`
+- `frontend/src/composables/` 配下を `.js` → `.ts` に移行
+  - `usePagination.ts` / `useTrendData.ts` / `useRadarData.ts` / `useRankingData.ts`
+- `frontend/src/constants/measurementFields.js` → `measurementFields.ts` に移行
+- `frontend/src/stores/` 配下を `.js` → `.ts` に移行
+  - `auth.ts` / `notification.ts`
+- `frontend/src/router/index.js` → `index.ts` に移行
+- `frontend/src/views/` 配下の全`.vue`ファイルを `<script setup lang="ts">` に移行
+- `frontend/src/components/` 配下の主要`.vue`ファイルを `<script setup lang="ts">` に移行
+  - 未対応：`MeasurementResultGraph.vue` / `NotFoundView.vue`
+
+### Added
+
+**フロントエンド**
+- `frontend/src/env.d.ts` を新規作成
+  - `.vue` ファイルのモジュール型宣言を追加
+- `frontend/tsconfig.json` を新規作成
+- `frontend/vite.config.js` → `vite.config.ts` にリネーム・修正
+- ESLintにTypeScriptパーサーを追加
+  - `@typescript-eslint/parser` / `vue-eslint-parser`
+
+### Technical Notes
+- 型定義は各サービスファイルにまとめてエクスポート（`Measurement`・`User`・`MeasurementStatus`など）
+- 共通型は各コンポーネントからもエクスポートして再利用（`SortKey`・`Grade`・`ActionType`など）
+- `reactive<T>()`の型推論競合は`reactive({}) as T`の形で回避
+- EChartsの`valueFormatter`は`(value: unknown) => string`で型安全化
+- `lowerIsBetter`を全`MEASUREMENT_FIELDS`に統一してTS型エラーを解消
+
 ## 2026-03-30
 
 ## [課題2] 退部・引退日付記録・測定日年月変更・測定進捗確認・ヘッダー更新

@@ -1,35 +1,3 @@
-## ⚠️ このブランチについて
-
-このブランチ（`feature/typescript-migration`）は、フロントエンドのTypeScript化を学習目的で進めているブランチです。
-
-### TS化の対象範囲
-- `frontend/src/`配下のJavaScriptファイル（`.js` → `.ts`）
-- `<script setup>` → `<script setup lang="ts">`への変更
-
-### TS化の対象外
-- バックエンド（Python/FastAPI）
-- 設定ファイル以外のルートファイル
-
-### 追加パッケージ（devDependencies）
-- `typescript`
-- `@vue/tsconfig`
-- `vue-tsc`
-
-### 追加・変更した設定ファイル
-- `frontend/tsconfig.json`（新規追加）
-- `frontend/vite.config.js` → `vite.config.ts`（リネーム・修正）
-
-### 現在の進捗
-- [x] stores/
-- [x] services/
-- [x] composables/
-- [x] constants/
-- [x] router/
-- [x] views/
-- [ ] components/（作業中）
-
----
-
 # Baseball Talent Manager（PoC）
 
 ## 概要
@@ -219,19 +187,20 @@ baseball_talent_manager/
 │   ├── nginx.conf
 │   ├── .env.production
 │   └── src/
+│       ├── env.d.ts
 │       ├── services/
-│       │   ├── api.js
-│       │   ├── authService.js
-│       │   ├── measurementService.js
-│       │   ├── userService.js
-│       │   └── notificationService.js
+│       │   ├── api.ts
+│       │   ├── authService.ts
+│       │   ├── measurementService.ts
+│       │   ├── userService.ts
+│       │   └── notificationService.ts
 │       ├── composables/
-│       │   ├── usePagination.js
-│       │   ├── useTrendData.js
-│       │   ├── useRadarData.js
-│       │   └── useRankingData.js
+│       │   ├── usePagination.ts
+│       │   ├── useTrendData.ts
+│       │   ├── useRadarData.ts
+│       │   └── useRankingData.ts
 │       ├── constants/
-│       │   └── measurementFields.js
+│       │   └── measurementFields.ts
 │       ├── components/
 │       │   ├── measurement/
 │       │   │   ├── MeasurementFilterBar.vue
@@ -264,11 +233,10 @@ baseball_talent_manager/
 │       │       ├── MeasurementResultSubmit.vue
 │       │       └── MeasurementStatusList.vue
 │       ├── router/
-│       │   └── index.js
-│       ├── stores/
-│       │   ├── auth.js
-│       │   └── notification.js
-│       └── dummyData.js
+│       │   └── index.ts
+│       └──  stores/
+│           ├── auth.ts
+│           └── notification.ts
 ├── scripts/
 │   └── wait_for_db.py
 └── docs/
@@ -279,6 +247,7 @@ baseball_talent_manager/
 ### Frontend
 - Vue 3
 - Vite
+- TypeScript
 - Vue Router
 - Pinia
 - ECharts / vue-echarts（可視化ダッシュボード）
