@@ -1,3 +1,5 @@
+
+
 <template>
   <div class="table-responsive">
     <table class="table table-hover align-middle">
@@ -21,13 +23,13 @@
             <div class="d-flex gap-2">
               <button
                 class="btn btn-sm btn-outline-warning"
-                @click="$emit('retire', member)"
+                @click="emit('retire', member)"
               >
                 引退
               </button>
               <button
                 class="btn btn-sm btn-outline-danger"
-                @click="$emit('withdraw', member)"
+                @click="emit('withdraw', member)"
               >
                 退部
               </button>
@@ -45,10 +47,24 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  members: Array,
-});
+<script setup lang="ts">
+/* -----------------------------
+  型インポート
+----------------------------- */
+import type { User } from "@/services/userService"
 
-defineEmits(["retire", "withdraw"]);
+/* -----------------------------
+  Props
+----------------------------- */
+const props = defineProps<{
+  members: User[]
+}>()
+
+/* -----------------------------
+  Emits
+----------------------------- */
+const emit = defineEmits<{
+  (e: "retire", user: User): void
+  (e: "withdraw", user: User): void
+}>()
 </script>

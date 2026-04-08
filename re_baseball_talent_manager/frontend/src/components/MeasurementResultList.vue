@@ -48,15 +48,19 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { getMeasurements } from "@/services/measurementService.js";
+import { getMeasurements } from "@/services/measurementService";
 import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
 import MeasurementFilterBar from "@/components/measurement/MeasurementFilterBar.vue";
 import MeasurementTable from "@/components/measurement/MeasurementTable.vue";
+
+// 型
+import type { Measurement } from "@/services/measurementService";
+import type { Role } from "@/stores/auth";
 
 /* -----------------------------
    ルーター・認証情報
@@ -64,23 +68,43 @@ import MeasurementTable from "@/components/measurement/MeasurementTable.vue";
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
-const role = computed(() => authStore.role);
-const staffRoles = ["manager", "coach", "director"];
 
-const isStaff = computed(() => staffRoles.includes(role.value));
+const role = computed<Role | null>(() => authStore.role);
+
+// ✅ Role型を使う
+const staffRoles: Role[] = ["manager", "coach", "director"];
+
+const isStaff = computed<boolean>(() =>
+  role.value ? staffRoles.includes(role.value) : false
+);
+
+/* -----------------------------
+  クエリ取得ヘルパー
+----------------------------- */
+const getQueryString = (value: unknown): string => {
+  return typeof value === "string" ? value : "";
+};
 
 /* -----------------------------
   フィルタ
 ----------------------------- */
-const filterName = ref(route.query.name || "");
-const filterGrade = ref(route.query.grade || "");
-const filterMeasurementDate = ref(route.query.date || "");
+const filterName = ref<string>(getQueryString(route.query.name));
+const filterGrade = ref<string>(getQueryString(route.query.grade));
+const filterMeasurementDate = ref<string>(
+  getQueryString(route.query.date)
+);
 
 /* -----------------------------
    ソート情報
 ----------------------------- */
-const sortKey = ref(route.query.sort || "measurement_date");
-const sortOrder = ref(route.query.order || "asc");
+const sortKey = ref<string>(
+  getQueryString(route.query.sort) || "measurement_date"
+);
+
+const sortOrder = ref<"asc" | "desc">(
+  getQueryString(route.query.order) === "desc" ? "desc" : "asc"
+);
+
 const toggleOrder = () => {
   sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
 };
@@ -88,7 +112,7 @@ const toggleOrder = () => {
 /* -----------------------------
    データ取得
 ----------------------------- */
-const allMeasurements = ref([]);
+const allMeasurements = ref<Measurement[]>([]);
 
 onMounted(async () => {
   const res = await getMeasurements();
@@ -96,38 +120,41 @@ onMounted(async () => {
 });
 
 /* -----------------------------
-   元データからフィルタ・ソート・ページネーション
-   依存関係順に整理
+   データ加工
 ----------------------------- */
 
 // 1. ロールに応じたデータ選別
-const measurements = computed(() => {
+const measurements = computed<Measurement[]>(() => {
   if (role.value === "member") {
     return allMeasurements.value.filter(
-      (m) => m.user_id === authStore.userId && m.status === "approved",
+      (m) =>
+        m.user_id === authStore.userId &&
+        m.status === "approved"
     );
   }
   if (isStaff.value) {
-    return allMeasurements.value.filter((m) => m.status === "approved");
+    return allMeasurements.value.filter(
+      (m) => m.status === "approved"
+    );
   }
   return [];
 });
 
-// 2. 登録済みの計測年月を重複なしで取得
-const availableDates = computed(() => {
-  const dates = measurements.value.map(
-    (m) => m.measurement_date.slice(0, 7), // "2025-08-01" → "2025-08"
+// 2. 登録済み年月
+const availableDates = computed<string[]>(() => {
+  const dates = measurements.value.map((m) =>
+    m.measurement_date.slice(0, 7)
   );
   return [...new Set(dates)].sort();
 });
 
-// 3. フィルタ適用
-const filteredMeasurements = computed(() => {
+// 3. フィルタ
+const filteredMeasurements = computed<Measurement[]>(() => {
   return measurements.value.filter((m) => {
     const gradeMatch =
-      filterGrade.value === "" || m.grade === Number(filterGrade.value);
+      filterGrade.value === "" ||
+      m.grade === Number(filterGrade.value);
 
-    // 大文字小文字を無視する場合はこちらを使用可能
     const nameMatch =
       filterName.value === "" ||
       m.name.toLowerCase().includes(filterName.value.toLowerCase());
@@ -140,44 +167,56 @@ const filteredMeasurements = computed(() => {
   });
 });
 
-// 4. ソート関数化（可読性向上）
-const compareValues = (a, b, key, order = "asc") => {
+/* -----------------------------
+   ソート
+----------------------------- */
+const compareValues = (
+  a: Measurement,
+  b: Measurement,
+  key: keyof Measurement,
+  order: "asc" | "desc" = "asc"
+): number => {
   const valA = a[key];
   const valB = b[key];
 
-  // 数値判定
-  if (!isNaN(valA) && !isNaN(valB)) {
-    return order === "asc"
-      ? Number(valA) - Number(valB)
-      : Number(valB) - Number(valA);
+  // 数値
+  if (typeof valA === "number" && typeof valB === "number") {
+    return order === "asc" ? valA - valB : valB - valA;
   }
 
-  // 日付判定
+  // 日付
   if (key === "measurement_date") {
     return order === "asc"
-      ? new Date(valA) - new Date(valB)
-      : new Date(valB) - new Date(valA);
+      ? new Date(valA as string).getTime() -
+          new Date(valB as string).getTime()
+      : new Date(valB as string).getTime() -
+          new Date(valA as string).getTime();
   }
 
-  // 文字列判定（日本語対応）
+  // 文字列
   return order === "asc"
     ? String(valA).localeCompare(String(valB), "ja")
     : String(valB).localeCompare(String(valA), "ja");
 };
 
-const sortedMeasurements = computed(() =>
+const sortedMeasurements = computed<Measurement[]>(() =>
   [...filteredMeasurements.value].sort((a, b) =>
-    compareValues(a, b, sortKey.value, sortOrder.value),
-  ),
+    compareValues(a, b, sortKey.value as keyof Measurement, sortOrder.value)
+  )
 );
 
-const hasMeasurements = computed(() => sortedMeasurements.value.length > 0);
+const hasMeasurements = computed<boolean>(
+  () => sortedMeasurements.value.length > 0
+);
 
+/* -----------------------------
+   ページネーション
+----------------------------- */
 const { currentPage, pageSize, totalPages, paginatedData } =
   usePagination(sortedMeasurements);
 
 /* -----------------------------
-   フィルタ・ソート・ページリセット
+   リセット
 ----------------------------- */
 const resetFilters = () => {
   sortKey.value = "measurement_date";
@@ -189,7 +228,7 @@ const resetFilters = () => {
 };
 
 /* -----------------------------
-   URL更新
+   URL同期
 ----------------------------- */
 watch(
   [
@@ -202,6 +241,7 @@ watch(
   ],
   () => {
     currentPage.value = 1;
+
     router.replace({
       query: {
         name: filterName.value || undefined,
@@ -209,16 +249,17 @@ watch(
         date: filterMeasurementDate.value || undefined,
         sort: sortKey.value,
         order: sortOrder.value,
-        pageSize: pageSize.value !== 10 ? pageSize.value : undefined,
+        pageSize:
+          pageSize.value !== 10 ? pageSize.value : undefined,
       },
     });
-  },
+  }
 );
 
 /* -----------------------------
-   リセットボタン無効判定
+   リセット無効判定
 ----------------------------- */
-const isResetDisabled = computed(() => {
+const isResetDisabled = computed<boolean>(() => {
   return (
     !filterName.value &&
     !filterGrade.value &&

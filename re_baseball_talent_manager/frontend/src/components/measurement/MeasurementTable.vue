@@ -59,15 +59,27 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
+import type { Measurement } from "@/services/measurement";
 
-defineProps({
-  measurements: Array,
-  isStaff: Boolean,
-  showActions: Boolean,
-  submittingId: Number,
-});
+/* -----------------------------
+   Props（省略形）
+----------------------------- */
 
-defineEmits(["approve", "reject"]);
+defineProps<{
+  measurements: Measurement[];
+  isStaff: boolean;
+  showActions: boolean;
+  submittingId?: number; // optional
+}>();
+
+/* -----------------------------
+   Emits
+----------------------------- */
+
+const emit = defineEmits<{
+  (e: "approve", measurementId: number): void;
+  (e: "reject", measurementId: number): void;
+}>();
 </script>

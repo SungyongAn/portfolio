@@ -1,3 +1,8 @@
+export type NotificationMessage = {
+  type: string;
+  message: string;
+};
+
 // モジュール状態
 let socket: WebSocket | null = null;
 
@@ -7,10 +12,6 @@ let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 let isIntentionalClose: boolean = false;
 
-export type NotificationMessage = {
-  type: string;
-  message: string;
-};
 
 // 接続
 export function connectNotifications(

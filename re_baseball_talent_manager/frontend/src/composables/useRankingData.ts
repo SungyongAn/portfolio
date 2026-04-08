@@ -5,7 +5,7 @@ import type { Measurement } from "@/services/measurementService";
 type MaybeRef<T> = T | Ref<T>;
 
 // ランキング1行分の型
-type RankingItem = {
+export type RankingItem = {
   rank: number;
   user_id: number;
   name: string;

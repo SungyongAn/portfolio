@@ -43,12 +43,31 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  show: Boolean,
-  member: Object,
-  actionType: String,
-});
+<script setup lang="ts">
+import type { User, UserStatus } from "@/services/userService";
 
-defineEmits(["close", "confirm"]);
+/* -----------------------------
+   ActionType（UserStatusと統一）
+----------------------------- */
+
+export type ActionType = Extract<UserStatus, "retired" | "inactive">;
+
+/* -----------------------------
+   Props
+----------------------------- */
+
+defineProps<{
+  show: boolean;
+  member: User | null;
+  actionType: ActionType;
+}>();
+
+/* -----------------------------
+   Emits
+----------------------------- */
+
+defineEmits<{
+  (e: "close"): void;
+  (e: "confirm"): void;
+}>();
 </script>

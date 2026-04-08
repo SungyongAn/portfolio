@@ -70,60 +70,91 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useTrendData } from "@/composables/useTrendData.js";
+import { useTrendData } from "@/composables/useTrendData";
 import TrendChart from "@/components/visualization/TrendChart.vue";
 import { useAuthStore } from "@/stores/auth";
 import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
 
-// propsで受け取る（★重要）
-const props = defineProps({
-  measurements: {
-    type: Array,
-    default: () => [],
-  },
-});
+// 型
+import type { Measurement } from "@/services/measurementService";
+import type { MeasurementFieldKey } from "@/constants/measurementFields";
+import type { Player, TrendSeries } from "@/composables/useTrendData";
 
+/* -----------------------------
+  Props
+----------------------------- */
+const props = defineProps<{
+  measurements: Measurement[];
+}>();
+
+/* -----------------------------
+  store
+----------------------------- */
 const authStore = useAuthStore();
 const isStaff = computed(() => authStore.isStaff);
 
-// composable（computedでラップ）
+/* -----------------------------
+  composable
+----------------------------- */
 const { players, getTrendSeries } = useTrendData(
-  computed(() => props.measurements),
+  computed(() => props.measurements)
 );
 
-// 状態管理
-const activeTab = ref(isStaff.value ? "teamTrend" : "playerTrend");
-const selectedField = ref(MEASUREMENT_FIELDS[0]?.key || "");
-const selectedPlayerId = ref(null);
+/* -----------------------------
+  状態管理
+----------------------------- */
+type ActiveTab = "teamTrend" | "playerTrend";
 
-// 初期選択
+const activeTab = ref<ActiveTab>(
+  isStaff.value ? "teamTrend" : "playerTrend"
+);
+
+const selectedField = ref<MeasurementFieldKey>(
+  MEASUREMENT_FIELDS[0]?.key as MeasurementFieldKey
+);
+
+const selectedPlayerId = ref<number | null>(null);
+
+/* -----------------------------
+  初期選択
+----------------------------- */
 watch(
   players,
   (list) => {
     if (!list.length) return;
 
-    selectedPlayerId.value = isStaff.value ? list[0].id : authStore.userId;
+    selectedPlayerId.value = isStaff.value
+      ? list[0].id
+      : authStore.userId;
   },
-  { immediate: true },
+  { immediate: true }
 );
 
-// unit
-const selectedFieldUnit = computed(() => {
-  const field = MEASUREMENT_FIELDS.find((f) => f.key === selectedField.value);
+/* -----------------------------
+  unit
+----------------------------- */
+const selectedFieldUnit = computed((): string => {
+  const field = MEASUREMENT_FIELDS.find(
+    (f) => f.key === selectedField.value
+  );
   return field?.unit || "";
 });
 
-// チーム推移
-const teamTrend = computed(() =>
+/* -----------------------------
+  チーム推移
+----------------------------- */
+const teamTrend = computed<TrendSeries>(() =>
   getTrendSeries({
     fieldKey: selectedField.value,
-  }),
+  })
 );
 
-// 個人推移
-const playerTrend = computed(() => {
+/* -----------------------------
+  個人推移
+----------------------------- */
+const playerTrend = computed<TrendSeries>(() => {
   if (!selectedPlayerId.value) {
     return { series: [], labels: [] };
   }

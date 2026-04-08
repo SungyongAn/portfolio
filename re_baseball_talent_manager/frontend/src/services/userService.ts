@@ -1,6 +1,6 @@
 import api from "./api";
 import type { AxiosResponse } from "axios";
-import type { Role } from "@/stores/auth"
+import type { Role } from "@/stores/auth";
 
 // ==============================
 // 型定義
@@ -13,6 +13,8 @@ export type User = {
   email: string;
   role: Role;
   status: UserStatus;
+  grade: number;
+  status_changed_at: string | null;
 };
 
 // ユーザー作成用
@@ -31,16 +33,23 @@ export type UserStatus = "active" | "retired" | "inactive";
 // ==============================
 
 // ユーザーの作成
-export function createUser(params: CreateUserParams): Promise<AxiosResponse<User>> {
+export function createUser(
+  params: CreateUserParams,
+): Promise<AxiosResponse<User>> {
   return api.post("/api/users", params);
 }
 
 // ユーザー情報の取得
-export function getUsers(role: Role | null = null): Promise<AxiosResponse<User[]>> {
+export function getUsers(
+  role: Role | null = null,
+): Promise<AxiosResponse<User[]>> {
   return api.get("/api/users", { params: { role } });
 }
 
 // ユーザーの引退・退部処理
-export function updateUserStatus(userId: number, status: UserStatus ): Promise<AxiosResponse<User>> {
+export function updateUserStatus(
+  userId: number,
+  status: UserStatus,
+): Promise<AxiosResponse<User>> {
   return api.patch(`/api/users/${userId}/status`, { status });
 }

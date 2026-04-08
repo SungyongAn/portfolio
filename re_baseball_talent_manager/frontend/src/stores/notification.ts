@@ -2,9 +2,8 @@ import { defineStore } from "pinia";
 import {
   connectNotifications,
   disconnectNotifications,
-  NotificationMessage,
 } from "@/services/notificationService";
-
+import type { NotificationMessage } from "@/services/notificationService";
 
 // ==============================
 // 型定義

@@ -71,24 +71,77 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  sortKey: String,
-  sortOrder: String,
-  filterName: String,
-  filterGrade: String,
-  filterMeasurementDate: String,
-  availableDates: Array,
-  isStaff: Boolean,
-  isResetDisabled: Boolean,
-});
+<script setup lang="ts">
+/* -----------------------------
+   型定義
+----------------------------- */
 
-defineEmits([
-  "update:sortKey",
-  "update:filterName",
-  "update:filterGrade",
-  "update:filterMeasurementDate",
-  "toggleOrder",
-  "reset",
-]);
+type SortKey =
+  | "measurement_date"
+  | "name"
+  | "grade"
+  | "sprint_50m"
+  | "base_running"
+  | "throwing_distance"
+  | "pitch_speed"
+  | "batting_speed"
+  | "swing_speed"
+  | "bench_press"
+  | "squat";
+
+type SortOrder = "asc" | "desc";
+
+type Grade = "" | "1" | "2" | "3";
+
+/* -----------------------------
+   Props（省略形）
+----------------------------- */
+
+defineProps<{
+  sortKey: SortKey;
+  sortOrder: SortOrder;
+  filterName: string;
+  filterGrade: Grade;
+  filterMeasurementDate: string;
+  availableDates: string[];
+  isStaff: boolean;
+  isResetDisabled: boolean;
+}>();
+
+/* -----------------------------
+   Emits
+----------------------------- */
+
+const emit = defineEmits<{
+  (e: "update:sortKey", value: SortKey): void;
+  (e: "update:filterName", value: string): void;
+  (e: "update:filterGrade", value: Grade): void;
+  (e: "update:filterMeasurementDate", value: string): void;
+  (e: "toggleOrder"): void;
+  (e: "reset"): void;
+}>();
+
+/* -----------------------------
+   イベントハンドラ（型安全化）
+----------------------------- */
+
+const onSortChange = (e: Event) => {
+  const value = (e.target as HTMLSelectElement).value as SortKey;
+  emit("update:sortKey", value);
+};
+
+const onNameInput = (e: Event) => {
+  const value = (e.target as HTMLInputElement).value;
+  emit("update:filterName", value);
+};
+
+const onDateChange = (e: Event) => {
+  const value = (e.target as HTMLSelectElement).value;
+  emit("update:filterMeasurementDate", value);
+};
+
+const onGradeChange = (e: Event) => {
+  const value = (e.target as HTMLSelectElement).value as Grade;
+  emit("update:filterGrade", value);
+};
 </script>

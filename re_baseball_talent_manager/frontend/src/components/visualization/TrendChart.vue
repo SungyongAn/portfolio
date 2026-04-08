@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import VChart from "vue-echarts";
 import { use } from "echarts/core";
@@ -17,6 +17,12 @@ import {
 } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 
+// 型
+import type { EChartsOption } from "echarts";
+
+/* -----------------------------
+  ECharts
+----------------------------- */
 use([
   CanvasRenderer,
   LineChart,
@@ -25,21 +31,48 @@ use([
   LegendComponent,
 ]);
 
-const props = defineProps({
-  series: { type: Array, required: true },
-  labels: { type: Array, required: true },
-  unit: { type: String, default: "" },
-});
+/* -----------------------------
+  型定義
+----------------------------- */
+type SeriesItem = {
+  name: string;
+  data: number[];
+};
 
-const chartOption = computed(() => ({
+/* -----------------------------
+  Props
+----------------------------- */
+const props = defineProps<{
+  series: SeriesItem[];
+  labels: string[];
+  unit?: string;
+}>();
+
+/* -----------------------------
+  chart option
+----------------------------- */
+const chartOption = computed<EChartsOption>(() => ({
   tooltip: {
     trigger: "axis",
-    valueFormatter: (value) => (props.unit ? `${value} ${props.unit}` : value),
+    valueFormatter: (value: number) =>
+      props.unit ? `${value} ${props.unit}` : value,
   },
-  legend: { data: props.series.map((s) => s.name) },
-  grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
-  xAxis: { type: "category", data: props.labels },
-  yAxis: { type: "value" },
+  legend: {
+    data: props.series.map((s) => s.name),
+  },
+  grid: {
+    left: "3%",
+    right: "4%",
+    bottom: "3%",
+    containLabel: true,
+  },
+  xAxis: {
+    type: "category",
+    data: props.labels,
+  },
+  yAxis: {
+    type: "value",
+  },
   series: props.series.map((s) => ({
     name: s.name,
     type: "line",

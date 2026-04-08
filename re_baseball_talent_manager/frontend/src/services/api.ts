@@ -1,4 +1,5 @@
-import axios, { InternalAxiosRequestConfig } from "axios";
+import axios from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/stores/auth";
 
 type CustomAxiosRequestConfig = InternalAxiosRequestConfig & {

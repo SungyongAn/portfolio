@@ -60,20 +60,41 @@
   </header>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import type { Role } from "@/stores/auth";
+
+/* -----------------------------
+   型定義
+----------------------------- */
+
+type MenuItem = {
+  label: string;
+  to: string;
+  icon: string;
+};
+
+/* -----------------------------
+   セットアップ
+----------------------------- */
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-// ユーザー情報
-const userName = computed(() => authStore.userName || "ゲスト");
-const role = computed(() => authStore.role);
+/* -----------------------------
+   ユーザー情報
+----------------------------- */
 
-// クラス情報
-const classInfo = computed(() => {
+const userName = computed<string>(() => authStore.userName || "ゲスト");
+const role = computed<Role | null>(() => authStore.role);
+
+/* -----------------------------
+   クラス情報
+----------------------------- */
+
+const classInfo = computed<string | null>(() => {
   if (authStore.isManager || authStore.isMember) {
     if (!authStore.memberGrade) return null;
     return `${authStore.memberGrade}年`;
@@ -81,19 +102,27 @@ const classInfo = computed(() => {
   return null;
 });
 
-// ロールアイコン
-const getRoleIcon = computed(() => {
-  const icons = {
-    manager: "bi bi-clipboard-data",
-    member: "bi bi-person",
-    coach: "bi bi-people",
-    director: "bi bi-award",
-  };
-  return icons[role.value] || "bi bi-person";
+/* -----------------------------
+   ロールアイコン
+----------------------------- */
+
+const roleIcons: Record<Role, string> = {
+  manager: "bi bi-clipboard-data",
+  member: "bi bi-person",
+  coach: "bi bi-people",
+  director: "bi bi-award",
+};
+
+const getRoleIcon = computed<string>(() => {
+  if (!role.value) return "bi bi-person";
+  return roleIcons[role.value];
 });
 
-// ロール別メニュー
-const menuMap = {
+/* -----------------------------
+   ロール別メニュー
+----------------------------- */
+
+const menuMap: Record<Role, MenuItem[]> = {
   manager: [
     { label: "ダッシュボード", to: "/manager/dashboard", icon: "bi-house" },
     { label: "測定結果の入力", to: "/manager/record", icon: "bi-pencil" },
@@ -135,10 +164,16 @@ const menuMap = {
   ],
 };
 
-const menuItems = computed(() => menuMap[role.value] || []);
+const menuItems = computed<MenuItem[]>(() => {
+  if (!role.value) return [];
+  return menuMap[role.value];
+});
 
-// ログアウト
-const handleLogout = async () => {
+/* -----------------------------
+   ログアウト
+----------------------------- */
+
+const handleLogout = async (): Promise<void> => {
   if (confirm("ログアウトしてもよろしいですか？")) {
     await authStore.logout();
     router.push("/login");

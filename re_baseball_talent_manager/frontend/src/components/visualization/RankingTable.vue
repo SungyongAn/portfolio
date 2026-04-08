@@ -46,40 +46,61 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRankingData } from "@/composables/useRankingData.js";
+import { useRankingData } from "@/composables/useRankingData";
 import { MEASUREMENT_FIELDS } from "@/constants/measurementFields";
 import { useAuthStore } from "@/stores/auth";
 
-// props
-const props = defineProps({
-  measurements: {
-    type: Array,
-    default: () => [],
-  },
-});
+// 型
+import type { Measurement } from "@/services/measurementService";
+import type { MeasurementFieldKey } from "@/constants/measurementFields";
+import type { RankingItem } from "@/composables/useRankingData"; // ★追加
 
-// composable
-const { getRanking } = useRankingData(computed(() => props.measurements));
+/* -----------------------------
+  Props
+----------------------------- */
+const props = defineProps<{
+  measurements: Measurement[];
+}>();
 
-// store
+/* -----------------------------
+  composable
+----------------------------- */
+const { getRanking } = useRankingData(
+  computed(() => props.measurements)
+);
+
+/* -----------------------------
+  store
+----------------------------- */
 const authStore = useAuthStore();
 
-// 選択項目
-const selectedField = ref(MEASUREMENT_FIELDS[0]?.key || "");
+/* -----------------------------
+  選択項目
+----------------------------- */
+const selectedField = ref<MeasurementFieldKey>(
+  MEASUREMENT_FIELDS[0]?.key as MeasurementFieldKey
+);
 
-// ランキングデータ
-const ranking = computed(() => getRanking(selectedField.value));
+/* -----------------------------
+  ランキングデータ
+----------------------------- */
+const ranking = computed<RankingItem[]>(() =>
+  getRanking(selectedField.value)
+);
 
-// 自分判定
-const isMe = (userId) => {
+/* -----------------------------
+  自分判定
+----------------------------- */
+const isMe = (userId: number): boolean => {
   return authStore.userId === userId;
 };
 
-// 表示フォーマット（最低限）
-const formatValue = (value) => {
-  if (value == null) return "-";
-  return Number(value).toFixed(2);
+/* -----------------------------
+  表示フォーマット
+----------------------------- */
+const formatValue = (value: number): string => {
+  return value.toFixed(2);
 };
 </script>

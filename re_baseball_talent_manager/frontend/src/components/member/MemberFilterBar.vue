@@ -3,7 +3,7 @@
     <!-- ソート項目 -->
     <select
       :value="sortKey"
-      @change="$emit('update:sortKey', $event.target.value)"
+      @change="onChangeSortKey"
       class="form-select form-select-sm w-auto"
     >
       <option value="name">部員名</option>
@@ -12,7 +12,7 @@
 
     <!-- 昇順 / 降順 -->
     <button
-      @click="$emit('toggleOrder')"
+      @click="emit('toggleOrder')"
       class="btn btn-outline-primary btn-sm text-nowrap"
     >
       {{ sortOrder === "asc" ? "昇順 ↑" : "降順 ↓" }}
@@ -21,7 +21,7 @@
     <!-- 名前フィルタ -->
     <input
       :value="filterName"
-      @input="$emit('update:filterName', $event.target.value)"
+      @input="onInputName"
       type="text"
       placeholder="名前検索"
       class="form-control form-control-sm w-auto"
@@ -30,7 +30,7 @@
     <!-- 学年フィルタ -->
     <select
       :value="filterGrade"
-      @change="$emit('update:filterGrade', $event.target.value)"
+      @change="onChangeGrade"
       class="form-select form-select-sm w-auto"
     >
       <option value="">学年（全て）</option>
@@ -41,7 +41,7 @@
 
     <!-- リセット -->
     <button
-      @click="$emit('reset')"
+      @click="emit('reset')"
       :disabled="isResetDisabled"
       class="btn btn-outline-secondary btn-sm text-nowrap"
     >
@@ -50,20 +50,55 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  sortKey: String,
-  sortOrder: String,
-  filterName: String,
-  filterGrade: [String, Number],
-  isResetDisabled: Boolean,
-});
+<script setup lang="ts">
+/* -----------------------------
+  型定義
+----------------------------- */
 
-defineEmits([
-  "update:sortKey",
-  "update:filterName",
-  "update:filterGrade",
-  "toggleOrder",
-  "reset",
-]);
+// ソートキー
+type SortKey = "name" | "grade";
+
+// ソート順
+type SortOrder = "asc" | "desc";
+
+/* -----------------------------
+  Props
+----------------------------- */
+const props = defineProps<{
+  sortKey: SortKey;
+  sortOrder: SortOrder;
+  filterName: string;
+  filterGrade: string | number | "";
+  isResetDisabled: boolean;
+}>();
+
+/* -----------------------------
+  Emits
+----------------------------- */
+const emit = defineEmits<{
+  (e: "update:sortKey", value: SortKey): void;
+  (e: "update:filterName", value: string): void;
+  (e: "update:filterGrade", value: string | number): void;
+  (e: "toggleOrder"): void;
+  (e: "reset"): void;
+}>();
+
+/* -----------------------------
+  イベントハンドラ
+  ※ $event.target.value は型が弱いので補強
+----------------------------- */
+const onChangeSortKey = (e: Event) => {
+  const value = (e.target as HTMLSelectElement).value as SortKey;
+  emit("update:sortKey", value);
+};
+
+const onInputName = (e: Event) => {
+  const value = (e.target as HTMLInputElement).value;
+  emit("update:filterName", value);
+};
+
+const onChangeGrade = (e: Event) => {
+  const value = (e.target as HTMLSelectElement).value;
+  emit("update:filterGrade", value);
+};
 </script>

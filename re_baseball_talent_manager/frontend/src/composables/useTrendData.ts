@@ -3,7 +3,7 @@ import type { Measurement } from "@/services/measurementService";
 
 type MaybeRef<T> = T | Ref<T>;
 
-type Player = {
+export type Player = {
   id: number;
   name: string;
 };
@@ -18,7 +18,7 @@ type TrendParams = {
 };
 
 // getTrendSeriesの戻り値
-type TrendSeries = {
+export type TrendSeries = {
   labels: string[];
   series: {
     name: string;

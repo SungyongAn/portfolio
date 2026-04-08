@@ -56,9 +56,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { updateUserStatus, getUsers } from "@/services/userService.js";
+import { updateUserStatus, getUsers } from "@/services/userService";
 import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
@@ -66,11 +66,23 @@ import MemberConfirmModal from "@/components/member/MemberConfirmModal.vue";
 import MemberFilterBar from "@/components/member/MemberFilterBar.vue";
 import MemberTable from "@/components/member/MemberTable.vue";
 
+// ✅ 型import
+import type { User, UserStatus } from "@/services/userService";
+import type { ActionType } from "@/components/member/MemberConfirmModal.vue";
+
 const route = useRoute();
 const router = useRouter();
-const allMembers = ref([]);
 
-onMounted(async () => {
+/* -----------------------------
+   データ
+----------------------------- */
+// ✅ 型付け
+const allMembers = ref<User[]>([]);
+
+/* -----------------------------
+   初期取得
+----------------------------- */
+onMounted(async (): Promise<void> => {
   try {
     const res = await getUsers("member");
     allMembers.value = res.data.users;
@@ -79,58 +91,82 @@ onMounted(async () => {
   }
 });
 
-// activeな部員のみ表示
-const activeMembers = computed(() =>
+/* -----------------------------
+   activeのみ
+----------------------------- */
+const activeMembers = computed<User[]>(() =>
   allMembers.value.filter((m) => m.status === "active"),
 );
 
-// モーダル制御
-const showModal = ref(false);
-const selectedMember = ref(null);
-const actionType = ref("");
-const successMessage = ref("");
+/* -----------------------------
+   モーダル
+----------------------------- */
+const showModal = ref<boolean>(false);
 
-const closeModal = () => {
+// ✅ User | null
+const selectedMember = ref<User | null>(null);
+
+// ✅ ActionType
+const actionType = ref<ActionType | "">("");
+
+const successMessage = ref<string>("");
+
+const closeModal = (): void => {
   showModal.value = false;
   selectedMember.value = null;
   actionType.value = "";
 };
 
-const openModal = (member, type) => {
+const openModal = (member: User, type: ActionType): void => {
   selectedMember.value = member;
   actionType.value = type;
   showModal.value = true;
 };
 
-const handleProcess = async () => {
+/* -----------------------------
+   処理実行
+----------------------------- */
+const handleProcess = async (): Promise<void> => {
+  if (!selectedMember.value) return;
+
   try {
     const label = actionType.value === "retired" ? "引退" : "退部";
 
-    await updateUserStatus(selectedMember.value.user_id, actionType.value);
+    // ❗ 修正ポイント：user_id → id
+    await updateUserStatus(
+      selectedMember.value.id,
+      actionType.value as UserStatus,
+    );
 
     const res = await getUsers("member");
     allMembers.value = res.data.users;
 
     successMessage.value = `${selectedMember.value.name}さんを${label}処理しました`;
+
     closeModal();
   } catch (e) {
     console.error("更新失敗", e);
   }
 };
 
-// ソート関数化（可読性向上）
-const compareValues = (a, b, key, order = "asc") => {
+/* -----------------------------
+   ソート
+----------------------------- */
+const compareValues = (
+  a: User,
+  b: User,
+  key: keyof User,
+  order: "asc" | "desc" = "asc",
+): number => {
   const valA = a[key];
   const valB = b[key];
 
-  // 数値判定
-  if (!isNaN(valA) && !isNaN(valB)) {
-    return order === "asc"
-      ? Number(valA) - Number(valB)
-      : Number(valB) - Number(valA);
+  // 数値
+  if (typeof valA === "number" && typeof valB === "number") {
+    return order === "asc" ? valA - valB : valB - valA;
   }
 
-  // 文字列判定（日本語対応）
+  // 文字列
   return order === "asc"
     ? String(valA).localeCompare(String(valB), "ja")
     : String(valB).localeCompare(String(valA), "ja");
@@ -139,16 +175,16 @@ const compareValues = (a, b, key, order = "asc") => {
 /* -----------------------------
    フィルタ
 ----------------------------- */
-const filterName = ref(route.query.name || "");
-const filterGrade = ref(route.query.grade || "");
+const getQueryString = (v: unknown): string => (typeof v === "string" ? v : "");
 
-// フィルタ適用
-const filteredMembers = computed(() => {
+const filterName = ref<string>(getQueryString(route.query.name));
+const filterGrade = ref<string>(getQueryString(route.query.grade));
+
+const filteredMembers = computed<User[]>(() => {
   return activeMembers.value.filter((m) => {
     const gradeMatch =
       filterGrade.value === "" || m.grade === Number(filterGrade.value);
 
-    // 大文字小文字を無視する場合はこちらを使用可能
     const nameMatch =
       filterName.value === "" ||
       m.name.toLowerCase().includes(filterName.value.toLowerCase());
@@ -158,41 +194,51 @@ const filteredMembers = computed(() => {
 });
 
 /* -----------------------------
-   ソート情報
+   ソート状態
 ----------------------------- */
-const sortKey = ref(route.query.sort || "grade");
-const sortOrder = ref(route.query.order || "asc");
+const sortKey = ref<keyof User>(
+  (getQueryString(route.query.sort) as keyof User) || "grade",
+);
 
-const toggleOrder = () => {
+const sortOrder = ref<"asc" | "desc">(
+  getQueryString(route.query.order) === "desc" ? "desc" : "asc",
+);
+
+const toggleOrder = (): void => {
   sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
 };
 
-const sortedMembers = computed(() =>
+const sortedMembers = computed<User[]>(() =>
   [...filteredMembers.value].sort((a, b) =>
     compareValues(a, b, sortKey.value, sortOrder.value),
   ),
 );
 
+/* -----------------------------
+   ページネーション
+----------------------------- */
 const { currentPage, pageSize, totalPages, paginatedData } =
   usePagination(sortedMembers);
 
 pageSize.value = Number(route.query.pageSize) || 10;
 
 /* -----------------------------
-   フィルタ・ソート・ページリセット
+   リセット
 ----------------------------- */
-const resetFilters = () => {
+const resetFilters = (): void => {
   sortKey.value = "grade";
   sortOrder.value = "asc";
   filterName.value = "";
   filterGrade.value = "";
   currentPage.value = 1;
 };
+
 /* -----------------------------
-   URL更新
+   URL同期
 ----------------------------- */
 watch([filterName, filterGrade, sortKey, sortOrder, pageSize], () => {
   currentPage.value = 1;
+
   router.replace({
     query: {
       name: filterName.value || undefined,
@@ -205,9 +251,9 @@ watch([filterName, filterGrade, sortKey, sortOrder, pageSize], () => {
 });
 
 /* -----------------------------
-   リセットボタン無効判定
+   リセット制御
 ----------------------------- */
-const isResetDisabled = computed(() => {
+const isResetDisabled = computed<boolean>(() => {
   return (
     !filterName.value &&
     !filterGrade.value &&

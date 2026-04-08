@@ -32,19 +32,34 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 
-const props = defineProps({
-  modelValue: Number, // currentPage
-  totalPages: Number,
-  pageSize: Number,
-});
+/* -----------------------------
+   Props（省略形）
+----------------------------- */
 
-const emit = defineEmits(["update:modelValue", "update:pageSize"]);
+defineProps<{
+  modelValue: number; // currentPage
+  totalPages: number;
+  pageSize: number;
+}>();
 
-const localPageSize = computed({
-  get: () => props.pageSize,
-  set: (val) => emit("update:pageSize", val),
+/* -----------------------------
+   Emits
+----------------------------- */
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: number): void;
+  (e: "update:pageSize", value: number): void;
+}>();
+
+/* -----------------------------
+   PageSize（v-model用）
+----------------------------- */
+
+const localPageSize = computed<number>({
+  get: () => pageSize,
+  set: (val) => emit("update:pageSize", Number(val)),
 });
 </script>

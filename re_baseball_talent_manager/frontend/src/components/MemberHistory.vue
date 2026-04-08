@@ -76,23 +76,36 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
-import { getUsers } from "@/services/userService.js";
+import { getUsers } from "@/services/userService";
 import { useRoute, useRouter } from "vue-router";
 import { usePagination } from "@/composables/usePagination";
 import Pagination from "@/components/Pagination.vue";
 import MemberFilterBar from "@/components/member/MemberFilterBar.vue";
 
+// 型
+import type { User, UserStatus } from "@/services/userService";
+
 const route = useRoute();
 const router = useRouter();
 
-const allMembers = ref([]);
+/* -----------------------------
+   クエリヘルパー
+----------------------------- */
+const getQueryString = (value: unknown): string => {
+  return typeof value === "string" ? value : "";
+};
+
+/* -----------------------------
+   データ
+----------------------------- */
+const allMembers = ref<User[]>([]);
 
 /* -----------------------------
    初期データ取得
 ----------------------------- */
-onMounted(async () => {
+onMounted(async (): Promise<void> => {
   try {
     const res = await getUsers("member");
     allMembers.value = res.data.users;
@@ -104,20 +117,21 @@ onMounted(async () => {
 /* -----------------------------
    非activeのみ（履歴）
 ----------------------------- */
-const historyMembers = computed(() =>
-  allMembers.value.filter((m) => m.status !== "active"),
+const historyMembers = computed<User[]>(() =>
+  allMembers.value.filter((m) => m.status !== "active")
 );
 
 /* -----------------------------
    フィルタ
 ----------------------------- */
-const filterName = ref(route.query.name || "");
-const filterGrade = ref(route.query.grade || "");
+const filterName = ref<string>(getQueryString(route.query.name));
+const filterGrade = ref<string>(getQueryString(route.query.grade));
 
-const filteredMembers = computed(() => {
+const filteredMembers = computed<User[]>(() => {
   return historyMembers.value.filter((m) => {
     const gradeMatch =
-      filterGrade.value === "" || m.grade === Number(filterGrade.value);
+      filterGrade.value === "" ||
+      m.grade === Number(filterGrade.value);
 
     const nameMatch =
       filterName.value === "" ||
@@ -130,32 +144,51 @@ const filteredMembers = computed(() => {
 /* -----------------------------
    ソート
 ----------------------------- */
-const sortKey = ref(route.query.sort || "grade");
-const sortOrder = ref(route.query.order || "asc");
+const sortKey = ref<keyof User>(
+  (getQueryString(route.query.sort) as keyof User) || "grade"
+);
+
+const sortOrder = ref<"asc" | "desc">(
+  getQueryString(route.query.order) === "desc" ? "desc" : "asc"
+);
 
 const toggleOrder = () => {
   sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
 };
 
-const compareValues = (a, b, key, order = "asc") => {
+const compareValues = (
+  a: User,
+  b: User,
+  key: keyof User,
+  order: "asc" | "desc" = "asc"
+): number => {
   const valA = a[key];
   const valB = b[key];
 
-  if (!isNaN(valA) && !isNaN(valB)) {
-    return order === "asc"
-      ? Number(valA) - Number(valB)
-      : Number(valB) - Number(valA);
+  // 数値
+  if (typeof valA === "number" && typeof valB === "number") {
+    return order === "asc" ? valA - valB : valB - valA;
   }
 
+  // 日付（status_changed_atなど想定）
+  if (key === "status_changed_at") {
+    return order === "asc"
+      ? new Date(valA as string).getTime() -
+          new Date(valB as string).getTime()
+      : new Date(valB as string).getTime() -
+          new Date(valA as string).getTime();
+  }
+
+  // 文字列
   return order === "asc"
     ? String(valA).localeCompare(String(valB), "ja")
     : String(valB).localeCompare(String(valA), "ja");
 };
 
-const sortedMembers = computed(() =>
+const sortedMembers = computed<User[]>(() =>
   [...filteredMembers.value].sort((a, b) =>
-    compareValues(a, b, sortKey.value, sortOrder.value),
-  ),
+    compareValues(a, b, sortKey.value, sortOrder.value)
+  )
 );
 
 /* -----------------------------
@@ -169,13 +202,13 @@ pageSize.value = Number(route.query.pageSize) || 10;
 /* -----------------------------
    表示フォーマット
 ----------------------------- */
-const formatStatus = (status) => {
+const formatStatus = (status: UserStatus): string => {
   if (status === "retired") return "引退";
-  if (status === "withdrawn") return "退部";
+  if (status === "inactive") return "退部"; // ←ここ修正ポイント
   return status;
 };
 
-const formatDate = (dateStr) => {
+const formatDate = (dateStr: string | null): string => {
   if (!dateStr) return "-";
 
   const date = new Date(dateStr);
@@ -196,23 +229,28 @@ const resetFilters = () => {
 /* -----------------------------
    URL同期
 ----------------------------- */
-watch([filterName, filterGrade, sortKey, sortOrder, pageSize], () => {
-  currentPage.value = 1;
-  router.replace({
-    query: {
-      name: filterName.value || undefined,
-      grade: filterGrade.value || undefined,
-      sort: sortKey.value,
-      order: sortOrder.value,
-      pageSize: pageSize.value !== 10 ? pageSize.value : undefined,
-    },
-  });
-});
+watch(
+  [filterName, filterGrade, sortKey, sortOrder, pageSize],
+  () => {
+    currentPage.value = 1;
+
+    router.replace({
+      query: {
+        name: filterName.value || undefined,
+        grade: filterGrade.value || undefined,
+        sort: sortKey.value,
+        order: sortOrder.value,
+        pageSize:
+          pageSize.value !== 10 ? pageSize.value : undefined,
+      },
+    });
+  }
+);
 
 /* -----------------------------
    リセットボタン制御
 ----------------------------- */
-const isResetDisabled = computed(() => {
+const isResetDisabled = computed<boolean>(() => {
   return (
     !filterName.value &&
     !filterGrade.value &&

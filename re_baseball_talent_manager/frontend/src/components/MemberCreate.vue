@@ -146,61 +146,90 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import { createUser } from "@/services/userService.js";
+import { createUser } from "@/services/userService";
 
+// 型
+type FormState = {
+  email: string;
+  name: string;
+  grade: string;
+  password: string;
+};
+
+type ErrorState = {
+  email: boolean;
+  name: boolean;
+  grade: boolean;
+  password: boolean;
+};
+
+/* -----------------------------
+   認証
+----------------------------- */
 const authStore = useAuthStore();
 const role = computed(() => authStore.role);
 
-// フォームデータ
-const form = reactive({
+/* -----------------------------
+   フォーム
+----------------------------- */
+const form = reactive<FormState>({
   email: "",
   name: "",
   grade: "",
   password: "",
 });
 
-// エラー状態
-const errors = reactive({
+const errors = reactive<ErrorState>({
   email: false,
   name: false,
   grade: false,
   password: false,
 });
 
-// 状態管理
-const showModal = ref(false);
-const successMessage = ref("");
+/* -----------------------------
+   状態管理
+----------------------------- */
+const showModal = ref<boolean>(false);
+const successMessage = ref<string>("");
 
-// バリデーション
-const validate = () => {
+/* -----------------------------
+   バリデーション
+----------------------------- */
+const validate = (): boolean => {
   let isValid = true;
-  Object.keys(form).forEach((key) => {
-    if (form[key] === null || form[key] === "") {
+
+  (Object.keys(form) as (keyof FormState)[]).forEach((key) => {
+    if (form[key] === "") {
       errors[key] = true;
       isValid = false;
     } else {
       errors[key] = false;
     }
   });
+
   return isValid;
 };
 
-// 確認ボタン押下
-const handleSubmit = () => {
+/* -----------------------------
+   確認ボタン
+----------------------------- */
+const handleSubmit = (): void => {
   if (!validate()) return;
   showModal.value = true;
 };
 
-// 登録ボタン押下
-const handleRegister = async () => {
+/* -----------------------------
+   登録処理
+----------------------------- */
+const handleRegister = async (): Promise<void> => {
   try {
     await createUser({
       email: form.email,
       name: form.name,
-      grade: parseInt(form.grade),
+      grade: parseInt(form.grade, 10),
       password: form.password,
       role: "member",
     });
@@ -209,7 +238,7 @@ const handleRegister = async () => {
     successMessage.value = `${form.name}さんのアカウントを作成しました`;
 
     // フォームリセット
-    Object.keys(form).forEach((key) => {
+    (Object.keys(form) as (keyof FormState)[]).forEach((key) => {
       form[key] = "";
     });
   } catch (error) {

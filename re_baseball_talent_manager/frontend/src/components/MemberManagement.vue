@@ -54,10 +54,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import type { Role } from "@/stores/auth";
 
 const authStore = useAuthStore();
-const role = computed(() => authStore.role);
+
+
+// ✅ 型を明示
+const role = computed<Role | null>(() => authStore.role);
 </script>
