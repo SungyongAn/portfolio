@@ -1,0 +1,210 @@
+import { defineStore } from "pinia";
+import * as authAPI from "@/services/authService";
+import router from "@/router";
+import { useNotificationStore } from "@/stores/notification";
+
+export const useAuthStore = defineStore("auth", {
+  state: () => ({
+    accessToken: null,
+    tokenExpiry: null,
+    role: null,
+    userName: null,
+    userId: null,
+    member_grade: null,
+    isInitialized: false,
+    lastActivity: Date.now(),
+    inactivityTimer: null,
+    eventListeners: [],
+
+    roleMap: {
+      manager: "マネージャー",
+      member: "部員",
+      coach: "コーチ",
+      director: "監督",
+    },
+  }),
+
+  getters: {
+    isAuthenticated() {
+      return !!this.accessToken && !this.isTokenExpired;
+    },
+
+    isTokenExpired(state) {
+      if (!state.tokenExpiry) return true;
+      return Date.now() > state.tokenExpiry;
+    },
+
+    maybeLoggedIn(state) {
+      return (
+        !!state.accessToken ||
+        !!state.tokenExpiry ||
+        !!sessionStorage.getItem("tokenExpiry")
+      );
+    },
+
+    memberGrade() {
+      return this.member_grade ?? null;
+    },
+
+    displayRole() {
+      return this.role ? this.roleMap[this.role] || this.role : null;
+    },
+
+    isManager() {
+      return this.role === "manager";
+    },
+
+    isMember() {
+      return this.role === "member";
+    },
+
+    isCoach() {
+      return this.role === "coach";
+    },
+
+    isDirector() {
+      return this.role === "director";
+    },
+
+    isStaff() {
+      return this.role === "coach" || this.role === "director";
+    },
+  },
+
+  actions: {
+    async login(email, password) {
+      try {
+        const data = await authAPI.login(email, password);
+        console.log("store login data:", data);
+        this.accessToken = data.access_token;
+        this.tokenExpiry = Date.now() + data.expires_in * 1000;
+        sessionStorage.setItem("tokenExpiry", this.tokenExpiry);
+        this.role = data.role;
+        this.userId = data.user_id;
+        this.userName = data.name;
+        this.member_grade = data.grade ?? null;
+
+        const notificationStore = useNotificationStore();
+        notificationStore.connect(this.accessToken);
+
+        this.updateActivity();
+        this.startInactivityTimer();
+
+        return true;
+      } catch (error) {
+        console.error("ログインエラー:", error);
+        throw error;
+      }
+    },
+
+    async refreshAccessToken() {
+      const data = await authAPI.refreshAccessToken();
+
+      if (!data) {
+        return false;
+      }
+
+      // ← ここでstateを更新
+      this.accessToken = data.access_token;
+      this.tokenExpiry = Date.now() + data.expires_in * 1000;
+      sessionStorage.setItem("tokenExpiry", this.tokenExpiry);
+      this.role = data.role;
+      this.userId = data.user_id;
+      this.userName = data.name;
+      this.member_grade = data.grade ?? null;
+
+      return true;
+    },
+
+    async initAuth() {
+      const storedExpiry = sessionStorage.getItem("tokenExpiry");
+      if (storedExpiry) {
+        this.tokenExpiry = parseInt(storedExpiry);
+      }
+      console.log("initAuth開始 maybeLoggedIn:", this.maybeLoggedIn);
+
+      if (!this.maybeLoggedIn) {
+        console.log("未ログイン状態のためinitAuth終了");
+        this.isInitialized = true;
+        return;
+      }
+
+      console.log("refreshAccessToken開始");
+      const refreshed = await this.refreshAccessToken();
+      console.log("refreshAccessToken結果:", refreshed);
+
+      if (refreshed) {
+        this.startInactivityTimer();
+        const notificationStore = useNotificationStore();
+        if (!notificationStore.isConnected) {
+          notificationStore.connect(this.accessToken);
+        }
+      }
+
+      this.isInitialized = true;
+    },
+
+    startInactivityTimer() {
+      const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30分
+
+      this.clearInactivityTimer();
+
+      const resetTimer = () => {
+        this.updateActivity();
+        if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
+
+        this.inactivityTimer = setTimeout(() => {
+          console.log("無操作によりログアウトします");
+          this.logout();
+        }, INACTIVITY_TIMEOUT);
+      };
+
+      const events = ["mousemove", "keypress", "click", "scroll", "touchstart"];
+      events.forEach((eventName) => {
+        window.addEventListener(eventName, resetTimer);
+        this.eventListeners.push({ eventName, handler: resetTimer });
+      });
+
+      resetTimer();
+    },
+
+    clearInactivityTimer() {
+      if (this.inactivityTimer) {
+        clearTimeout(this.inactivityTimer);
+        this.inactivityTimer = null;
+      }
+
+      this.eventListeners.forEach(({ eventName, handler }) => {
+        window.removeEventListener(eventName, handler);
+      });
+      this.eventListeners = [];
+    },
+
+    updateActivity() {
+      this.lastActivity = Date.now();
+    },
+
+    async logout() {
+      try {
+        await authAPI.logout();
+      } catch (e) {
+        // エラー無視
+      }
+
+      const notificationStore = useNotificationStore();
+      notificationStore.disconnect();
+
+      this.clearInactivityTimer();
+      sessionStorage.removeItem("tokenExpiry");
+      this.accessToken = null;
+      this.tokenExpiry = null;
+      this.role = null;
+      this.userName = null;
+      this.userId = null;
+      this.member_grade = null;
+
+      // ルーティング
+      router.push("/login");
+    },
+  },
+});

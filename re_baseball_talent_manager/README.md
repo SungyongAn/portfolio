@@ -1,0 +1,307 @@
+# Baseball Talent Manager（PoC）
+
+## 概要
+本リポジトリは、部活動における測定結果管理業務を対象とした  
+PoC（Proof of Concept）プロジェクトです。
+
+本PoCでは以下を検証対象とします。
+
+- ロール別の業務フローをシステム化できるか
+- 測定結果の入力・承認・閲覧フローの実現可能性
+- Webアプリとしての基本構成の成立性
+
+※本プロジェクトは本番運用を目的としたものではなく、
+PoCとして最小構成で検証を行うものです。
+
+---
+
+## 開発状況
+
+現在は **フェーズE：課題2実装中** です。
+
+### 完了
+- 課題精査
+- ユースケース整理（docs/usecase.md）
+- PoC機能決定（docs/functions.md）
+- 画面設計（docs/screens.md）
+- API設計（docs/api.md）
+- 認証設計（docs/auth_design.md）
+- ロール権限マトリクス（docs/role_matrix.md）
+- ER図・テーブル設計（docs/er.md）
+- Docker環境構築
+  - docker-compose.yml
+  - docker-compose.dev.yml
+  - mysql/Dockerfile・my.cnf
+  - backend/Dockerfile
+  - frontend/Dockerfile.dev
+  - scripts/wait_for_db.py
+- Alembic環境構築・マイグレーション実行
+  - usersテーブル
+  - measurementsテーブル
+- バックエンド環境構築
+  - backend/app/db.py
+- モックUI実装（課題1）
+  - dummyData.js
+  - router/index.js
+  - 各コンポーネント実装済み（下記参照）
+
+### 実装済み画面（課題1：モックUI）
+
+#### マネージャー
+- [x] `views/manager/DashboardView.vue`（ダッシュボード）
+- [x] `views/manager/MeasurementResultSubmit.vue`（測定結果の入力）
+- [x] `views/manager/MeasurementStatusList.vue`（承認ステータス一覧）
+
+#### 部員・コーチ・監督共通
+- [x] `views/shared/DashboardView.vue`（ダッシュボード）
+
+#### 共通コンポーネント
+- [x] `components/AppHeader.vue`（共通ヘッダー）
+- [x] `components/MeasurementResultReview.vue`（測定記録の承認・否認）
+- [x] `components/MeasurementResultList.vue`（測定記録の閲覧）
+- [x] `components/MemberManagement.vue`（部員管理メニュー）
+- [x] `components/MemberCreate.vue`（部員作成）
+- [x] `components/MemberRetire.vue`（退部・引退処理）
+
+### 課題2実装済み
+- 測定結果閲覧画面の改善（MeasurementResultList.vue）
+  - 学年列の分離表示
+  - ソート機能（ドロップダウン形式）
+  - 絞り込み機能（部員名・学年・計測日）
+  - ページネーション機能
+  - フィルタ・ソート条件のURL同期
+- 承認フローステータス一覧の改善（MeasurementStatusList.vue）
+  - ソート・絞り込み・ページネーション機能を追加
+  - 確認ボタン追加（manager_confirmed によるDB永続化）
+- 部員退部・引退処理画面の改善（MemberRetire.vue）
+  - ソート・絞り込み・ページネーション機能を追加
+- 測定結果確認・承認画面の改善（MeasurementResultReview.vue）
+  - コーチ向けソート・絞り込み・ページネーション機能を追加
+- 共通コンポーネント・定数の整備
+  - usePagination.js（ページネーションロジック共通化）
+  - Pagination.vue（ページネーションUIコンポーネント）
+  - measurementFields.js（測定項目定義の定数化）
+- 重複登録防止（measurement_service.py・MeasurementResultSubmit.vue）
+  - 同一部員・同一計測日の重複チェック追加
+  - rejected レコードの上書き更新対応
+  - 確認モーダルによる登録フロー
+- コンポーネント分離・リファクタリング
+  - MeasurementFilterBar.vue（measurement/配下）
+  - MeasurementTable.vue（measurement/配下）
+  - MemberFilterBar.vue（member/配下）
+  - MemberTable.vue（member/配下）
+  - MemberConfirmModal.vue（member/配下）
+- 可視化ダッシュボード実装完了
+  - ChartView.vue（3タブ：成長推移・能力比較・チーム内順位）
+  - TrendChartView.vue（推移分析コンテナ）
+  - TrendChart.vue（ECharts折れ線グラフ描画専用）
+  - RadarChart.vue（EChartsレーダーチャート描画専用）
+  - RankingTable.vue（順位表示専用）
+  - useTrendData.js（推移データ加工ロジック）
+  - useRadarData.js（レーダーデータ加工ロジック）
+  - useRankingData.js（ランキングデータ加工ロジック）
+- ダッシュボード通知機能・WebSocketリアルタイム通知
+  - notifications.py（WebSocketエンドポイント・ConnectionManager）
+  - notification_service.py（通知送信サービス）
+  - notificationService.js（WebSocket接続管理）
+  - stores/notification.js（通知状態管理・Pinia）
+  - 各ダッシュボードに通知サマリー表示を追加
+- 承認済みレコードの確認済み管理
+  - measurements テーブルに manager_confirmed カラムを追加（Alembic 004）
+  - PATCH /api/measurements/{measurement_id}/confirm エンドポイントを追加
+- 退部・引退日付の記録と履歴閲覧
+  - users テーブルに status_changed_at カラムを追加（Alembic 005）
+  - MemberHistory.vue（退部・引退済み部員の履歴画面）を新規作成
+- 測定日の年月表示対応
+  - 計測日入力を年月ピッカーに変更（type="month"）
+  - 表示を年月のみ（YYYY-MM）に統一
+- 測定進捗確認画面
+  - MeasurementProgressView.vue を新規作成
+  - 対象月の測定登録状況を部員ごとに一覧表示
+
+---
+
+## 設計ドキュメント
+
+設計関連ドキュメントは docs フォルダに格納しています。
+
+- ユースケース整理：`docs/usecase.md`
+- PoC機能一覧：`docs/functions.md`
+- 画面設計：`docs/screens.md`
+- API設計：`docs/api.md`
+- 認証設計：`docs/auth_design.md`
+- ロール権限マトリクス：`docs/role_matrix.md`
+- ER図・テーブル設計：`docs/er.md`
+
+---
+
+## 参考資料
+
+課題資料・検討用ファイルは以下に格納しています。
+`docs/reference_materials/`
+
+---
+
+## ディレクトリ構成（主要部分）
+```
+baseball_talent_manager/
+├── docker-compose.yml
+├── docker-compose.dev.yml
+├── mysql/
+│   ├── Dockerfile
+│   └── conf.d/
+│       └── my.cnf
+├── backend/app/
+│   ├── db.py
+│   ├── main.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── user.py
+│   │   └── measurement.py
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   ├── user.py
+│   │   └── measurement.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── security.py
+│   ├── dependencies/
+│   │   ├── __init__.py
+│   │   └── auth.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── auth_service.py
+│   │   ├── user_service.py
+│   │   ├── measurement_service.py
+│   │   └── notification_service.py
+│   └── routers/
+│       ├── __init__.py
+│       ├── auth.py
+│       ├── users.py
+│       ├── measurements.py
+│       └── notifications.py
+├── frontend/
+│   ├── Dockerfile.dev
+│   ├── Dockerfile.prod
+│   ├── nginx.conf
+│   ├── .env.production
+│   └── src/
+│       ├── env.d.ts
+│       ├── services/
+│       │   ├── api.ts
+│       │   ├── authService.ts
+│       │   ├── measurementService.ts
+│       │   ├── userService.ts
+│       │   └── notificationService.ts
+│       ├── composables/
+│       │   ├── usePagination.ts
+│       │   ├── useTrendData.ts
+│       │   ├── useRadarData.ts
+│       │   └── useRankingData.ts
+│       ├── constants/
+│       │   └── measurementFields.ts
+│       ├── components/
+│       │   ├── measurement/
+│       │   │   ├── MeasurementFilterBar.vue
+│       │   │   └── MeasurementTable.vue
+│       │   ├── member/
+│       │   │   ├── MemberFilterBar.vue
+│       │   │   ├── MemberTable.vue
+│       │   │   └── MemberConfirmModal.vue
+│       │   ├── visualization/
+│       │   │   ├── TrendChart.vue
+│       │   │   ├── TrendChartView.vue
+│       │   │   ├── RadarChart.vue
+│       │   │   └── RankingTable.vue
+│       │   ├── AppHeader.vue
+│       │   ├── MeasurementResultReview.vue
+│       │   ├── MeasurementResultList.vue
+│       │   ├── MemberManagement.vue
+│       │   ├── MemberCreate.vue
+│       │   ├── MemberRetire.vue
+│       │   ├── MemberHistory.vue
+│       │   └── Pagination.vue
+│       ├── views/
+│       │   ├── LoginView.vue
+│       │   ├── shared/
+│       │   │   ├── DashboardView.vue
+│       │   │   ├── ChartView.vue
+│       │   │   └── MeasurementProgressView.vue
+│       │   └── manager/
+│       │       ├── DashboardView.vue
+│       │       ├── MeasurementResultSubmit.vue
+│       │       └── MeasurementStatusList.vue
+│       ├── router/
+│       │   └── index.ts
+│       └──  stores/
+│           ├── auth.ts
+│           └── notification.ts
+├── scripts/
+│   └── wait_for_db.py
+└── docs/
+```
+
+## 技術スタック
+
+### Frontend
+- Vue 3
+- Vite
+- TypeScript
+- Vue Router
+- Pinia
+- ECharts / vue-echarts（可視化ダッシュボード）
+
+### Backend
+- FastAPI
+- SQLAlchemy
+- Alembic
+
+### Database
+- MySQL 8.0
+
+### 認証
+- メール＋パスワード認証
+- Argon2（パスワードハッシュ）
+- JWT認証（Access Token + Refresh Token）
+
+### 開発環境
+- Docker / docker-compose
+
+---
+
+## 起動方法（開発環境）
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+```
+
+### マイグレーション実行
+```bash
+cd backend
+alembic upgrade head
+```
+
+## 起動方法（本番環境）
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+### マイグレーション実行
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml exec backend alembic upgrade head
+```
+
+### 初期データ投入
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml exec db mysql -uroot -proot baseball_talent_manager < seed.sql
+```
+
+### アクセス
+- フロントエンド：`http://<サーバーIP>/`
+- APIドキュメント：`http://<サーバーIP>/docs`（開発確認用）
+
+---
+
+## 備考
+
+本リポジトリは段階的に設計→プロトタイプ実装→改善の順で進めます。

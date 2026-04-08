@@ -1,0 +1,78 @@
+export const MEASUREMENT_FIELDS = [
+  {
+    key: "sprint_50m",
+    label: "50m走",
+    unit: "sec",
+    lowerIsBetter: true,
+    step: "0.01",
+    placeholder: "例：6.30",
+    category: "走力",
+  },
+  {
+    key: "base_running",
+    label: "ベースランニング",
+    unit: "sec",
+    lowerIsBetter: true,
+    step: "0.01",
+    placeholder: "例：12.50",
+    category: "走力",
+  },
+  {
+    key: "throwing_distance",
+    label: "遠投",
+    unit: "m",
+    lowerIsBetter: false,
+    step: "0.1",
+    placeholder: "例：64",
+    category: "肩力",
+  },
+  {
+    key: "pitch_speed",
+    label: "ストレート球速",
+    unit: "km/h",
+    lowerIsBetter: false,
+    step: "0.1",
+    placeholder: "例：118",
+    category: "肩力",
+  },
+  {
+    key: "batting_speed",
+    label: "打球速度",
+    unit: "km/h",
+    lowerIsBetter: false,
+    step: "0.1",
+    placeholder: "例：108",
+    category: "打力",
+  },
+  {
+    key: "swing_speed",
+    label: "スイング速度",
+    unit: "km/h",
+    lowerIsBetter: false,
+    step: "0.1",
+    placeholder: "例：111",
+    category: "打力",
+  },
+  {
+    key: "bench_press",
+    label: "ベンチプレス",
+    unit: "kg",
+    lowerIsBetter: false,
+    step: "0.1",
+    placeholder: "例：65",
+    category: "筋力",
+  },
+  {
+    key: "squat",
+    label: "スクワット",
+    unit: "kg",
+    lowerIsBetter: false,
+    step: "0.1",
+    placeholder: "例：90",
+    category: "筋力",
+  },
+] as const;
+
+export type MeasurementField = typeof MEASUREMENT_FIELDS[number];
+
+export type MeasurementFieldKey = MeasurementField["key"];
