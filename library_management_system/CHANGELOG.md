@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## 2026-04-10 フェーズA-8・A-9 Alembic環境構築・バックエンド環境構築セッション
+
+### 対応内容概要
+
+フェーズA-8のAlembic環境構築・マイグレーションファイル作成、
+およびフェーズA-9のバックエンド環境構築を実施した。
+あわせてモデル定義のレビューと修正を行った。
+
+### 作成・修正ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `backend/alembic.ini` | sqlalchemy.url を正しい接続先に設定 |
+| `backend/alembic/env.py` | 全モデルファイルをimport・metadata登録・DATABASE_URL上書き対応 |
+| `backend/alembic/versions/001_initial_.py` | 全7テーブルの初期マイグレーション（token_hash=String(64)） |
+| `backend/app/models/base.py` | declarative_base のみ定義 |
+| `backend/app/models/` 各ファイル | モデルをファイル分割（school / user / book / loan / reservation / inter_library / password_reset_token） |
+| `backend/app/models/user.py` | loans・reservations・inter_library_requests に foreign_keys 追加、password_reset_tokens に cascade="all, delete-orphan" 設定 |
+| `backend/app/models/password_reset_token.py` | relationship復活（cascade は user.py 側に移動済み） |
+| `backend/app/db.py` | エンジン・SessionLocal・get_db() 定義 |
+| `backend/requirements.txt` | 全依存パッケージ定義 |
+| `mysql/seed.sql` | 初期データ（5校・管理者・司書・テスト生徒） |
+| `scripts/seed_users.py` | Argon2ハッシュ生成・seed.sql投入スクリプト |
+| `scripts/wait_for_db.py` | DB起動待機スクリプト |
+
+### 次回対応予定（未完了事項）
+
+| 項目 | 内容 |
+|------|------|
+| users.md のパス記法修正 | 絶対パスを相対パスに統一 |
+| auth_session.md の401フロー図整形 | フロー図形式に修正 |
+| UC-28 貸出延長の設計確定 | 延長回数上限・延長期間・操作画面・権限確定後、各ドキュメントに反映 |
+
 ## 2026-04-10 フェーズA 設計同期セッション
 
 ---
