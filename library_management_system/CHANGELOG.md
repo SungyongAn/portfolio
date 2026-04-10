@@ -46,7 +46,75 @@
 
 
 
-## 2026-04-09 フェーズA 設計精査セッション
+## 2026-04-10 フェーズA-7 Docker環境構築・ドキュメント整理セッション
+
+---
+
+### 対応内容概要
+
+フェーズA-7のDocker環境構築ファイルを一式作成した。
+あわせて課題1・課題2の分離方針に基づきドキュメントを整理した。
+
+---
+
+### 作成ファイル（Docker環境構築）
+
+| ファイル | 内容 |
+|---------|------|
+| `docker-compose.yml` | 共通サービス定義 |
+| `docker-compose.dev.yml` | 開発環境設定（ホットリロード・ポート公開） |
+| `docker-compose.prod.yml` | 本番環境設定（nginx・ビルド） |
+| `mysql/Dockerfile` | MySQL 8.0 |
+| `mysql/conf.d/my.cnf` | utf8mb4_unicode_ci設定 |
+| `backend/Dockerfile` | FastAPI用 |
+| `backend/.env` | 開発用環境変数 |
+| `backend/app/db.py` | SQLAlchemy DB接続設定 |
+| `frontend/Dockerfile.dev` | Vue/Vite開発用 |
+| `frontend/Dockerfile.prod` | マルチステージビルド |
+| `frontend/nginx.conf` | Vue Router対応・APIプロキシ |
+| `frontend/.env` | 開発環境変数 |
+| `frontend/.env.production` | 本番環境変数（VITE_API_URL空） |
+| `frontend/vite.config.ts` | usePolling・@エイリアス設定済み |
+| `frontend/index.html` | エントリーHTML |
+| `frontend/package.json` | 依存パッケージ定義 |
+| `frontend/tsconfig*.json` | TypeScript設定 |
+| `frontend/src/main.ts` | Pinia・Vue Router初期化 |
+| `frontend/src/App.vue` | ルートコンポーネント |
+| `frontend/src/router/index.ts` | ルーター基本構成 |
+| `scripts/wait_for_db.py` | DB起動待機スクリプト |
+| `.gitignore` | env・node_modules・db_data等を除外 |
+
+**注意：** `npm create vite@latest`後に`npm install pinia vue-router axios`の実行が必要
+
+---
+
+### ドキュメント整理（課題1・課題2の分離）
+
+#### functions.md
+- 課題2機能候補セクション（F-EX01〜F-EX07）を削除
+
+#### role_matrix.md
+- 補足ルールから課題2に関する記述を削除
+  - `is_committee`フラグの権限テーブル移行に関するコメント
+  - 管理者アカウント管理画面の課題2での検討に関するコメント
+
+#### docs/memo/phase2_ideas.md（新規作成）
+- functions.mdの課題2機能候補を移動
+- role_matrix.mdの課題2改善提案を移動
+
+---
+
+### 次回対応予定（未完了事項）
+
+| 項目 | 内容 |
+|------|------|
+| フェーズA-8 | Alembic環境構築・マイグレーションファイル作成 |
+| フェーズA-9 | `requirements.txt`作成 |
+| 貸出延長（UC-28）設計確定 | 延長回数上限・延長期間・操作画面・権限を確認後、各ドキュメントに反映 |
+| users.mdのパス記法修正 | 絶対パスを相対パスに統一 |
+| auth_session.mdの401フロー図整形 | フロー図形式に修正 |
+
+
 
 ---
 
