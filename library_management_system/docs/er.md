@@ -225,11 +225,11 @@ waiting ──→ ready ──→ completed
 
 ```
 pending ──→ confirmed ──→ shipped ──→ received ──→ on_loan ──→ returned
-    │             │             │           │
-    └─────────────┴─────────────┴───────────┴──→ cancelled
+    │             │
+    └─────────────┴──→ cancelled
 ```
 
-> `cancelled`への遷移は`pending`・`confirmed`・`shipped`・`received`から可能。`on_loan`・`returned`からは不可。`shipped`・`received`キャンセル時は司書が物理的な資料の取り扱いを別途対応する。
+> `cancelled`への遷移は`pending`・`confirmed`のみ可能。`shipped`以降はキャンセル不可。
 
 ---
 
