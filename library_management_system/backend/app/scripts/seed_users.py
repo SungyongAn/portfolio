@@ -9,7 +9,7 @@ Argon2id ハッシュに置換して MySQL に投入するスクリプト。
   docker compose exec backend python scripts/seed_users.py
 
   # ローカルで直接実行する場合（DB が起動済みであること）
-  DATABASE_URL=mysql+pymysql://libuser:libpass@127.0.0.1:3306/library_db \
+  DATABASE_URL=mysql+pymysql://library_user:library_password@127.0.0.1:3306/library_db \
     python scripts/seed_users.py
 """
 import os
@@ -36,7 +36,7 @@ DEFAULT_PASSWORD = "Password1!"  # 初期パスワード（全ユーザー共通
 SEED_SQL_PATH = "/mysql/seed.sql"
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://libuser:libpass@db:3306/library_db?charset=utf8mb4",
+    "mysql+pymysql://library_user:library_password@db:3306/library_db?charset=utf8mb4",
 )
 
 # ── Argon2id ハッシュ生成 ──────────────────────────────────────────────

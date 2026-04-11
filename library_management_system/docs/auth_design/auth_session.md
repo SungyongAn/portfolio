@@ -14,19 +14,20 @@
 
 ## 401エラー処理（axiosインターセプター）
 
-APIリクエスト  
-↓  
-401レスポンス受信  
-↓  
-**/api/auth/refreshか？**  
-- YES → 即ログアウト  
-- NO → Refresh Tokenで再取得  
-  - 成功 → 元のリクエストをリトライ  
-  - 失敗 → ログアウト
+```mermaid
+flowchart TD
+    A[APIリクエスト送信] --> B[401レスポンス受信]
+    B --> C{リクエスト先は\n/api/auth/refresh か？}
+    C -- YES --> D[即ログアウト]
+    C -- NO --> E[Refresh Tokenで\nAccess Token再取得]
+    E --> F{再取得成功？}
+    F -- YES --> G[元のリクエストをリトライ]
+    F -- NO --> D
+```
 
 ## ログアウト処理
 
-1. POST /api/auth/logout → Refresh Token削除 + Cookie無効化
+1. `POST /api/auth/logout` → Refresh Token削除・Cookie無効化
 2. PiniaストアからAccess Token・ユーザー情報削除
-3. `sessionStorage`から`tokenExpiry`削除
+3. `sessionStorage` から `tokenExpiry` 削除
 4. ログイン画面へリダイレクト

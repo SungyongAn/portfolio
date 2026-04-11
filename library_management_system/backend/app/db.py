@@ -3,10 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # docker-compose の backend/.env から読み込まれる想定
-# DATABASE_URL=mysql+pymysql://libuser:libpass@db:3306/library_db
+# DATABASE_URL=mysql+pymysql://library_user:library_password@db:3306/library_db
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://libuser:libpass@db:3306/library_db?charset=utf8mb4",
+    "mysql+pymysql://library_user:library_password@db:3306/library_db?charset=utf8mb4",
 )
 
 engine = create_engine(

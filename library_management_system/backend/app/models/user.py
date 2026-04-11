@@ -1,10 +1,9 @@
-from datetime import datetime
+import sqlalchemy as sa
 from sqlalchemy import (
     Column,
     Integer,
     String,
     Boolean,
-    DateTime,
     Enum,
     ForeignKey,
     Index,
@@ -40,9 +39,13 @@ class User(Base):
     is_active = Column(
         Boolean, nullable=False, default=True, comment="退学・卒業フラグ"
     )
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(
+        sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")
+    )
     updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        sa.TIMESTAMP,
+        nullable=False,
+        server_default=sa.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
     )
 
     school = relationship("School", back_populates="users")

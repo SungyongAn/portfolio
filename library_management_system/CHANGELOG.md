@@ -1,5 +1,60 @@
 # CHANGELOG
 
+## 2026-04-11 フェーズA 見直し・修正セッション
+
+### 対応内容概要
+
+フェーズAの計画書との照合を実施し、未対応事項の対応および各ファイルの修正を行った。
+
+### 対応内容
+
+#### auth_session.md
+- 401エラー処理フローをMermaid flowchart形式に整形
+
+#### alembic_guide.md
+- 「初回セットアップ（ローカル作業）」セクションを追加
+  - `alembic init` はDockerビルド前にローカルで一度だけ実施する旨を明記
+  - `alembic.ini` / `env.py` の編集手順・マイグレーションファイル作成手順を追記
+  - `--autogenerate` はDB接続が必要なため初回不可である旨を注記
+- 構成概要をモデルファイル分割後の実際の構造に更新
+- 未完了事項から対応済み項目を削除
+
+#### app/models/（school / user / book / reservation / inter_library）
+- `created_at` / `updated_at` を `DateTime + onupdate=datetime.utcnow` から
+  `sa.TIMESTAMP + server_default` に変更（MySQL側で `ON UPDATE CURRENT_TIMESTAMP` を管理）
+- `user.py` の `from sqlalchemy import` から不要になった `DateTime` を削除
+
+#### alembic/versions/001_initial_.py
+- `created_at` / `updated_at` を `sa.TIMESTAMP() + server_default` に更新
+  （モデル定義との整合を確保）
+
+#### backend/.env（新規作成）
+- ルートの `.env` との整合を取り統合版として作成
+  - `DATABASE_URL` / `SECRET_KEY` / `ACCESS_TOKEN_EXPIRE_MINUTES` をルートに統一
+  - `MAIL_BACKEND=console` を追加
+
+#### backend/app/db.py
+- フォールバックURLのユーザー名・パスワードを `library_user:library_password` に統一
+- コメント行の古い接続情報を修正
+
+#### alembic.ini
+- `sqlalchemy.url` を `library_user:library_password` に統一
+
+#### scripts/seed_users.py
+- フォールバックURL・コメントのローカル実行例を `library_user:library_password` に統一
+
+#### scripts/wait_for_db.py
+- `urllib.parse.urlparse` による安全なURLパースに刷新
+  （`?charset=utf8mb4` がDB名に混入する問題を解消）
+- `DATABASE_URL` 未設定時の明示的な `sys.exit(1)` 追加
+- `DB_MAX_RETRIES` / `DB_RETRY_INTERVAL` を環境変数で制御可能に変更
+- `connect_timeout=5` によるハング防止を追加
+- `if __name__ == "__main__":` によりモジュールとしてのimportも可能に変更
+
+### 次回対応予定
+
+- フェーズB 実装開始
+
 ## 2026-04-10 フェーズA-8・A-9 Alembic環境構築・バックエンド環境構築セッション
 
 ### 対応内容概要

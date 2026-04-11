@@ -1,4 +1,4 @@
-from datetime import datetime
+import sqlalchemy as sa
 from sqlalchemy import (
     Column,
     Integer,
@@ -47,10 +47,8 @@ class Reservation(Base):
     ready_deadline = Column(DateTime, nullable=True, comment="取置き期限")
     canceled_at = Column(DateTime, nullable=True)
     fulfilled_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    created_at = Column(sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP"))
+    updated_at = Column(sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
 
     user = relationship("User", foreign_keys=[user_id], back_populates="reservations")
     book = relationship("Book", back_populates="reservations")

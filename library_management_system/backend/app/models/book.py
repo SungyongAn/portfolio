@@ -1,4 +1,4 @@
-from datetime import datetime
+import sqlalchemy as sa
 from sqlalchemy import Column, Integer, String, DateTime, Text, Enum, ForeignKey, Index
 from sqlalchemy.orm import relationship
 from app.models.base import Base
@@ -40,10 +40,8 @@ class Book(Base):
         default="available",
     )
     discarded_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    created_at = Column(sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP"))
+    updated_at = Column(sa.TIMESTAMP, nullable=False, server_default=sa.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
 
     school = relationship("School", back_populates="books")
     loans = relationship("Loan", back_populates="book")

@@ -1,35 +1,68 @@
 import os
 import time
+import sys
+from urllib.parse import urlparse
+
 import pymysql
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
-# DATABASE_URLからDB接続情報を解析
-# 形式: mysql+pymysql://user:password@host:port/dbname
-url = DATABASE_URL.replace("mysql+pymysql://", "")
-user_pass, rest = url.split("@")
-user, password = user_pass.split(":")
-host_port, dbname = rest.split("/")
-host, port = host_port.split(":") if ":" in host_port else (host_port, "3306")
+def parse_database_url(database_url: str):
+    """
+    DATABASE_URL を安全にパースする
+    例: mysql+pymysql://user:pass@host:3306/dbname?charset=utf8mb4
+    """
+    parsed = urlparse(database_url)
 
-max_retries = 30
-retry_interval = 2
+    if not parsed.scheme.startswith("mysql"):
+        raise ValueError("Only MySQL URLs are supported")
 
-for i in range(max_retries):
-    try:
-        conn = pymysql.connect(
-            host=host,
-            port=int(port),
-            user=user,
-            password=password,
-            database=dbname,
-        )
-        conn.close()
-        print("DB is ready.")
-        break
-    except Exception as e:
-        print(f"Waiting for DB... ({i + 1}/{max_retries}): {e}")
-        time.sleep(retry_interval)
-else:
-    print("DB connection failed after max retries.")
-    exit(1)
+    return {
+        "user": parsed.username,
+        "password": parsed.password,
+        "host": parsed.hostname,
+        "port": parsed.port or 3306,
+        "database": parsed.path.lstrip("/"),
+    }
+
+
+def wait_for_db():
+    database_url = os.environ.get("DATABASE_URL")
+
+    if not database_url:
+        print("❌ DATABASE_URL is not set")
+        sys.exit(1)
+
+    config = parse_database_url(database_url)
+
+    max_retries = int(os.environ.get("DB_MAX_RETRIES", 30))
+    retry_interval = int(os.environ.get("DB_RETRY_INTERVAL", 2))
+
+    print("⏳ Waiting for DB to be ready...")
+    print(f"   Host: {config['host']}:{config['port']}")
+    print(f"   DB  : {config['database']}")
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            conn = pymysql.connect(
+                host=config["host"],
+                port=config["port"],
+                user=config["user"],
+                password=config["password"],
+                database=config["database"],
+                connect_timeout=5,
+            )
+            conn.close()
+
+            print("✅ DB is ready!")
+            return
+
+        except Exception as e:
+            print(f"⚠️  Attempt {attempt}/{max_retries} failed: {e}")
+            time.sleep(retry_interval)
+
+    print("❌ DB connection failed after max retries.")
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    wait_for_db()
