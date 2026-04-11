@@ -1,5 +1,39 @@
 # CHANGELOG
 
+## 2026-04-11 フェーズB 事前準備セッション
+
+### 対応内容概要
+フェーズB（モックUI実装）の開始に向けて、型定義・定数・Composables・
+状態管理・ルーティング・ダミーデータの作成を行った。
+
+### 作成ファイル
+
+| ファイル | 内容 |
+|---------|------|
+| `types/index.ts` | 各ドメイン型の re-export |
+| `domains/*/types.ts` | ドメイン別型定義（user / book / loan / reservation / interLibrary / school / auth） |
+| `domains/*/constants.ts` | ドメイン別定数定義（ステータス値・ラベル・Bootstrapカラークラス） |
+| `shared/constants/route.ts` | ロール別デフォルトルート・ログインルート |
+| `shared/types/api.ts` | ApiError・PaginatedResponse |
+| `constants/index.ts` | 各ドメイン定数の re-export |
+| `composables/useAuth.ts` | 認証状態・ロール判定 |
+| `composables/usePermission.ts` | 貸出上限・延滞制限・キャンセル可否チェック |
+| `composables/useLoanStatus.ts` | 貸出状態の表示変換・返却期限算出 |
+| `composables/useInterlibraryDeadline.ts` | 図書館間貸出 金曜15:00締切判定 |
+| `stores/auth.ts` | 認証状態管理（Pinia）・localStorage によるトークン保持 |
+| `router/index.ts` | ロール別ルート構成・ナビゲーションガード・ページタイトル更新 |
+| `router/types.ts` | RouteMeta 型拡張 |
+| `dummyData/index.ts` | 全ロール・全ステータスのダミーデータ（ユーザー・資料・貸出・予約・図書館間貸出） |
+| `views/**/*.vue` | 17画面の空ファイル作成 |
+
+### 確定した実装方針
+
+| 項目 | 内容 |
+|------|------|
+| 言語 | TypeScript（モック段階から `.ts` で統一） |
+| CSSフレームワーク | Bootstrap（バッジは `bg-*` クラスで統一） |
+| トークン管理 | モック段階は localStorage / Pinia。本番は HttpOnly Cookie
+
 ## 2026-04-11 フェーズA 見直し・修正セッション
 
 ### 対応内容概要

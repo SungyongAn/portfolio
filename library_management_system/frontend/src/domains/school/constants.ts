@@ -1,0 +1,2 @@
+export const SCHOOL_CODE_MAX_LENGTH = 20
+export const SCHOOL_NAME_MAX_LENGTH = 100
