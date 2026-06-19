@@ -1,0 +1,11 @@
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 8px 0 0;
+}
+
+.page-subtitle {
+  color: var(--form-hint-color);
+  margin: 0;
+}

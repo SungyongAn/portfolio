@@ -1,0 +1,18 @@
+.mb-16 { margin-bottom: 16px; }
+.mt-16 { margin-top: 16px; }
+
+.text-gray {
+  color: var(--form-hint-color);
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--form-hint-color);
+  margin-top: 4px;
+}
+
+.project-name-link {
+  color: #409eff;
+  font-weight: 500;
+  cursor: pointer;
+}
