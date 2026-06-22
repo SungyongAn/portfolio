@@ -126,7 +126,7 @@ jobs:
         run: |
           npx openapi-typescript-codegen \
             --input openapi.json \
-            --output src/api \
+            --output src/api/models \
             --client axios
 
       - name: フロントビルド
@@ -233,6 +233,22 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
+      - name: フロントエンド dev server 起動
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: http://localhost:8000
+        run: |
+          nohup npm run dev > vite.log 2>&1 &
+          echo $! > vite.pid
+
+      - name: dev server 起動待機
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:5173 && break
+            echo "待機中... ($i/30)"
+            sleep 2
+          done
+
       # E2Eテスト実行
       - name: E2Eテスト実行
         working-directory: frontend
@@ -251,7 +267,14 @@ jobs:
             frontend/test-results/
           retention-days: 7
 
-      # FastAPI停止
+      # dev server・FastAPI停止
+      - name: dev server 停止
+        if: always()
+        run: |
+          if [ -f frontend/vite.pid ]; then
+            kill $(cat frontend/vite.pid) || true
+          fi
+
       - name: FastAPI 停止
         if: always()
         run: |
@@ -266,7 +289,7 @@ jobs:
       - frontend-build
       - backend-and-type-check
       - docker-build
-      - e2e-test # 追加
+      - e2e-test
     if: always() && github.event_name == 'pull_request'
     steps:
       - uses: actions/github-script@v7

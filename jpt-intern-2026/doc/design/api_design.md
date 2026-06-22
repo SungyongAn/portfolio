@@ -16,55 +16,52 @@
 
 ## ■ ユーザー `/users`
 
-| メソッド | エンドポイント                        | 説明                         | 対象ロール                              |
-| -------- | ------------------------------------- | ---------------------------- | --------------------------------------- |
-| GET      | `/users/me`                           | ログイン中のユーザー情報取得 | 全ロール                                |
-| GET      | `/users`                              | ユーザー一覧取得             | 全ロール                                |
-| GET      | `/users/department/{department_id}`   | 部門別ユーザー一覧取得       | TASK_MEMBER / DEPT_MANAGER / HQ_MANAGER |
-
-### クエリパラメータ（GET `/users`）
-
-| パラメータ    | 型  | 説明               | デフォルト |
-| ------------- | --- | ------------------ | ---------- |
-| department_id | int | 部門IDで絞り込み   | -          |
+| メソッド | エンドポイント                      | 説明                         | 対象ロール |
+| -------- | ----------------------------------- | ---------------------------- | ---------- |
+| POST     | `/users`                            | ユーザー作成                 | HQ_MANAGER |
+| GET      | `/users`                            | ユーザー一覧取得             | HQ_MANAGER |
+| GET      | `/users/me`                         | ログイン中のユーザー情報取得 | 全ロール   |
+| GET      | `/users/{user_id}`                  | ユーザー詳細取得             | HQ_MANAGER |
+| GET      | `/users/department/{department_id}` | 部門別ユーザー一覧取得       | 全ロール   |
 
 ---
 
 ## ■ 部門 `/departments`
 
-| メソッド | エンドポイント | 説明         | 対象ロール |
-| -------- | -------------- | ------------ | ---------- |
-| GET      | `/departments` | 部門一覧取得 | 全ロール   |
+| メソッド | エンドポイント                       | 説明                 | 対象ロール                |
+| -------- | ------------------------------------ | -------------------- | ------------------------- |
+| GET      | `/departments`                       | 部門一覧取得         | 全ロール                  |
+| GET      | `/departments/{department_id}/tasks` | 部門内タスク一覧取得 | DEPT_MANAGER / HQ_MANAGER |
 
 ---
 
 ## ■ 案件 `/projects`
 
-| メソッド | エンドポイント                    | 説明                                             | 対象ロール                |
-| -------- | --------------------------------- | ------------------------------------------------ | ------------------------- |
-| GET      | `/projects`                       | 案件一覧取得（ページネーション・フィルター対応） | 全ロール                  |
-| POST     | `/projects`                       | 新規案件申請                                     | APPLICANT                 |
-| GET      | `/projects/budget-summary`        | 予算サマリー取得（フィルター連動）               | DEPT_MANAGER / HQ_MANAGER |
-| GET      | `/projects/{project_id}`          | 案件詳細取得                                     | 全ロール                  |
-| PUT      | `/projects/{project_id}`          | 案件情報更新                                     | APPLICANT                 |
-| POST     | `/projects/{project_id}/approve`  | 案件承認・却下                                   | DEPT_MANAGER / HQ_MANAGER |
+| メソッド | エンドポイント                    | 説明                                             | 対象ロール                                         |
+| -------- | --------------------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| GET      | `/projects`                       | 案件一覧取得（ページネーション・フィルター対応） | 全ロール                                           |
+| POST     | `/projects`                       | 新規案件申請                                     | APPLICANT                                          |
+| GET      | `/projects/budget-summary`        | 予算サマリー取得（フィルター連動）               | DEPT_MANAGER / HQ_MANAGER                          |
+| GET      | `/projects/{project_id}`          | 案件詳細取得                                     | 全ロール                                           |
+| PUT      | `/projects/{project_id}`          | 案件情報更新                                     | APPLICANT                                          |
+| POST     | `/projects/{project_id}/approve`  | 案件承認・却下                                   | DEPT_MANAGER / HQ_MANAGER                          |
 | PATCH    | `/projects/{project_id}/start`    | 案件着手                                         | APPLICANT（自案件のみ）/ DEPT_MANAGER / HQ_MANAGER |
-| PATCH    | `/projects/{project_id}/complete` | 案件完了                                         | DEPT_MANAGER / HQ_MANAGER |
+| PATCH    | `/projects/{project_id}/complete` | 案件完了                                         | DEPT_MANAGER / HQ_MANAGER                          |
 
 ### クエリパラメータ（GET `/projects`）
 
-| パラメータ    | 型       | 説明                               | デフォルト |
-| ------------- | -------- | ---------------------------------- | ---------- |
-| page          | int      | ページ番号（1以上）                | 1          |
-| limit         | int      | 1ページあたりの件数（1〜100）      | 10         |
-| status        | string[] | ステータスフィルター（複数指定可） | -          |
-| keyword       | string   | 案件名キーワード検索               | -          |
-| department_id | int      | 部門IDで絞り込み                   | -          |
-| budget_min    | int      | 概算予算の下限（円）               | -          |
-| budget_max    | int      | 概算予算の上限（円）               | -          |
-| sort_by       | string   | ソート対象（例：`budget_amount`）  | -          |
-| sort_order    | string   | ソート順（`asc` / `desc`）         | `desc`     |
-| alert_level   | string   | アラートレベル（`danger` / `warning`）| -       |
+| パラメータ    | 型       | 説明                                   | デフォルト |
+| ------------- | -------- | -------------------------------------- | ---------- |
+| page          | int      | ページ番号（1以上）                    | 1          |
+| limit         | int      | 1ページあたりの件数（1〜100）          | 10         |
+| status        | string[] | ステータスフィルター（複数指定可）     | -          |
+| keyword       | string   | 案件名キーワード検索                   | -          |
+| department_id | int      | 部門IDで絞り込み                       | -          |
+| budget_min    | int      | 概算予算の下限（円）                   | -          |
+| budget_max    | int      | 概算予算の上限（円）                   | -          |
+| sort_by       | string   | ソート対象（例：`budget_amount`）      | -          |
+| sort_order    | string   | ソート順（`asc` / `desc`）             | `desc`     |
+| alert_level   | string   | アラートレベル（`danger` / `warning`） | -          |
 
 ### 案件一覧レスポンス
 
@@ -79,12 +76,12 @@
 
 ## ■ タスク管理 `/projects/{project_id}/tasks`
 
-| メソッド | エンドポイント                           | 説明           | 対象ロール                          |
-| -------- | ---------------------------------------- | -------------- | ----------------------------------- |
-| GET      | `/projects/{project_id}/tasks`           | タスク一覧取得 | 全ロール                            |
-| POST     | `/projects/{project_id}/tasks`           | タスク登録     | APPLICANT / DEPT_MANAGER            |
-| PUT      | `/projects/{project_id}/tasks/{task_id}` | タスク更新     | APPLICANT / DEPT_MANAGER / TASK_MEMBER（自部門・進行中まで） |
-| DELETE   | `/projects/{project_id}/tasks/{task_id}` | タスク削除     | APPLICANT / DEPT_MANAGER            |
+| メソッド | エンドポイント                           | 説明           | 対象ロール                                    |
+| -------- | ---------------------------------------- | -------------- | --------------------------------------------- |
+| GET      | `/projects/{project_id}/tasks`           | タスク一覧取得 | 全ロール                                      |
+| POST     | `/projects/{project_id}/tasks`           | タスク登録     | APPLICANT / DEPT_MANAGER                      |
+| PUT      | `/projects/{project_id}/tasks/{task_id}` | タスク更新     | APPLICANT / TASK_MEMBER（自部門・進行中まで） |
+| DELETE   | `/projects/{project_id}/tasks/{task_id}` | タスク削除     | APPLICANT / DEPT_MANAGER                      |
 
 ---
 
@@ -122,18 +119,18 @@
 
 ## ■ ダッシュボード `/dashboard`
 
-| メソッド | エンドポイント      | 説明                                         | 対象ロール |
-| -------- | ------------------- | -------------------------------------------- | ---------- |
-| GET      | `/dashboard`        | ダッシュボードサマリー取得（ロール別集計）   | 全ロール   |
-| GET      | `/dashboard/alerts` | アラート案件一覧取得                         | 全ロール   |
+| メソッド | エンドポイント      | 説明                                       | 対象ロール |
+| -------- | ------------------- | ------------------------------------------ | ---------- |
+| GET      | `/dashboard`        | ダッシュボードサマリー取得（ロール別集計） | 全ロール   |
+| GET      | `/dashboard/alerts` | アラート案件一覧取得                       | 全ロール   |
 
 ---
 
 ## ■ 管理タスク `/tasks`
 
-| メソッド | エンドポイント | 説明                               | 対象ロール  |
-| -------- | -------------- | ---------------------------------- | ----------- |
-| GET      | `/tasks/all`   | 全案件のタスク一覧取得（横断確認） | HQ_MANAGER  |
+| メソッド | エンドポイント | 説明                               | 対象ロール |
+| -------- | -------------- | ---------------------------------- | ---------- |
+| GET      | `/tasks/all`   | 全案件のタスク一覧取得（横断確認） | HQ_MANAGER |
 
 ---
 
@@ -182,10 +179,10 @@
 
 ## ■ 主なエラーコード
 
-| コード | HTTPステータス        | 説明                                 |
-| ------ | --------------------- | ------------------------------------ |
-| 400    | Bad Request           | 入力値エラー・ステータス遷移エラー   |
-| 401    | Unauthorized          | 認証エラー                           |
-| 403    | Forbidden             | 権限エラー                           |
-| 404    | Not Found             | リソースが存在しない                 |
-| 409    | Conflict              | 重複登録エラー（同一月の工数実績等） |
+| コード | HTTPステータス | 説明                                 |
+| ------ | -------------- | ------------------------------------ |
+| 400    | Bad Request    | 入力値エラー・ステータス遷移エラー   |
+| 401    | Unauthorized   | 認証エラー                           |
+| 403    | Forbidden      | 権限エラー                           |
+| 404    | Not Found      | リソースが存在しない                 |
+| 409    | Conflict       | 重複登録エラー（同一月の工数実績等） |
