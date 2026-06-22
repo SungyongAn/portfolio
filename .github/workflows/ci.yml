@@ -115,7 +115,7 @@ jobs:
           npx openapi-typescript-codegen \
             --input openapi.json \
             --output src/api/models \
-            --client axios
+            --client fetch
 
       - name: フロントビルド
         working-directory: jpt-intern-2026/frontend
