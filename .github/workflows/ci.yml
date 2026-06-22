@@ -19,10 +19,12 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
-      - working-directory: frontend
+          cache-dependency-path: jpt-intern-2026/frontend/package-lock.json
+      - name: 依存パッケージインストール
+        working-directory: jpt-intern-2026/frontend
         run: npm ci
-      - working-directory: frontend
+      - name: フロントエンドビルド
+        working-directory: jpt-intern-2026/frontend
         run: npm run build
 
   backend-and-type-check:
@@ -49,29 +51,29 @@ jobs:
           python-version: "3.12"
 
       - name: 依存パッケージインストール
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         run: |
           pip install -r requirements.txt
           pip install ruff
 
       - name: Ruff コード品質チェック
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         run: ruff check .
 
       - name: マイグレーション実行
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: alembic upgrade head
 
       - name: pytest 実行
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: pytest
 
       - name: マイグレーションファイル作成漏れチェック
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: |
@@ -85,7 +87,7 @@ jobs:
           fi
 
       - name: バックエンド起動
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: |
@@ -102,27 +104,27 @@ jobs:
           done
 
       - name: openapi.json を取得
-        run: curl -s http://localhost:8000/openapi.json -o frontend/openapi.json
+        run: curl -s http://localhost:8000/openapi.json -o jpt-intern-2026/frontend/openapi.json
 
       - name: FastAPI 停止
         if: always()
         run: |
-          if [ -f backend/uvicorn.pid ]; then
-            kill $(cat backend/uvicorn.pid) || true
+          if [ -f jpt-intern-2026/backend/uvicorn.pid ]; then
+            kill $(cat jpt-intern-2026/backend/uvicorn.pid) || true
           fi
 
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: jpt-intern-2026/frontend/package-lock.json
 
       - name: 依存パッケージインストール
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         run: npm ci
 
       - name: 型自動生成
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         run: |
           npx openapi-typescript-codegen \
             --input openapi.json \
@@ -130,7 +132,7 @@ jobs:
             --client axios
 
       - name: フロントビルド
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         run: npm run build
 
   docker-build:
@@ -149,19 +151,19 @@ jobs:
       - name: フロントエンドイメージビルド
         run: |
           docker build \
-            -f frontend/Dockerfile.prod \
+            -f jpt-intern-2026/frontend/Dockerfile.prod \
             --build-arg VITE_API_BASE_URL=http://localhost:8000 \
             --cache-from ghcr.io/${{ github.repository }}/frontend:latest \
             -t nextflow-frontend:ci \
-            frontend/
+            jpt-intern-2026/frontend/
 
       - name: バックエンドイメージビルド
         run: |
           docker build \
-            -f backend/Dockerfile \
+            -f jpt-intern-2026/backend/Dockerfile \
             --cache-from ghcr.io/${{ github.repository }}/backend:latest \
             -t nextflow-backend:ci \
-            backend/
+            jpt-intern-2026/backend/
 
   e2e-test:
     name: E2Eテスト
@@ -184,17 +186,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # バックエンドセットアップ
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: バックエンド依存パッケージインストール
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         run: pip install -r requirements.txt
 
       - name: マイグレーション・seedデータ投入
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: |
@@ -202,7 +203,7 @@ jobs:
           python app/scripts/seed.py
 
       - name: バックエンド起動
-        working-directory: backend
+        working-directory: jpt-intern-2026/backend
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: |
@@ -218,23 +219,22 @@ jobs:
             sleep 2
           done
 
-      # フロントエンドセットアップ
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: jpt-intern-2026/frontend/package-lock.json
 
       - name: 依存パッケージインストール
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         run: npm ci
 
       - name: Playwright インストール
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         run: npx playwright install --with-deps chromium
 
       - name: フロントエンド dev server 起動
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         env:
           VITE_API_BASE_URL: http://localhost:8000
         run: |
@@ -249,37 +249,34 @@ jobs:
             sleep 2
           done
 
-      # E2Eテスト実行
       - name: E2Eテスト実行
-        working-directory: frontend
+        working-directory: jpt-intern-2026/frontend
         env:
           VITE_API_BASE_URL: http://localhost:8000
         run: npm run test:e2e
 
-      # 失敗時のアーティファクト保存
       - name: テスト結果・スクリーンショットを保存
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: |
-            frontend/playwright-report/
-            frontend/test-results/
+            jpt-intern-2026/frontend/playwright-report/
+            jpt-intern-2026/frontend/test-results/
           retention-days: 7
 
-      # dev server・FastAPI停止
       - name: dev server 停止
         if: always()
         run: |
-          if [ -f frontend/vite.pid ]; then
-            kill $(cat frontend/vite.pid) || true
+          if [ -f jpt-intern-2026/frontend/vite.pid ]; then
+            kill $(cat jpt-intern-2026/frontend/vite.pid) || true
           fi
 
       - name: FastAPI 停止
         if: always()
         run: |
-          if [ -f backend/uvicorn.pid ]; then
-            kill $(cat backend/uvicorn.pid) || true
+          if [ -f jpt-intern-2026/backend/uvicorn.pid ]; then
+            kill $(cat jpt-intern-2026/backend/uvicorn.pid) || true
           fi
 
   notify-result:
