@@ -5,17 +5,18 @@ Revises: 909b55b0e5b4
 Create Date: 2026-01-26 06:44:42.610245
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
-revision: str = 'd29c0dfc9e24'
-down_revision: Union[str, Sequence[str], None] = '909b55b0e5b4'
+revision: str = "d29c0dfc9e24"
+down_revision: Union[str, Sequence[str], None] = "909b55b0e5b4"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
 
 def upgrade():
     # subjects テーブルはすでに存在している前提

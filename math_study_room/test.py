@@ -19,11 +19,15 @@ def get_range_real_numbers(num_range):
 def addition(num_range):
     output_range = get_range_real_numbers(num_range)
 
-    question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    question_list_zero = [
+        random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+    ]
 
     idenominator = [10 ** num_range[i] for i in range(len(num_range))]
 
-    question_list_tow = [question_list_zero[i] / idenominator[i] for i in range(len(num_range))]
+    question_list_tow = [
+        question_list_zero[i] / idenominator[i] for i in range(len(num_range))
+    ]
 
     question_list = ["{:.num_range[i]f}".format for i in range(len(question_list_tow))]
 
@@ -39,14 +43,15 @@ def addition(num_range):
 
     return question_list, answer
 
+
 num_range = [3, 3]
 question_list, answer = addition(num_range)
 
-print(question_list, answer) # noqa: T201
-print(answer) # noqa: T201
+print(question_list, answer)  # noqa: T201
+print(answer)  # noqa: T201
 
 a = format(question_list[0], f".{num_range[0]}f")
 b = format(question_list[1], f".{num_range[1]}f")
 
-print(a) # noqa: T201
-print(b) # noqa: T201
+print(a)  # noqa: T201
+print(b)  # noqa: T201

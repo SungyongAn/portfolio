@@ -3,13 +3,13 @@ from app.schemas.user import (
     LoginResponse,
     UserCreate,
     UserResponse,
-    UserUpdate
+    UserUpdate,
 )
 from app.schemas.journal import (
     JournalCreate,
     JournalResponse,
     JournalUpdate,
-    JournalListResponse
+    JournalListResponse,
 )
 
 __all__ = [

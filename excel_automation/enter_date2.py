@@ -27,7 +27,9 @@ def write_dates_to_excel(filename, sheet_name="Sheet1"):
     # 月毎に列をずらして年月日をセルに記入
     for _ in range(num_days):
         comparison_month = current_date.month
-        input_date = current_date.strptime(str(current_date), '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
+        input_date = current_date.strptime(
+            str(current_date), "%Y-%m-%d %H:%M:%S"
+        ).strftime("%Y-%m-%d")
         ws.cell(row=row_num, column=column_num, value=input_date)
         current_date += timedelta(days=1)
         month = current_date.month

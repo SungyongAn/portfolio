@@ -1,0 +1,321 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  frontend-build:
+    name: フロントエンドビルドチェック
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - working-directory: frontend
+        run: npm run build
+
+  backend-and-type-check:
+    name: バックエンドテスト・型生成 → フロントビルド
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nextflow_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 依存パッケージインストール
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+          pip install ruff
+
+      - name: Ruff コード品質チェック
+        working-directory: backend
+        run: ruff check .
+
+      - name: マイグレーション実行
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
+        run: alembic upgrade head
+
+      - name: pytest 実行
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
+        run: pytest
+
+      - name: マイグレーションファイル作成漏れチェック
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
+        run: |
+          OUTPUT=$(alembic check 2>&1)
+          if echo "$OUTPUT" | grep -q "New upgrade operations detected"; then
+            echo "❌ モデルの変更に対応するマイグレーションファイルが作成されていません"
+            echo "$OUTPUT"
+            exit 1
+          else
+            echo "✅ マイグレーションファイルの作成漏れはありません"
+          fi
+
+      - name: バックエンド起動
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
+        run: |
+          nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 \
+            > uvicorn.log 2>&1 &
+          echo $! > uvicorn.pid
+
+      - name: バックエンド起動待機
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:8000/health && break
+            echo "待機中... ($i/30)"
+            sleep 2
+          done
+
+      - name: openapi.json を取得
+        run: curl -s http://localhost:8000/openapi.json -o frontend/openapi.json
+
+      - name: FastAPI 停止
+        if: always()
+        run: |
+          if [ -f backend/uvicorn.pid ]; then
+            kill $(cat backend/uvicorn.pid) || true
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 依存パッケージインストール
+        working-directory: frontend
+        run: npm ci
+
+      - name: 型自動生成
+        working-directory: frontend
+        run: |
+          npx openapi-typescript-codegen \
+            --input openapi.json \
+            --output src/api/models \
+            --client axios
+
+      - name: フロントビルド
+        working-directory: frontend
+        run: npm run build
+
+  docker-build:
+    name: Dockerイメージビルドチェック
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GitHub Container Registry へログイン
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: フロントエンドイメージビルド
+        run: |
+          docker build \
+            -f frontend/Dockerfile.prod \
+            --build-arg VITE_API_BASE_URL=http://localhost:8000 \
+            --cache-from ghcr.io/${{ github.repository }}/frontend:latest \
+            -t nextflow-frontend:ci \
+            frontend/
+
+      - name: バックエンドイメージビルド
+        run: |
+          docker build \
+            -f backend/Dockerfile \
+            --cache-from ghcr.io/${{ github.repository }}/backend:latest \
+            -t nextflow-backend:ci \
+            backend/
+
+  e2e-test:
+    name: E2Eテスト
+    runs-on: ubuntu-latest
+    needs: backend-and-type-check
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nextflow_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # バックエンドセットアップ
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: バックエンド依存パッケージインストール
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: マイグレーション・seedデータ投入
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
+        run: |
+          alembic upgrade head
+          python app/scripts/seed.py
+
+      - name: バックエンド起動
+        working-directory: backend
+        env:
+          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
+        run: |
+          nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 \
+            > uvicorn.log 2>&1 &
+          echo $! > uvicorn.pid
+
+      - name: バックエンド起動待機
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:8000/health && break
+            echo "待機中... ($i/30)"
+            sleep 2
+          done
+
+      # フロントエンドセットアップ
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 依存パッケージインストール
+        working-directory: frontend
+        run: npm ci
+
+      - name: Playwright インストール
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: フロントエンド dev server 起動
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: http://localhost:8000
+        run: |
+          nohup npm run dev > vite.log 2>&1 &
+          echo $! > vite.pid
+
+      - name: dev server 起動待機
+        run: |
+          for i in $(seq 1 30); do
+            curl -s http://localhost:5173 && break
+            echo "待機中... ($i/30)"
+            sleep 2
+          done
+
+      # E2Eテスト実行
+      - name: E2Eテスト実行
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: http://localhost:8000
+        run: npm run test:e2e
+
+      # 失敗時のアーティファクト保存
+      - name: テスト結果・スクリーンショットを保存
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7
+
+      # dev server・FastAPI停止
+      - name: dev server 停止
+        if: always()
+        run: |
+          if [ -f frontend/vite.pid ]; then
+            kill $(cat frontend/vite.pid) || true
+          fi
+
+      - name: FastAPI 停止
+        if: always()
+        run: |
+          if [ -f backend/uvicorn.pid ]; then
+            kill $(cat backend/uvicorn.pid) || true
+          fi
+
+  notify-result:
+    name: PR結果通知
+    runs-on: ubuntu-latest
+    needs:
+      - frontend-build
+      - backend-and-type-check
+      - docker-build
+      - e2e-test
+    if: always() && github.event_name == 'pull_request'
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const frontend  = '${{ needs.frontend-build.result }}';
+            const backend   = '${{ needs.backend-and-type-check.result }}';
+            const docker    = '${{ needs.docker-build.result }}';
+            const e2e       = '${{ needs.e2e-test.result }}';
+
+            const icon = (r) => r === 'success' ? '✅' : '❌';
+
+            const body = [
+              '## CI 結果',
+              '',
+              `| チェック項目                        | 結果 |`,
+              `|-------------------------------------|------|`,
+              `| フロントエンドビルド                 | ${icon(frontend)} ${frontend} |`,
+              `| バックエンドテスト・型生成・ビルド     | ${icon(backend)}  ${backend}  |`,
+              `| Dockerイメージビルド                 | ${icon(docker)}   ${docker}   |`,
+              `| E2Eテスト                           | ${icon(e2e)}      ${e2e}      |`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

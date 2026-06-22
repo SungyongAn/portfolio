@@ -8,14 +8,14 @@ class JournalCreate(BaseModel):
     physical_condition: str
     mental_condition: str
     reflection_text: str
-    
+
     class Config:
         json_schema_extra = {
             "example": {
                 "entry_date": "2025-04-08",
                 "physical_condition": "よかった",
                 "mental_condition": "元気",
-                "reflection_text": "数学の授業で二次関数を学んだ。完全に理解した。"
+                "reflection_text": "数学の授業で二次関数を学んだ。完全に理解した。",
             }
         }
 
@@ -41,7 +41,7 @@ class JournalResponse(BaseModel):
     read_by: int | None = None
     read_at: datetime | None = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

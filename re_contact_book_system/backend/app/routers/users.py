@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db import get_db
-from app.schemas.user import UserCreate, UserResponse, UserUpdate, UserWithClassResponse, AdminUserListResponse
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+    UserWithClassResponse,
+    AdminUserListResponse,
+)
 from app.services.user_service import (
     create_user,
     get_user_by_email,
@@ -9,7 +15,7 @@ from app.services.user_service import (
     get_admin_user_list,
     update_user,
     delete_user,
-    get_students_by_class
+    get_students_by_class,
 )
 from app.dependencies.auth import get_current_admin, get_current_user
 from app.models.user import User, RoleEnum
@@ -23,7 +29,7 @@ router = APIRouter(prefix="/api/users", tags=["ユーザー管理"])
 def create_new_user(
     user_data: UserCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
 
     # メールアドレスの重複チェック
@@ -31,20 +37,20 @@ def create_new_user(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="このメールアドレスは既に使用されています"
+            detail="このメールアドレスは既に使用されています",
         )
-    
+
     # ロールのバリデーション
     valid_roles = [role.value for role in RoleEnum]
     if user_data.role not in valid_roles:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"無効なロールです。有効な値: {', '.join(valid_roles)}"
+            detail=f"無効なロールです。有効な値: {', '.join(valid_roles)}",
         )
-    
+
     # ユーザー作成
     user = create_user(db, user_data)
-    
+
     return user
 
 
@@ -55,7 +61,7 @@ def get_user_list(
     limit: int = 500,
     offset: int = 0,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
 
     users = get_admin_user_list(db, role=role, limit=limit, offset=offset)
@@ -67,39 +73,44 @@ def get_user_list(
 def get_students_in_class(
     class_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
 
     if current_user.role not in [RoleEnum.teacher, RoleEnum.admin]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="この操作は教師または管理者のみ実行できます"
+            detail="この操作は教師または管理者のみ実行できます",
         )
-    
+
     students = get_students_by_class(db, class_id)
-    
+
     # クラス情報を追加
     result = []
     for student in students:
-        student_class = db.query(StudentClassAssignment).filter(
-            StudentClassAssignment.student_id == student.id,
-            StudentClassAssignment.class_id == class_id,
-            StudentClassAssignment.is_current == True
-        ).first()
-        
+        student_class = (
+            db.query(StudentClassAssignment)
+            .filter(
+                StudentClassAssignment.student_id == student.id,
+                StudentClassAssignment.class_id == class_id,
+                StudentClassAssignment.is_current == True,
+            )
+            .first()
+        )
+
         response = UserWithClassResponse(
             id=student.id,
             email=student.email,
             name=student.name,
             role=student.role.value,
             class_name=student_class.class_obj.class_name if student_class else None,
-            grade_number=student_class.class_obj.grade.grade_number if student_class else None,
-            created_at=student.created_at
+            grade_number=(
+                student_class.class_obj.grade.grade_number if student_class else None
+            ),
+            created_at=student.created_at,
         )
         result.append(response)
-    
-    return result
 
+    return result
 
 
 # ユーザー情報を取得
@@ -107,23 +118,22 @@ def get_students_in_class(
 def get_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
 
     user = get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ユーザーが見つかりません"
+            status_code=status.HTTP_404_NOT_FOUND, detail="ユーザーが見つかりません"
         )
-    
+
     # 権限チェック: 自分自身または管理者のみ
     if current_user.id != user_id and current_user.role != RoleEnum.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="他のユーザーの情報を閲覧する権限がありません"
+            detail="他のユーザーの情報を閲覧する権限がありません",
         )
-    
+
     return user
 
 
@@ -133,23 +143,22 @@ def update_user_info(
     user_id: int,
     user_data: UserUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
 
     # 権限チェック: 自分自身または管理者のみ
     if current_user.id != user_id and current_user.role != RoleEnum.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="他のユーザーの情報を更新する権限がありません"
+            detail="他のユーザーの情報を更新する権限がありません",
         )
-    
+
     user = update_user(db, user_id, user_data)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ユーザーが見つかりません"
+            status_code=status.HTTP_404_NOT_FOUND, detail="ユーザーが見つかりません"
         )
-    
+
     return user
 
 
@@ -158,14 +167,13 @@ def update_user_info(
 def delete_user_account(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin)
+    current_user: User = Depends(get_current_admin),
 ):
 
     success = delete_user(db, user_id)
     if not success:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="ユーザーが見つかりません"
+            status_code=status.HTTP_404_NOT_FOUND, detail="ユーザーが見つかりません"
         )
-    
+
     return None

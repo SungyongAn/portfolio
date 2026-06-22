@@ -5,14 +5,14 @@ Revises: 001_initial_schema
 Create Date: 2026-02-03 02:23:10.378707
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 
-
 # revision identifiers, used by Alembic.
-revision: str = '15cfb19c6a4c'
-down_revision: Union[str, Sequence[str], None] = '001_initial_schema'
+revision: str = "15cfb19c6a4c"
+down_revision: Union[str, Sequence[str], None] = "001_initial_schema"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

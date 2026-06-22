@@ -13,20 +13,13 @@ PASSWORD = "password123"  # seed.sql で設定した平文に対応するもの
 # 1. ログインしてトークン取得
 # -----------------------------
 login_res = requests.post(
-    f"{BASE_URL}/api/auth/login",
-    json={
-        "email": EMAIL,
-        "password": PASSWORD
-    }
+    f"{BASE_URL}/api/auth/login", json={"email": EMAIL, "password": PASSWORD}
 )
 
 login_res.raise_for_status()
 token = login_res.json()["access_token"]
 
-headers = {
-    "Authorization": f"Bearer {token}",
-    "Content-Type": "application/json"
-}
+headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
 print("✅ ログイン成功")
 
@@ -37,13 +30,11 @@ journal_payload = {
     "entry_date": (date.today() - timedelta(days=1)).isoformat(),
     "physical_condition": "良好",
     "mental_condition": "元気",
-    "reflection_text": "Pythonスクリプトから自動投稿テスト"
+    "reflection_text": "Pythonスクリプトから自動投稿テスト",
 }
 
 journal_res = requests.post(
-    f"{BASE_URL}/api/journals/",
-    json=journal_payload,
-    headers=headers
+    f"{BASE_URL}/api/journals/", json=journal_payload, headers=headers
 )
 
 journal_res.raise_for_status()

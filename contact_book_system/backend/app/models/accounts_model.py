@@ -7,33 +7,45 @@ import enum
 
 # 権限（基本役割）
 class RoleEnum(str, enum.Enum):
-    admin = "admin"              # 管理者
-    teacher = "teacher"          # 教師
-    student = "student"          # 生徒
+    admin = "admin"  # 管理者
+    teacher = "teacher"  # 教師
+    student = "student"  # 生徒
     school_nurse = "school_nurse"  # 養護教諭
 
 
 # 在籍状況（生徒・職員共通）
 class StatusEnum(str, enum.Enum):
-    enrolled = "enrolled"          # 在籍中
-    graduated = "graduated"        # 卒業・修了
-    transferred = "transferred"    # 転入・転出
-    on_leave = "on_leave"          # 休学・休職
-    other = "other"                # その他
+    enrolled = "enrolled"  # 在籍中
+    graduated = "graduated"  # 卒業・修了
+    transferred = "transferred"  # 転入・転出
+    on_leave = "on_leave"  # 休学・休職
+    other = "other"  # その他
 
 
 class Account(Base):
     __tablename__ = "accounts"
 
     id = Column(Integer, primary_key=True, autoincrement=True, comment="アカウントID")
-    email = Column(String(255), unique=True, nullable=False, comment="メールアドレス(ログインID)")
-    
+    email = Column(
+        String(255), unique=True, nullable=False, comment="メールアドレス(ログインID)"
+    )
+
     # 基本属性（生徒・教師共通）
     last_name = Column(String(50), nullable=False, comment="姓")
     first_name = Column(String(50), nullable=False, comment="名")
     password = Column(String(255), nullable=False, comment="パスワード（ハッシュ化）")
-    role = Column(SQLEnum(RoleEnum), nullable=False, default=RoleEnum.student, comment="アカウント種別")
-    status = Column(SQLEnum(StatusEnum), nullable=False, default=StatusEnum.enrolled, comment="在籍状況")
+    role = Column(
+        SQLEnum(RoleEnum),
+        nullable=False,
+        default=RoleEnum.student,
+        comment="アカウント種別",
+    )
+    status = Column(
+        SQLEnum(StatusEnum),
+        nullable=False,
+        default=StatusEnum.enrolled,
+        comment="在籍状況",
+    )
 
     # 生徒向けフィールド
     grade = Column(Integer, nullable=False, comment="学年")
@@ -44,24 +56,21 @@ class Account(Base):
     # 教師専用フィールド（外部キー）
     teacher_role_id = Column(
         Integer,
-        ForeignKey('teacher_roles.id'),
+        ForeignKey("teacher_roles.id"),
         nullable=True,
-        comment="教員区分ID（教師の場合のみ）"
+        comment="教員区分ID（教師の場合のみ）",
     )
     subject_id = Column(
         Integer,
-        ForeignKey('subjects.id'),
+        ForeignKey("subjects.id"),
         nullable=True,
-        comment="担当教科ID（教師の場合のみ）"
+        comment="担当教科ID（教師の場合のみ）",
     )
 
     # メタ情報
     created_at = Column(TIMESTAMP, server_default=func.now(), comment="作成日時")
     updated_at = Column(
-        TIMESTAMP,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment="更新日時"
+        TIMESTAMP, server_default=func.now(), onupdate=func.now(), comment="更新日時"
     )
 
     # リレーションシップ（必要に応じて使用）

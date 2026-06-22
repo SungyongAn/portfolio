@@ -12,13 +12,13 @@ class AccountRegisterRequest(BaseModel):
     password: str
     enrollment_year: int
     graduation_year: int | None = None
-    teacher_role: str | None = None  
-    subject: str | None = None       
+    teacher_role: str | None = None
+    subject: str | None = None
 
 
 class AccountData(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     email: str
     last_name: str
     first_name: str
@@ -68,7 +68,7 @@ class AccountUpdatePayload(BaseModel):
     className: str
     status: str
     teacher_role: str | None = None  # ✅ codeで受け取る
-    subject: str | None = None       # ✅ codeで受け取る
+    subject: str | None = None  # ✅ codeで受け取る
     enrollmentYear: int | None = None
 
 

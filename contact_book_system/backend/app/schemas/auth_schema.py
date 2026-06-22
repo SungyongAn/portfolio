@@ -29,6 +29,7 @@ class PasswordResetConfirm(BaseModel):
 
 class PasswordResetToken(BaseModel):
     """データベースに保存するトークン情報"""
+
     id: int | None = None
     email: str
     token: str

@@ -17,6 +17,7 @@ templates = Jinja2Templates(directory="templates")
 # Google SheetsのIDを設定（実際のスプレッドシートIDに変更してください）
 SHEET_ID = "your_google_sheet_id_here"
 
+
 @app.get("/", response_class=HTMLResponse)
 async def show_form(request: Request):
     """
@@ -87,24 +88,19 @@ async def show_form(request: Request):
     """
     return HTMLResponse(content=html_content)
 
+
 @app.post("/submit")
-async def submit_data(
-    name: str = Form(...),
-    email: str = Form(...)
-):
+async def submit_data(name: str = Form(...), email: str = Form(...)):
     """
     フォームデータを受け取り、Google Sheetsに書き込む
     """
     try:
         # フォームデータをPydanticモデルで検証
-        user_data = ReceiveUserDataPayload(
-            user_name=name,
-            email=email
-        )
-        
+        user_data = ReceiveUserDataPayload(user_name=name, email=email)
+
         # Google Sheetsに書き込み
         result_message = write_to_test0001(SHEET_ID)
-        
+
         # 成功レスポンスを返す
         success_html = f"""
 <!DOCTYPE html>
@@ -153,7 +149,7 @@ async def submit_data(
 </html>
         """
         return HTMLResponse(content=success_html)
-        
+
     except Exception as e:
         # エラーハンドリング
         error_html = f"""
@@ -202,6 +198,7 @@ async def submit_data(
         """
         return HTMLResponse(content=error_html, status_code=500)
 
+
 # API エンドポイント（JSON形式での送受信）
 @app.post("/api/submit", response_model=RelayGeneric)
 async def api_submit_data(user_data: ReceiveUserDataPayload):
@@ -211,11 +208,12 @@ async def api_submit_data(user_data: ReceiveUserDataPayload):
     try:
         # Google Sheetsに書き込み
         result_message = write_to_test0001(SHEET_ID)
-        
+
         return RelayGeneric(RelayGenericGeneric=result_message)
-        
+
     except Exception as e:
         return RelayGeneric(RelayGenericGeneric=f"エラーが発生しました: {str(e)}")
+
 
 @app.get("/health")
 async def health_check():
@@ -224,12 +222,7 @@ async def health_check():
     """
     return {"status": "healthy", "message": "API is running"}
 
+
 if __name__ == "__main__":
     # サーバー起動設定
-    uvicorn.run(
-        "api:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, log_level="info")

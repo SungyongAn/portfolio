@@ -1,5 +1,5 @@
 import openpyxl as px
-from datetime import datetime, timedelta 
+from datetime import datetime, timedelta
 from openpyxl.worksheet.table import Table, TableStyleInfo
 import random
 
@@ -24,10 +24,10 @@ def create_table_in_excel(num_add_sheets, start_date_str, end_date_str, filename
 
     for i in range(num_sheets):
         ws = wb.worksheets[i]
-        ws['A1'] = '月日'
-        ws['B1'] = '製品'
-        ws['C1'] = '支店'
-        ws['D1'] = '利益'
+        ws["A1"] = "月日"
+        ws["B1"] = "製品"
+        ws["C1"] = "支店"
+        ws["D1"] = "利益"
 
     # sheet_0のみ日付の記入
     current_date = start_date
@@ -50,15 +50,17 @@ def create_table_in_excel(num_add_sheets, start_date_str, end_date_str, filename
 
     for k in range(2, num_target_cells + 1):
         ws = wb.worksheets[0]
-        ws['B'+ str(k)] = random.choice(['製品1', '製品2'])
-        ws['C'+ str(k)] = random.choice(['支店1', '支店2'])
-        ws['D'+ str(k)] = random.randint(10000, 100000)
+        ws["B" + str(k)] = random.choice(["製品1", "製品2"])
+        ws["C" + str(k)] = random.choice(["支店1", "支店2"])
+        ws["D" + str(k)] = random.randint(10000, 100000)
 
-    ws.column_dimensions['A'].width = 13
+    ws.column_dimensions["A"].width = 13
 
     # テーブルを生成
-    table = Table(displayName='Table1', ref=f'A1:D{num_target_cells}')
-    table.tableStyleInfo = TableStyleInfo(name='TableStyleMedium12', showRowStripes=True)
+    table = Table(displayName="Table1", ref=f"A1:D{num_target_cells}")
+    table.tableStyleInfo = TableStyleInfo(
+        name="TableStyleMedium12", showRowStripes=True
+    )
     ws.add_table(table)
 
     # 直接保存

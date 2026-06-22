@@ -11,7 +11,7 @@ load_dotenv()
 # 環境変数から取得、なければデフォルト値を使用
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://root:root@db:3306/baseball_talent_manager?charset=utf8mb4"
+    "mysql+pymysql://root:root@db:3306/baseball_talent_manager?charset=utf8mb4",
 )
 
 # SQLAlchemyエンジンの作成
@@ -24,11 +24,7 @@ engine = create_engine(
 )
 
 # セッションファクトリーの作成
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # モデルのベースクラス
 Base = declarative_base()
@@ -38,7 +34,7 @@ Base = declarative_base()
 def get_db():
     """
     FastAPIの依存性注入で使用するDB接続取得関数
-    
+
     使用例:
         @app.get("/users")
         def get_users(db: Session = Depends(get_db)):

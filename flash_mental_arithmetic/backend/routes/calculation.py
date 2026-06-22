@@ -22,6 +22,8 @@ def get_output_range(num_range):
 # 足し算
 def add(num_times, num_range):
     output_range = get_output_range(num_range)
-    question_list = [random.randint(output_range[0], output_range[1]) for _ in range(num_times)]
+    question_list = [
+        random.randint(output_range[0], output_range[1]) for _ in range(num_times)
+    ]
     answer = sum(question_list)
     return question_list, answer

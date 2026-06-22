@@ -12,7 +12,9 @@ class RenrakuchoEntryModel(Base):
     target_date = Column(Date, nullable=False)
     physical_condition = Column(TINYINT, nullable=False)
     mental_state = Column(TINYINT, nullable=False)
-    physical_mental_notes = Column(Text, nullable=True) 
+    physical_mental_notes = Column(Text, nullable=True)
     daily_reflection = Column(Text, nullable=False)
     is_read = Column(Boolean, nullable=False, default=False)
-    created_at = Column(DateTime, server_default=func.current_timestamp(), nullable=False)
+    created_at = Column(
+        DateTime, server_default=func.current_timestamp(), nullable=False
+    )

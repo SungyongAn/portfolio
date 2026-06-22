@@ -36,7 +36,7 @@ class MeasurementItem(BaseModel):
     bench_press: float
     squat: float
     status: str
-    manager_confirmed: bool 
+    manager_confirmed: bool
 
 
 class MeasurementListResponse(BaseModel):
@@ -55,4 +55,3 @@ class ApproveRequest(BaseModel):
 class ApproveResponse(BaseModel):
     message: str
     status: str
-

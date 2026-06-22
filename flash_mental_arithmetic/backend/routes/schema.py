@@ -7,5 +7,5 @@ class CaluculationPayload(BaseModel):
 
 
 class CaluculationResponse(BaseModel):
-    question_list : list[int]
+    question_list: list[int]
     answer: float

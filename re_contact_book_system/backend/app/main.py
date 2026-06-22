@@ -9,7 +9,7 @@ app = FastAPI(
     description="学校向け連絡帳管理システムのバックエンドAPI",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS設定
@@ -22,7 +22,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000"
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -41,14 +41,14 @@ app.include_router(teachers.router)
 def read_root():
     """
     APIルート
-    
+
     システムの基本情報を返す
     """
     return {
         "message": "連絡帳管理システムAPI",
         "version": "1.0.0",
         "docs": "/docs",
-        "status": "running"
+        "status": "running",
     }
 
 
@@ -56,13 +56,10 @@ def read_root():
 def health_check():
     """
     ヘルスチェック
-    
+
     システムの稼働状態を確認
     """
-    return {
-        "status": "healthy",
-        "service": "journal-system-api"
-    }
+    return {"status": "healthy", "service": "journal-system-api"}
 
 
 # アプリケーション起動時の処理

@@ -13,7 +13,7 @@ from app.schemas.measurement import (
     MeasurementListResponse,
     MeasurementSubmitResponse,
 )
-from app.services.notification_service import notify_user, notify_role
+from app.services.notification_service import notify_role, notify_user
 
 
 # マネージャーによる測定結果の登録

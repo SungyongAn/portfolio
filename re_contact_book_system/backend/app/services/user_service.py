@@ -1,4 +1,3 @@
-
 from sqlalchemy.orm import Session, aliased
 from app.models.user import User, RoleEnum
 from app.models.class_model import (
@@ -6,16 +5,16 @@ from app.models.class_model import (
     Grade,
     StudentClassAssignment,
     TeacherAssignment,
-    AssignmentTypeEnum
-    )
+    AssignmentTypeEnum,
+)
 from app.schemas.user import UserCreate, UserUpdate
 from app.utils.password_utils import get_password_hash, verify_password
 from app.schemas.user import (
-    AdminUserListResponse, 
+    AdminUserListResponse,
     StudentClassSummary,
-    UserPrimaryAssignment, 
-    TeacherAssignmentSummary
-    )
+    UserPrimaryAssignment,
+    TeacherAssignmentSummary,
+)
 
 
 # メールアドレス・パスワードでユーザーを認証
@@ -33,21 +32,22 @@ def authenticate_user(
 
     return user
 
+
 # ユーザーを作成
 def create_user(db: Session, user_data: UserCreate) -> User:
     # メールアドレスを小文字に統一
     email = user_data.email.lower()
-    
+
     # パスワードをハッシュ化
     password_hash = get_password_hash(user_data.password)
-    
+
     user = User(
         email=email,
         password_hash=password_hash,
         name=user_data.name,
-        role=RoleEnum(user_data.role)
+        role=RoleEnum(user_data.role),
     )
-    
+
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -83,16 +83,17 @@ def aggregate_admin_user_rows(results):
             }
 
         if row.role == RoleEnum.teacher and row.assignment_type:
-            user_dict[user_id]["teacher_assignments"].append({
-                "assignment_type": row.assignment_type,
-                "is_primary": row.is_primary,
-                "grade_number": row.teacher_grade_number,
-                "class_name": row.teacher_class_name,
-                "permission_level": row.permission_level,
-            })
+            user_dict[user_id]["teacher_assignments"].append(
+                {
+                    "assignment_type": row.assignment_type,
+                    "is_primary": row.is_primary,
+                    "grade_number": row.teacher_grade_number,
+                    "class_name": row.teacher_class_name,
+                    "permission_level": row.permission_level,
+                }
+            )
 
     return user_dict
-
 
 
 # 教師の割当一覧から表示用 role / grade / class を決定
@@ -114,7 +115,7 @@ def resolve_teacher_primary_assignment(
         key=lambda x: (
             assignment_priority.get(x.assignment_type, 99),
             not x.is_primary,
-        )
+        ),
     )
 
     primary = sorted_assignments[0]
@@ -126,7 +127,6 @@ def resolve_teacher_primary_assignment(
     )
 
 
-
 def build_admin_user_list(user_dict):
     user_list: list[AdminUserListResponse] = []
 
@@ -135,9 +135,10 @@ def build_admin_user_list(user_dict):
             student_class = (
                 StudentClassSummary(
                     grade_number=user["student_grade_number"],
-                    class_name=user["student_class_name"]
+                    class_name=user["student_class_name"],
                 )
-                if user["student_grade_number"] is not None else None
+                if user["student_grade_number"] is not None
+                else None
             )
             primary_assignment = None
 
@@ -145,10 +146,8 @@ def build_admin_user_list(user_dict):
             teacher_assignments = [
                 TeacherAssignmentSummary.model_validate(a)
                 for a in user["teacher_assignments"]
-                ]
-            primary_assignment = resolve_teacher_primary_assignment(
-                teacher_assignments
-                )
+            ]
+            primary_assignment = resolve_teacher_primary_assignment(teacher_assignments)
 
             student_class = None
 
@@ -179,7 +178,6 @@ def get_admin_user_list(
     limit: int = 500,
     offset: int = 0,
 ) -> list[AdminUserListResponse]:
-
 
     TeacherGrade = aliased(Grade)
     TeacherClass = aliased(Class)
@@ -221,17 +219,17 @@ def get_admin_user_list(
 
 
 # ユーザー情報を更新
-def update_user(db: Session, user_id: int, user_data: UserUpdate) ->  User | None:
+def update_user(db: Session, user_id: int, user_data: UserUpdate) -> User | None:
     user = get_user_by_id(db, user_id)
     if not user:
         return None
-    
+
     if user_data.name is not None:
         user.name = user_data.name
-    
+
     if user_data.password is not None:
         user.password_hash = get_password_hash(user_data.password)
-    
+
     db.commit()
     db.refresh(user)
     return user
@@ -242,7 +240,7 @@ def delete_user(db: Session, user_id: int) -> bool:
     user = get_user_by_id(db, user_id)
     if not user:
         return False
-    
+
     db.delete(user)
     db.commit()
     return True
@@ -250,14 +248,18 @@ def delete_user(db: Session, user_id: int) -> bool:
 
 # クラスに所属する生徒一覧を取得
 def get_students_by_class(db: Session, class_id: int) -> list[User]:
-    
-    return db.query(User).join(
-        StudentClassAssignment, User.id == StudentClassAssignment.student_id
-    ).filter(
-        StudentClassAssignment.class_id == class_id,
-        StudentClassAssignment.is_current == True,
-        User.role == RoleEnum.student
-    ).order_by(User.name).all()
+
+    return (
+        db.query(User)
+        .join(StudentClassAssignment, User.id == StudentClassAssignment.student_id)
+        .filter(
+            StudentClassAssignment.class_id == class_id,
+            StudentClassAssignment.is_current == True,
+            User.role == RoleEnum.student,
+        )
+        .order_by(User.name)
+        .all()
+    )
 
 
 def get_student_class_summary(db: Session, user_id: int):
@@ -282,7 +284,6 @@ def get_student_class_summary(db: Session, user_id: int):
         "grade_number": row.grade_number,
         "class_name": row.class_name,
     }
-
 
 
 def get_teacher_assignment_summaries(db: Session, user_id: int):

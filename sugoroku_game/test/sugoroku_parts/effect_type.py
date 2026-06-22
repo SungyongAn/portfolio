@@ -1,8 +1,7 @@
-
 # 前に進む
 forward = []
 # 後ろに下がる
-backward = [] 
+backward = []
 # 1回休み
 skip_a_turn = False
 # ゴール条件の設定

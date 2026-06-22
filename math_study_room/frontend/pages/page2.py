@@ -61,7 +61,9 @@ if addition:
 
         while len(st.session_state.questions) < num_questions:
             url = "http://backend:8000/page_addition_float"
-            response = requests.post(url, json={"num_range": num_digits_list_zero, "identification_code": 2})
+            response = requests.post(
+                url, json={"num_range": num_digits_list_zero, "identification_code": 2}
+            )
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -71,7 +73,9 @@ if addition:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(answer)
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -89,7 +93,9 @@ if subtract:
 
         while len(st.session_state.questions) < num_questions:
             url = "http://backend:8000/page_subtract_float"
-            response = requests.post(url, json={"num_range": num_digits_list_zero, "identification_code": 2})
+            response = requests.post(
+                url, json={"num_range": num_digits_list_zero, "identification_code": 2}
+            )
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -99,7 +105,9 @@ if subtract:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(answer)
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -117,7 +125,9 @@ if multiply:
 
         while len(st.session_state.questions) < num_questions:
             url = "http://backend:8000/page_multiply_float"
-            response = requests.post(url, json={"num_range": num_digits_list_zero, "identification_code": 2})
+            response = requests.post(
+                url, json={"num_range": num_digits_list_zero, "identification_code": 2}
+            )
             if response.status_code == 200:
                 data = response.json()
                 question_list = data["question_list"]
@@ -127,7 +137,9 @@ if multiply:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(answer)
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -155,7 +167,9 @@ if divide:
                 st.session_state.questions.append(question)
                 st.session_state.answers.append(answer)
         else:
-            st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+            st.error(
+                f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+            )
             st.json(response.json())
             break
 
@@ -179,9 +193,14 @@ if st.session_state.questions:
 
     for idx, question in enumerate(st.session_state.questions, 1):
         with col1:
-            st.write(f'<p style="font-size: 25px; text-align: left;">問{idx}) {question} </p>', unsafe_allow_html=True)
+            st.write(
+                f'<p style="font-size: 25px; text-align: left;">問{idx}) {question} </p>',
+                unsafe_allow_html=True,
+            )
         with col2:
-            p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
+            p_answer = st.text_input(
+                label="", value=0, placeholder=f"{idx}", label_visibility="collapsed"
+            )
         answer_list.append(p_answer)
 
     if st.button("採点"):
@@ -202,7 +221,10 @@ if st.session_state.questions:
             unsafe_allow_html=True,
         )
         if len(st.session_state.incorrect_list) < 1:
-            st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
+            st.write(
+                '<p style="font-size: 20px;">おめでとう 満点です！</p>',
+                unsafe_allow_html=True,
+            )
         else:
             st.write("不正解問題の正解")
             for i in range(len(st.session_state.incorrect_list)):

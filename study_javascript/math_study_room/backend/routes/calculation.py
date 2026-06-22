@@ -5,7 +5,7 @@ from decimal import ROUND_HALF_UP, Decimal
 
 # 整数問題の値をランダム作成
 def get_num_integer(digits):
-    start = 10**(digits - 1)
+    start = 10 ** (digits - 1)
     end = (10**digits) - 1
 
     num_one = random.randint(start, end)
@@ -15,19 +15,21 @@ def get_num_integer(digits):
 
 
 def get_num_real(digits):
-    start = 10**(digits - 1)
+    start = 10 ** (digits - 1)
     end = (10**digits) - 1
 
     num_one_zero = random.randint(start, end)
     num_two_zero = random.randint(start, end)
 
-    num_one = num_one_zero / (10 ** digits)
-    num_two = num_two_zero / (10 ** digits)
+    num_one = num_one_zero / (10**digits)
+    num_two = num_two_zero / (10**digits)
 
     return num_one, num_two
 
 
-def create_qa_not_division(arithmetic, questions, numquestions, answers, num_one, num_two):
+def create_qa_not_division(
+    arithmetic, questions, numquestions, answers, num_one, num_two
+):
     for i in range(numquestions):
         question_num = i + 1
 
@@ -92,19 +94,27 @@ def create_questions(type, arithmetic, digits, numquestions):
         num_one, num_two = get_num_integer(digits)
 
         if arithmetic != "division":
-            questions, answers = create_qa_not_division(arithmetic, questions, numquestions, answers, num_one, num_two)
+            questions, answers = create_qa_not_division(
+                arithmetic, questions, numquestions, answers, num_one, num_two
+            )
 
         else:
-            questions, answers = create_qa_integer_division(questions, numquestions, answers, num_one, num_two)
+            questions, answers = create_qa_integer_division(
+                questions, numquestions, answers, num_one, num_two
+            )
 
     # 実数の値をランダム作成
     elif type == "real":
         num_one, num_two = get_num_real(digits)
 
         if arithmetic != "division":
-            questions, answers = create_qa_not_division(arithmetic, questions, numquestions, answers, num_one, num_two)
+            questions, answers = create_qa_not_division(
+                arithmetic, questions, numquestions, answers, num_one, num_two
+            )
 
         else:
-            questions, answers = create_qa_real_division(questions, numquestions, answers, num_one, num_two)
+            questions, answers = create_qa_real_division(
+                questions, numquestions, answers, num_one, num_two
+            )
 
     return questions, answers

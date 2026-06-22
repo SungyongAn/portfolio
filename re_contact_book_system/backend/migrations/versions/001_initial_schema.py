@@ -19,7 +19,9 @@ def upgrade():
         sa.Column("password_hash", sa.String(255), nullable=False),
         sa.Column("role", sa.Enum("student", "teacher", "admin"), nullable=False),
         sa.Column("name", sa.String(100), nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.Column(
             "updated_at",
             sa.TIMESTAMP,
@@ -40,7 +42,9 @@ def upgrade():
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("grade_number", sa.Integer, nullable=False),
         sa.Column("year", sa.Integer, nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.UniqueConstraint("grade_number", "year", name="uk_grade_year"),
         sa.Index("idx_year", "year"),
     )
@@ -51,9 +55,13 @@ def upgrade():
     op.create_table(
         "classes",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("grade_id", sa.Integer, sa.ForeignKey("grades.id", ondelete="CASCADE")),
+        sa.Column(
+            "grade_id", sa.Integer, sa.ForeignKey("grades.id", ondelete="CASCADE")
+        ),
         sa.Column("class_name", sa.String(50), nullable=False),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.UniqueConstraint("grade_id", "class_name", name="uk_grade_class"),
         sa.Index("idx_grade_id", "grade_id"),
     )
@@ -66,7 +74,9 @@ def upgrade():
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("name", sa.String(50), nullable=False),
         sa.Column("is_active", sa.Boolean, server_default=sa.true()),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.UniqueConstraint("name", name="uk_subject_name"),
     )
 
@@ -76,10 +86,16 @@ def upgrade():
     op.create_table(
         "student_class_assignments",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("student_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
-        sa.Column("class_id", sa.Integer, sa.ForeignKey("classes.id", ondelete="CASCADE")),
+        sa.Column(
+            "student_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")
+        ),
+        sa.Column(
+            "class_id", sa.Integer, sa.ForeignKey("classes.id", ondelete="CASCADE")
+        ),
         sa.Column("is_current", sa.Boolean, server_default=sa.true()),
-        sa.Column("assigned_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "assigned_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.Index("idx_student_id", "student_id"),
         sa.Index("idx_class_id", "class_id"),
         sa.Index("idx_is_current", "is_current"),
@@ -91,22 +107,32 @@ def upgrade():
     op.create_table(
         "teacher_assignments",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("teacher_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
+        sa.Column(
+            "teacher_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")
+        ),
         sa.Column(
             "assignment_type",
             sa.Enum("homeroom", "subject", "grade_head"),
             nullable=False,
         ),
-        sa.Column("grade_id", sa.Integer, sa.ForeignKey("grades.id", ondelete="CASCADE")),
-        sa.Column("class_id", sa.Integer, sa.ForeignKey("classes.id", ondelete="CASCADE")),
-        sa.Column("subject_id", sa.Integer, sa.ForeignKey("subjects.id", ondelete="SET NULL")),
+        sa.Column(
+            "grade_id", sa.Integer, sa.ForeignKey("grades.id", ondelete="CASCADE")
+        ),
+        sa.Column(
+            "class_id", sa.Integer, sa.ForeignKey("classes.id", ondelete="CASCADE")
+        ),
+        sa.Column(
+            "subject_id", sa.Integer, sa.ForeignKey("subjects.id", ondelete="SET NULL")
+        ),
         sa.Column("is_primary", sa.Boolean, server_default=sa.false()),
         sa.Column(
             "permission_level",
             sa.Enum("read", "write", "admin"),
             server_default="read",
         ),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.Index("idx_teacher_id", "teacher_id"),
         sa.Index("idx_assignment_type", "assignment_type"),
         sa.Index("idx_class_id", "class_id"),
@@ -119,16 +145,22 @@ def upgrade():
     op.create_table(
         "journal_entries",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("student_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
+        sa.Column(
+            "student_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")
+        ),
         sa.Column("entry_date", sa.Date, nullable=False),
         sa.Column("submission_date", sa.Date, nullable=False),
         sa.Column("physical_condition", sa.String(50), nullable=False),
         sa.Column("mental_condition", sa.String(50), nullable=False),
         sa.Column("reflection_text", sa.Text),
         sa.Column("is_read", sa.Boolean, server_default=sa.false()),
-        sa.Column("read_by", sa.Integer, sa.ForeignKey("users.id", ondelete="SET NULL")),
+        sa.Column(
+            "read_by", sa.Integer, sa.ForeignKey("users.id", ondelete="SET NULL")
+        ),
         sa.Column("read_at", sa.TIMESTAMP),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.Column(
             "updated_at",
             sa.TIMESTAMP,
@@ -147,8 +179,12 @@ def upgrade():
     op.create_table(
         "teacher_notes",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("teacher_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
-        sa.Column("student_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")),
+        sa.Column(
+            "teacher_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")
+        ),
+        sa.Column(
+            "student_id", sa.Integer, sa.ForeignKey("users.id", ondelete="CASCADE")
+        ),
         sa.Column(
             "entry_id",
             sa.Integer,
@@ -156,7 +192,9 @@ def upgrade():
         ),
         sa.Column("note_text", sa.Text, nullable=False),
         sa.Column("is_shared", sa.Boolean, server_default=sa.false()),
-        sa.Column("created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column(
+            "created_at", sa.TIMESTAMP, server_default=sa.text("CURRENT_TIMESTAMP")
+        ),
         sa.Column(
             "updated_at",
             sa.TIMESTAMP,

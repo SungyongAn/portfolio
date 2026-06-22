@@ -7,6 +7,7 @@ from datetime import datetime
 
 app = FastAPI()
 
+
 # データモデル
 class UserData(BaseModel):
     name: str
@@ -14,8 +15,9 @@ class UserData(BaseModel):
     email: str
     message: str = ""
 
+
 # HTMLテンプレート（インラインで定義）
-HTML_FORM = '''
+HTML_FORM = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -54,11 +56,13 @@ HTML_FORM = '''
     </form>
 </body>
 </html>
-'''
+"""
+
 
 @app.get("/", response_class=HTMLResponse)
 async def show_form():
     return HTML_FORM
+
 
 @app.post("/submit")
 async def submit_form(
@@ -67,29 +71,30 @@ async def submit_form(
 ):
     # Pythonでデータ処理
     user_data = UserData(name=name, age=age, email=email, message=message)
-    
+
     # データ処理の例
     processed_info = {
         "processed_name": user_data.name.title(),
-
         "message_length": len(user_data.message),
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
-    
+
     # ログ出力
     print(f"受信データ: {processed_info}")
-    
+
     # JSONレスポンス
     return {
         "status": "success",
         "message": "データを正常に受信しました",
-        "data": processed_info
+        "data": processed_info,
     }
+
 
 @app.get("/api/data")
 async def get_all_data():
     """APIエンドポイントの例"""
     return {"message": "これはAPIエンドポイントです"}
+
 
 if __name__ == "__main__":
     print("FastAPIサーバーを起動中...")

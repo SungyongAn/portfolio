@@ -18,12 +18,14 @@ logger = logging.getLogger(__name__)
 class RenrakuchoService:
     # 連絡帳の登録（BackgroundTasks対応版）
     @staticmethod
-    def create_entry(db: Session, entry: RenrakuchoEntryRequest, background_tasks: BackgroundTasks = None) -> dict:
+    def create_entry(
+        db: Session,
+        entry: RenrakuchoEntryRequest,
+        background_tasks: BackgroundTasks = None,
+    ) -> dict:
         # 既存エントリーチェック（リポジトリを使用）
         existing_entry = RenrakuchoRepository.find_by_student_and_date(
-            db,
-            entry.student_id,
-            entry.target_date
+            db, entry.student_id, entry.target_date
         )
 
         if existing_entry:
@@ -52,7 +54,7 @@ class RenrakuchoService:
             if db_entry.physical_condition <= 2 or db_entry.mental_state <= 2:
                 # リポジトリを使用して生徒情報を取得
                 student = AccountRepository.find_by_id(db, db_entry.student_id)
-                
+
                 if student:
                     entry_dict = {
                         "renrakucho_id": db_entry.renrakucho_id,
@@ -66,15 +68,23 @@ class RenrakuchoService:
                         "submitted_date": db_entry.submitted_date.isoformat(),
                         "target_date": db_entry.target_date.isoformat(),
                     }
-                    
+
                     # BackgroundTasksが提供されている場合はそれを使用
                     if background_tasks:
-                        background_tasks.add_task(notify_critical_entry_async, entry_dict)
-                        logger.info(f"Notification scheduled for student {student.name}")
+                        background_tasks.add_task(
+                            notify_critical_entry_async, entry_dict
+                        )
+                        logger.info(
+                            f"Notification scheduled for student {student.name}"
+                        )
                     else:
-                        logger.warning("BackgroundTasks not provided, notification skipped")
+                        logger.warning(
+                            "BackgroundTasks not provided, notification skipped"
+                        )
                 else:
-                    logger.warning(f"Student not found for notification: student_id={db_entry.student_id}")
+                    logger.warning(
+                        f"Student not found for notification: student_id={db_entry.student_id}"
+                    )
 
             return {
                 "success": True,
@@ -115,9 +125,9 @@ class RenrakuchoService:
                 year=year,
                 month=month,
                 day=day,
-                weekday=weekday
+                weekday=weekday,
             )
-            
+
             result = [
                 PastRenrakuchoRecord(
                     record_date=r.target_date,
@@ -144,9 +154,9 @@ class RenrakuchoService:
                 month=month,
                 day=day,
                 weekday=weekday,
-                is_read=bool(is_read) if is_read is not None else None
+                is_read=bool(is_read) if is_read is not None else None,
             )
-            
+
             result = [
                 PastRenrakuchoRecord(
                     record_date=r.RenrakuchoEntryModel.target_date,
@@ -206,20 +216,21 @@ class RenrakuchoService:
     # 連絡帳の提出状況の確認
     @staticmethod
     def get_submission_status(
-        db: Session,
-        grade: int,
-        class_name: str,
-        target_date: date
+        db: Session, grade: int, class_name: str, target_date: date
     ) -> dict:
         # リポジトリを使用して提出済み・未提出生徒を取得
-        submitted_students_accounts = RenrakuchoRepository.find_submitted_students_by_date(
-            db, grade, class_name, target_date
+        submitted_students_accounts = (
+            RenrakuchoRepository.find_submitted_students_by_date(
+                db, grade, class_name, target_date
+            )
         )
-        
-        not_submitted_students_accounts = RenrakuchoRepository.find_not_submitted_students_by_date(
-            db, grade, class_name, target_date
+
+        not_submitted_students_accounts = (
+            RenrakuchoRepository.find_not_submitted_students_by_date(
+                db, grade, class_name, target_date
+            )
         )
-        
+
         # 提出済み生徒の提出日時を取得するため、連絡帳データも取得
         submitted_entries = RenrakuchoRepository.find_by_class_with_student_info(
             db,
@@ -227,9 +238,9 @@ class RenrakuchoService:
             class_name=class_name,
             year=target_date.year,
             month=target_date.month,
-            day=target_date.day
+            day=target_date.day,
         )
-        
+
         # 提出日時のマッピングを作成
         submission_date_map = {
             entry.RenrakuchoEntryModel.student_id: entry.RenrakuchoEntryModel.submitted_date
@@ -240,19 +251,20 @@ class RenrakuchoService:
             {
                 "student_id": s.id,
                 "student_name": s.name,
-                "submitted_at": submission_date_map.get(s.id).isoformat() if submission_date_map.get(s.id) else None
+                "submitted_at": (
+                    submission_date_map.get(s.id).isoformat()
+                    if submission_date_map.get(s.id)
+                    else None
+                ),
             }
             for s in submitted_students_accounts
         ]
 
         not_submitted_students = [
-            {
-                "student_id": s.id,
-                "student_name": s.name
-            }
+            {"student_id": s.id, "student_name": s.name}
             for s in not_submitted_students_accounts
         ]
-        
+
         total_students = len(submitted_students) + len(not_submitted_students)
 
         return {
@@ -260,7 +272,7 @@ class RenrakuchoService:
             "submitted_count": len(submitted_students),
             "not_submitted_count": len(not_submitted_students),
             "submitted_students": submitted_students,
-            "not_submitted_students": not_submitted_students
+            "not_submitted_students": not_submitted_students,
         }
 
     # 養護教諭用：体調・メンタル低値の連絡帳を取得
@@ -268,20 +280,22 @@ class RenrakuchoService:
     def get_critical_entries(db: Session, target_date: date = None) -> list[dict]:
         """
         体調・メンタル低値の連絡帳を取得（養護教諭用）
-        
+
         Args:
             db: データベースセッション
             target_date: 対象日（Noneの場合は当日）
-            
+
         Returns:
             list[dict]: 要注意連絡帳のリスト
         """
         if target_date is None:
             target_date = date.today()
-        
+
         # リポジトリを使用（日付フィルタ付き）
-        entries = RenrakuchoRepository.find_critical_entries(db, submitted_date=target_date)
-        
+        entries = RenrakuchoRepository.find_critical_entries(
+            db, submitted_date=target_date
+        )
+
         # レスポンス形式に整形
         return [
             {
@@ -295,7 +309,9 @@ class RenrakuchoService:
                 "physical_mental_notes": entry.physical_mental_notes,
                 "submitted_date": entry.submitted_date.isoformat(),
                 "target_date": entry.target_date.isoformat(),
-                "created_at": entry.created_at.isoformat() if entry.created_at else None
+                "created_at": (
+                    entry.created_at.isoformat() if entry.created_at else None
+                ),
             }
             for entry, student in entries
         ]

@@ -6,12 +6,12 @@ from app.models.accounts_model import Account, RoleEnum, StatusEnum
 from app.schemas.accounts_schema import (
     AccountRegisterRequest,
     AccountSearchPayload,
-    AccountUpdatePayload
+    AccountUpdatePayload,
 )
 from app.repositories.account_repository import (
     AccountRepository,
     TeacherRoleRepository,
-    SubjectRepository
+    SubjectRepository,
 )
 
 # パスワードハッシュ化の設定
@@ -28,13 +28,18 @@ class AccountService:
             try:
                 role_enum = RoleEnum(register_data.role.lower())
             except ValueError:
-                return {"success": False, "message": f"Invalid role: {register_data.role}"}
+                return {
+                    "success": False,
+                    "message": f"Invalid role: {register_data.role}",
+                }
 
             grade = register_data.grade
             current_year = datetime.now().year
 
             enrollment_year = register_data.enrollment_year or (
-                current_year - (grade - 1) if role_enum == RoleEnum.student else current_year
+                current_year - (grade - 1)
+                if role_enum == RoleEnum.student
+                else current_year
             )
 
             graduation_year = register_data.graduation_year or (
@@ -42,36 +47,38 @@ class AccountService:
             )
 
             # 重複チェック（リポジトリを使用）
-            
+
             existing_account = AccountRepository.find_by_name_grade_class(
                 db,
                 register_data.email,
                 register_data.last_name,
                 register_data.first_name,
                 grade,
-                register_data.class_name
+                register_data.class_name,
             )
-            
+
             if existing_account:
                 return {
                     "success": False,
-                    "message": f"Account already exists in {grade}年{register_data.class_name}組"
+                    "message": f"Account already exists in {grade}年{register_data.class_name}組",
                 }
 
             teacher_role_id = None
             subject_id = None
-            
+
             # 教員区分の取得（リポジトリを使用）
             if register_data.teacher_role:
-                teacher_role = TeacherRoleRepository.find_by_code(db, register_data.teacher_role)
+                teacher_role = TeacherRoleRepository.find_by_code(
+                    db, register_data.teacher_role
+                )
                 if teacher_role:
                     teacher_role_id = teacher_role.id
                 else:
                     return {
                         "success": False,
-                        "message": f"Invalid teacher_role code: {register_data.teacher_role}"
+                        "message": f"Invalid teacher_role code: {register_data.teacher_role}",
                     }
-            
+
             # 科目の取得（リポジトリを使用）
             if register_data.subject:
                 subject = SubjectRepository.find_by_code(db, register_data.subject)
@@ -80,7 +87,7 @@ class AccountService:
                 else:
                     return {
                         "success": False,
-                        "message": f"Invalid subject code: {register_data.subject}"
+                        "message": f"Invalid subject code: {register_data.subject}",
                     }
 
             # パスワードをハッシュ化
@@ -88,7 +95,7 @@ class AccountService:
 
             # 新規アカウントの作成（リポジトリを使用）
             new_account = Account(
-                email = register_data.email,
+                email=register_data.email,
                 grade=grade,
                 class_name=register_data.class_name,
                 last_name=register_data.last_name,
@@ -99,7 +106,7 @@ class AccountService:
                 status=StatusEnum.enrolled,
                 role=role_enum,
                 teacher_role_id=teacher_role_id,
-                subject_id=subject_id 
+                subject_id=subject_id,
             )
 
             new_account = AccountRepository.create(db, new_account)
@@ -107,12 +114,14 @@ class AccountService:
             # レスポンス用にコードを取得
             teacher_role_code = None
             subject_code = None
-            
+
             if new_account.teacher_role_id:
-                teacher_role = TeacherRoleRepository.find_by_id(db, new_account.teacher_role_id)
+                teacher_role = TeacherRoleRepository.find_by_id(
+                    db, new_account.teacher_role_id
+                )
                 if teacher_role:
                     teacher_role_code = teacher_role.code
-            
+
             if new_account.subject_id:
                 subject = SubjectRepository.find_by_id(db, new_account.subject_id)
                 if subject:
@@ -132,47 +141,50 @@ class AccountService:
                     "graduation_year": new_account.graduation_year,
                     "status": new_account.status.value,
                     "teacher_role": teacher_role_code,
-                    "subject": subject_code
-                }
+                    "subject": subject_code,
+                },
             }
 
         except IntegrityError:
             db.rollback()
-            return {"success": False, "message": "Account creation failed (duplicate data)"}
+            return {
+                "success": False,
+                "message": "Account creation failed (duplicate data)",
+            }
 
         except Exception:
             db.rollback()
             return {"success": False, "message": "Unexpected error"}
 
     # アカウント検索
-    @staticmethod 
+    @staticmethod
     def search_accounts(db: Session, payload: AccountSearchPayload) -> list[dict]:
         # teacher_roleとsubjectをIDに変換
         teacher_role_id = None
         subject_id = None
-        
+
         if payload.teacher_role:
             teacher_role = TeacherRoleRepository.find_by_code(db, payload.teacher_role)
             if teacher_role:
                 teacher_role_id = teacher_role.id
-        
+
         if payload.subject:
             subject = SubjectRepository.find_by_code(db, payload.subject)
             if subject:
                 subject_id = subject.id
-        
+
         # statusの変換
         status_value = None
         if payload.status:
             status_map = {
-                '在校': 'enrolled',
-                '卒業': 'graduated',
-                '転校': 'transferred',
-                '休学': 'on_leave',
-                'その他': 'other'
+                "在校": "enrolled",
+                "卒業": "graduated",
+                "転校": "transferred",
+                "休学": "on_leave",
+                "その他": "other",
             }
             status_value = status_map.get(payload.status, payload.status)
-        
+
         # リポジトリを使用して検索
         accounts = AccountRepository.search_with_filters(
             db,
@@ -184,7 +196,7 @@ class AccountService:
             enrollment_year=payload.enrollment_year,
             status=status_value,
             teacher_role_id=teacher_role_id,
-            subject_id=subject_id
+            subject_id=subject_id,
         )
 
         # 管理者権限のアカウント情報を除外
@@ -195,49 +207,51 @@ class AccountService:
         for acc in accounts:
             teacher_role_code = None
             subject_code = None
-        
+
             if acc.teacher_role_id:
                 teacher_role = TeacherRoleRepository.find_by_id(db, acc.teacher_role_id)
                 if teacher_role:
                     teacher_role_code = teacher_role.code
-        
+
             if acc.subject_id:
                 subject = SubjectRepository.find_by_id(db, acc.subject_id)
                 if subject:
                     subject_code = subject.code
-        
-            results.append({
-                "id": acc.id,
-                "role": acc.role.value,
-                "last_name": acc.last_name,
-                "first_name": acc.first_name,
-                "grade": acc.grade,
-                "className": acc.class_name,
-                "enrollmentYear": acc.enrollment_year,
-                "graduationYear": acc.graduation_year,
-                "status": acc.status.value,
-                "teacher_role": teacher_role_code,
-                "subject": subject_code
-            })
-    
+
+            results.append(
+                {
+                    "id": acc.id,
+                    "role": acc.role.value,
+                    "last_name": acc.last_name,
+                    "first_name": acc.first_name,
+                    "grade": acc.grade,
+                    "className": acc.class_name,
+                    "enrollmentYear": acc.enrollment_year,
+                    "graduationYear": acc.graduation_year,
+                    "status": acc.status.value,
+                    "teacher_role": teacher_role_code,
+                    "subject": subject_code,
+                }
+            )
+
         return results
 
     # アカウント更新
     @staticmethod
     def update_accounts(db: Session, updates: list[AccountUpdatePayload]):
         role_map = {
-            'student': RoleEnum.student,
-            'teacher': RoleEnum.teacher,
-            'admin': RoleEnum.admin,
-            'school_nurse': RoleEnum.school_nurse
+            "student": RoleEnum.student,
+            "teacher": RoleEnum.teacher,
+            "admin": RoleEnum.admin,
+            "school_nurse": RoleEnum.school_nurse,
         }
         status_map = {
-            'enrolled': StatusEnum.enrolled,
-            'graduated': StatusEnum.graduated,
-            'transferred': StatusEnum.transferred,
-            'suspended': StatusEnum.on_leave,
-            'on_leave': StatusEnum.on_leave,
-            'other': StatusEnum.other
+            "enrolled": StatusEnum.enrolled,
+            "graduated": StatusEnum.graduated,
+            "transferred": StatusEnum.transferred,
+            "suspended": StatusEnum.on_leave,
+            "on_leave": StatusEnum.on_leave,
+            "other": StatusEnum.other,
         }
 
         updated_count = 0
@@ -270,15 +284,19 @@ class AccountService:
                 account.status = status_enum
 
                 # 教師フィールドの更新（リポジトリを使用）
-                if hasattr(item, 'teacher_role') and item.teacher_role:
-                    teacher_role = TeacherRoleRepository.find_by_code(db, item.teacher_role)
+                if hasattr(item, "teacher_role") and item.teacher_role:
+                    teacher_role = TeacherRoleRepository.find_by_code(
+                        db, item.teacher_role
+                    )
                     if teacher_role:
                         account.teacher_role_id = teacher_role.id
                     else:
-                        errors.append(f"ID {item.id}: 無効な教員区分 '{item.teacher_role}'")
+                        errors.append(
+                            f"ID {item.id}: 無効な教員区分 '{item.teacher_role}'"
+                        )
                         continue
-                
-                if hasattr(item, 'subject') and item.subject:
+
+                if hasattr(item, "subject") and item.subject:
                     subject = SubjectRepository.find_by_code(db, item.subject)
                     if subject:
                         account.subject_id = subject.id
@@ -287,7 +305,7 @@ class AccountService:
                         continue
 
                 # パスワードが提供されている場合はハッシュ化して更新
-                if hasattr(item, 'password') and item.password:
+                if hasattr(item, "password") and item.password:
                     account.password = pwd_context.hash(item.password)
 
                 updated_count += 1
@@ -297,11 +315,9 @@ class AccountService:
 
             return {
                 "success": len(errors) == 0,
-                "message": f"{updated_count}件更新しました。" + (" エラーあり。" if errors else ""),
-                "data": {
-                    "updated_count": updated_count,
-                    "errors": errors
-                }
+                "message": f"{updated_count}件更新しました。"
+                + (" エラーあり。" if errors else ""),
+                "data": {"updated_count": updated_count, "errors": errors},
             }
 
         except Exception:
@@ -309,19 +325,20 @@ class AccountService:
             return {"success": False, "message": "更新中にエラーが発生しました"}
 
     """ 以下、未使用 """
+
     # ログイン認証
     @staticmethod
     def verify_login(db: Session, last_name: str, first_name: str, password: str):
         # リポジトリを使用してアカウント検索
         account = AccountRepository.find_by_full_name(db, last_name, first_name)
-        
+
         if not account:
             return {"success": False, "message": "Account not found"}
-        
+
         # ハッシュ化されたパスワードと比較
         if not pwd_context.verify(password, account.password):
             return {"success": False, "message": "Invalid password"}
-        
+
         return {
             "success": True,
             "message": "Login successful",
@@ -332,8 +349,8 @@ class AccountService:
                 "role": account.role.value,
                 "grade": account.grade,
                 "class_name": account.class_name,
-                "status": account.status.value
-            }
+                "status": account.status.value,
+            },
         }
 
     # パスワードリセット（管理者用）
@@ -342,19 +359,16 @@ class AccountService:
         try:
             # リポジトリを使用してアカウント取得
             account = AccountRepository.find_by_email(db, email)
-            
+
             if not account:
                 return {"success": False, "message": "Account not found"}
-            
+
             # 新しいパスワードをハッシュ化
             account.password = pwd_context.hash(new_password)
             AccountRepository.update(db, account)
-            
-            return {
-                "success": True,
-                "message": "Password reset successfully"
-            }
-            
+
+            return {"success": True, "message": "Password reset successfully"}
+
         except Exception:
             db.rollback()
             return {"success": False, "message": "Password reset failed"}

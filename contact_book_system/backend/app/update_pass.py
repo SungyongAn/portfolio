@@ -17,10 +17,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # パスワード設定
 passwords = {
-    'admin123': 'admin',
-    'nurse123': 'school_nurse', 
-    'teacher123': 'teacher',
-    'student123': 'student'
+    "admin123": "admin",
+    "nurse123": "school_nurse",
+    "teacher123": "teacher",
+    "student123": "student",
 }
 
 print("=" * 80)
@@ -53,4 +53,3 @@ print("2. MySQLに接続: docker-compose exec db mysql -u root -p renrakucho_db"
 print("3. SQL文を貼り付けて実行")
 print("4. COMMIT; を実行")
 print("=" * 80)
-

@@ -8,10 +8,11 @@ from app.utils.token_utils import decode_token
 
 security = HTTPBearer()
 
+
 # アクセストークンから現在のユーザーを取得
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> User:
 
     token = credentials.credentials
@@ -45,7 +46,7 @@ def get_current_user(
 def get_current_active_user(
     current_user: User = Depends(get_current_user),
 ) -> User:
-    
+
     return current_user
 
 

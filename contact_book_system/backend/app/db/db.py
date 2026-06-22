@@ -6,11 +6,7 @@ from typing import Generator
 # DATABASE_URL = "mysql+pymysql://appuser:apppass@mysql:3306/renrakucho_db?charset=utf8mb4"
 DATABASE_URL = "mysql+pymysql://appuser:apppass@renrakucho_mysql:3306/renrakucho_db?charset=utf8mb4"
 
-engine = create_engine(
-    DATABASE_URL,
-    pool_pre_ping=True,
-    echo=True  # 開発時のみTrue
-)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, echo=True)  # 開発時のみTrue
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

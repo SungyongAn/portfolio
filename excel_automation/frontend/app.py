@@ -28,7 +28,11 @@ st.title("実務日報")
 
 # サイドバー入力
 with st.sidebar:
-    st.text_input("Googleアドレス", value="google accountに紐づけられるようにする。", key="account_date")
+    st.text_input(
+        "Googleアドレス",
+        value="google accountに紐づけられるようにする。",
+        key="account_date",
+    )
     st.markdown('<p style="color:red;">*必須の質問です</p>', unsafe_allow_html=True)
 
     mail_address = st.text_input("メールアドレス")
@@ -41,7 +45,7 @@ with st.sidebar:
         payload = {
             "mail_address": mail_address,
             "user_name": user_name,
-            "work_flag": work_flag
+            "work_flag": work_flag,
         }
         try:
             response = requests.post(url, json=payload)
@@ -61,7 +65,9 @@ with st.sidebar:
 # 詳細入力
 if st.session_state.detailed_input_flag:
     st.markdown(f"### {st.session_state.response_content}")
-    st.write(f"{st.session_state.user_name_for_display}さん、お疲れ様です。前回の作業履歴は以下の内容になります。")
+    st.write(
+        f"{st.session_state.user_name_for_display}さん、お疲れ様です。前回の作業履歴は以下の内容になります。"
+    )
 
     col1, col2 = st.columns(2)
     with col1:
@@ -76,13 +82,15 @@ if st.session_state.detailed_input_flag:
     detailed_options = {
         "A": ["A1", "A2", "A3", "A4", "A5"],
         "B": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"],
-        "C": ["C1", "C2", "C3", "C4", "C5"]
+        "C": ["C1", "C2", "C3", "C4", "C5"],
     }
 
     # 作業項目の代入先
     work_type = None
     if st.session_state.work_flag in detailed_options:
-        work_type = st.radio("作業詳細", detailed_options[st.session_state.work_flag], horizontal=True)
+        work_type = st.radio(
+            "作業詳細", detailed_options[st.session_state.work_flag], horizontal=True
+        )
     else:
         work_type = st.session_state.work_flag  # 詳細指定がない場合はそのまま
 
@@ -100,7 +108,7 @@ if st.session_state.detailed_input_flag:
                 "today_date": str(today_date),
                 "user_name": st.session_state.user_name_for_display,
                 "work_type": str(work_type),
-                "time_worked": int(time_worked)
+                "time_worked": int(time_worked),
             }
         except ValueError:
             st.error("作業時間は整数で入力してください。")

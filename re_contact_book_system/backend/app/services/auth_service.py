@@ -5,14 +5,14 @@ from app.schemas.user import (
     LoginResponse,
     RoleEnum,
     TokenRefreshResponse,
-    UserPrimaryAssignment
-    )
+    UserPrimaryAssignment,
+)
 from app.services.user_service import (
     authenticate_user,
     get_student_class_summary,
     get_teacher_assignment_summaries,
     resolve_teacher_primary_assignment,
-    )
+)
 from app.utils.token_utils import (
     create_access_token,
     create_refresh_token,
@@ -22,6 +22,7 @@ from app.utils.token_utils import (
 ACCESS_TOKEN_EXPIRE_SECONDS = 900  # 15分
 
 # ログイン処理
+
 
 def login_user(
     db: Session,

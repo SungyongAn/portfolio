@@ -32,7 +32,9 @@ def get_range_real_numbers(num_range):
 # 整数 足し算
 def addition_int(num_range_integer):
     output_range = get_output_range(num_range_integer)
-    question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    question_list = [
+        random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+    ]
     answer = sum(question_list)
 
     return question_list, answer
@@ -43,11 +45,15 @@ def addition_float(num_range, identification_code):
     if identification_code == 2:
         output_range = get_range_real_numbers(num_range)
 
-        question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+        question_list_zero = [
+            random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+        ]
 
         idenominator = [10 ** num_range[i] for i in range(len(num_range))]
 
-        question_list = [question_list_zero[i] / idenominator[i] for i in range(len(num_range))]
+        question_list = [
+            question_list_zero[i] / idenominator[i] for i in range(len(num_range))
+        ]
 
         answer_zero = 0
         for i in range(len(question_list_zero)):
@@ -65,7 +71,9 @@ def addition_float(num_range, identification_code):
 # 引き算
 def subtract_int(num_range):
     output_range = get_output_range(num_range)
-    question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    question_list = [
+        random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+    ]
     answer = 0
     for i in range(2):
         if i == 0:
@@ -80,11 +88,15 @@ def subtract_float(num_range, identification_code):
     if identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
-        question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+        question_list_zero = [
+            random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+        ]
 
         idenominator = [10 ** num_range[i] for i in range(len(num_range))]
 
-        question_list = [question_list_zero[i] / idenominator[i] for i in range(len(num_range))]
+        question_list = [
+            question_list_zero[i] / idenominator[i] for i in range(len(num_range))
+        ]
 
         answer_zero = 0
         for i in range(len(question_list_zero)):
@@ -108,7 +120,9 @@ def subtract_float(num_range, identification_code):
 # 掛け算
 def multiply_int(num_range):
     output_range = get_output_range(num_range)
-    question_list = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    question_list = [
+        random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+    ]
     answer = question_list[0] * question_list[1]
 
     return question_list, answer
@@ -118,13 +132,19 @@ def multiply_float(num_range, identification_code):
     if identification_code == 2:  # 実数
         output_range = get_range_real_numbers(num_range)
 
-        question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+        question_list_zero = [
+            random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+        ]
 
-        question_list_two = [Decimal(question_list_zero[i]) for i in range(len(question_list_zero))]
+        question_list_two = [
+            Decimal(question_list_zero[i]) for i in range(len(question_list_zero))
+        ]
 
         idenominator = [10 ** num_range[i] for i in range(len(num_range))]
 
-        question_list = [question_list_two[i] / idenominator[i] for i in range(len(num_range))]
+        question_list = [
+            question_list_two[i] / idenominator[i] for i in range(len(num_range))
+        ]
 
         answer = question_list[0] * question_list[1]
 
@@ -146,13 +166,19 @@ def divide_int(num_range):
 def divide_float(num_range):
     output_range = get_range_real_numbers(num_range)
 
-    question_list_zero = [random.randint(output_range[i][0], output_range[i][1]) for i in range(2)]
+    question_list_zero = [
+        random.randint(output_range[i][0], output_range[i][1]) for i in range(2)
+    ]
 
-    question_list_two = [Decimal(question_list_zero[i]) for i in range(len(question_list_zero))]
+    question_list_two = [
+        Decimal(question_list_zero[i]) for i in range(len(question_list_zero))
+    ]
 
     idenominator = [10 ** num_range[i] for i in range(len(num_range))]
 
-    question_list = [question_list_two[i] / idenominator[i] for i in range(len(num_range))]
+    question_list = [
+        question_list_two[i] / idenominator[i] for i in range(len(num_range))
+    ]
 
     answer = question_list[0] / question_list[1]
 

@@ -3,10 +3,7 @@ import pymysql
 import os
 from urllib.parse import urlparse
 
-db_url = os.getenv(
-    "DATABASE_URL",
-    "mysql+pymysql://root:root@db:3306/journal_system"
-)
+db_url = os.getenv("DATABASE_URL", "mysql+pymysql://root:root@db:3306/journal_system")
 
 p = urlparse(db_url)
 
@@ -17,7 +14,7 @@ for i in range(30):
             port=p.port or 3306,
             user=p.username,
             password=p.password,
-            database=p.path.lstrip("/")
+            database=p.path.lstrip("/"),
         )
         conn.close()
         print("DB is ready!")

@@ -1,0 +1,56 @@
+# Python
+
+**pycache**/
+_.py[cod]
+_.pyo
+.Python
+\*.egg-info/
+dist/
+build/
+
+# 仮想環境
+
+venv/
+.venv/
+env/
+
+# 環境変数
+
+backend/.env
+frontend/.env
+frontend/.env.production
+frontend/.env.local
+frontend/.env.\*.local
+
+# Node
+
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# Docker ボリューム
+
+db_data/
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# IDE
+
+.vscode/
+.idea/
+_.swp
+_.swo
+
+# ログ
+
+\*.log
+logs/
+
+# テスト
+
+.coverage
+htmlcov/
+.pytest_cache/

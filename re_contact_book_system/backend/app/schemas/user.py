@@ -23,6 +23,7 @@ class UserWithClassResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 # 生徒のユーザー情報取得時の学年、クラス情報
 class StudentClassSummary(BaseModel):
     grade_number: int
@@ -44,6 +45,7 @@ class TeacherAssignmentSummary(BaseModel):
     class Config:
         from_attributes = True
 
+
 class UserPrimaryAssignment(BaseModel):
     assignment_type: AssignmentTypeEnum  # homeroom / subject / grade_head
     grade_number: int | None = None
@@ -51,6 +53,7 @@ class UserPrimaryAssignment(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 # ログインレスポンス
 class LoginResponse(BaseModel):
@@ -64,7 +67,7 @@ class LoginResponse(BaseModel):
 
     # 学籍・担当情報（ロールによって使い分け）
     student_class: StudentClassSummary | None = None
-    
+
     # 教師の場合の代表割当（一覧表示用）
     primary_assignment: UserPrimaryAssignment | None = None
 
@@ -92,7 +95,7 @@ class UserCreate(BaseModel):
                 "email": "student@school.ac.jp",
                 "password": "password123",
                 "name": "山田 太郎",
-                "role": "student"
+                "role": "student",
             }
         }
 

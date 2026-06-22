@@ -1,7 +1,13 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_
 from typing import Optional, List
-from app.models.accounts_model import Account, TeacherRole, Subject, RoleEnum, StatusEnum
+from app.models.accounts_model import (
+    Account,
+    TeacherRole,
+    Subject,
+    RoleEnum,
+    StatusEnum,
+)
 
 
 # アカウント関連のデータアクセスを担当するリポジトリクラス
@@ -24,11 +30,14 @@ class AccountRepository:
 
     # 姓名の両方でアカウント検索
     @staticmethod
-    def find_by_full_name(db: Session, last_name: str, first_name: str) -> Optional[Account]:
-        return db.query(Account).filter(
-            Account.last_name == last_name,
-            Account.first_name == first_name
-        ).first()
+    def find_by_full_name(
+        db: Session, last_name: str, first_name: str
+    ) -> Optional[Account]:
+        return (
+            db.query(Account)
+            .filter(Account.last_name == last_name, Account.first_name == first_name)
+            .first()
+        )
 
     # emailでアカウント検索(重複チェックに使用)
     @staticmethod
@@ -40,19 +49,23 @@ class AccountRepository:
     def find_by_name_grade_class(
         db: Session,
         email: str,
-        last_name: str, 
+        last_name: str,
         first_name: str,
-        grade: int, 
-        class_name: str
+        grade: int,
+        class_name: str,
     ) -> Optional[Account]:
-        
-        return db.query(Account).filter(
-            Account.email == email,
-            Account.last_name == last_name,
-            Account.first_name == first_name,
-            Account.grade == grade,
-            Account.class_name == class_name
-        ).first()
+
+        return (
+            db.query(Account)
+            .filter(
+                Account.email == email,
+                Account.last_name == last_name,
+                Account.first_name == first_name,
+                Account.grade == grade,
+                Account.class_name == class_name,
+            )
+            .first()
+        )
 
     # 新しいアカウントを作成
     @staticmethod
@@ -82,9 +95,9 @@ class AccountRepository:
         enrollment_year: Optional[int] = None,
         status: Optional[str] = None,
         teacher_role_id: Optional[int] = None,
-        subject_id: Optional[int] = None
+        subject_id: Optional[int] = None,
     ) -> List[Account]:
-        
+
         query = db.query(Account)
 
         if email:
@@ -99,7 +112,7 @@ class AccountRepository:
 
         if last_name:
             query = query.filter(Account.last_name == last_name)
-            
+
         if first_name:
             query = query.filter(Account.first_name == first_name)
 
@@ -128,19 +141,23 @@ class AccountRepository:
         return query.all()
 
     """ 以下未使用 """
+
     # 指定された学年・クラスの生徒を取得
     @staticmethod
     def find_students_by_grade_class(
-        db: Session, 
-        grade: int, 
-        class_name: str
+        db: Session, grade: int, class_name: str
     ) -> List[Account]:
-        
-        return db.query(Account).filter(
-            Account.grade == grade,
-            Account.class_name == class_name,
-            Account.role == RoleEnum.student
-        ).order_by(Account.last_name, Account.first_name)
+
+        return (
+            db.query(Account)
+            .filter(
+                Account.grade == grade,
+                Account.class_name == class_name,
+                Account.role == RoleEnum.student,
+            )
+            .order_by(Account.last_name, Account.first_name)
+        )
+
     """ ここまで未使用 """
 
 
@@ -158,10 +175,12 @@ class TeacherRoleRepository:
         return db.query(TeacherRole).filter(TeacherRole.code == code).first()
 
     """ 以下未使用 """
+
     # すべての教員区分を取得
     @staticmethod
     def find_all(db: Session) -> List[TeacherRole]:
         return db.query(TeacherRole).all()
+
     """ ここまで未使用 """
 
 
@@ -179,8 +198,10 @@ class SubjectRepository:
         return db.query(Subject).filter(Subject.code == code).first()
 
     """ 以下未使用 """
+
     # すべての科目を取得
     @staticmethod
     def find_all(db: Session) -> List[Subject]:
         return db.query(Subject).all()
+
     """ ここまで未使用 """

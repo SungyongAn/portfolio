@@ -1,5 +1,3 @@
-
-
 def create_road_to_pass():
     math_dict = {4: ["A", "B"], 5: ["A", "B"], 6: ["A", "B"]}
     board = [1, 2, 3, math_dict, 7, 8, 9, 10]
@@ -19,5 +17,5 @@ def create_road_to_pass():
             road_to_pass.append(board[indx])
         else:
             road_to_pass.append(board[i])
-            
+
     return board, road_to_pass

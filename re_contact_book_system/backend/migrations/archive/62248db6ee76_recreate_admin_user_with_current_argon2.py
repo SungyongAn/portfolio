@@ -9,19 +9,13 @@ depends_on = None
 
 def upgrade():
     # ① 既存 admin を削除
-    op.execute(
-        text(
-            """
+    op.execute(text("""
             DELETE FROM users
             WHERE email = 'admin@school.ac.jp'
-            """
-        )
-    )
+            """))
 
     # ② 現在の構成で生成したハッシュで再作成
-    op.execute(
-        text(
-            """
+    op.execute(text("""
             INSERT INTO users (email, password_hash, role, name)
             VALUES (
                 'admin@school.ac.jp',
@@ -29,18 +23,12 @@ def upgrade():
                 'admin',
                 'システム管理者'
             )
-            """
-        )
-    )
+            """))
 
 
 def downgrade():
     # downgrade 時は admin を消すだけ
-    op.execute(
-        text(
-            """
+    op.execute(text("""
             DELETE FROM users
             WHERE email = 'admin@school.ac.jp'
-            """
-        )
-    )
+            """))

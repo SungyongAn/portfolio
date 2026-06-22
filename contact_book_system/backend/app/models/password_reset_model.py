@@ -8,10 +8,7 @@ class PasswordResetToken(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True, comment="トークンID")
     account_id = Column(
-        Integer,
-        ForeignKey('accounts.id'),
-        nullable=False,
-        comment="アカウントID"
+        Integer, ForeignKey("accounts.id"), nullable=False, comment="アカウントID"
     )
     token = Column(String(255), unique=True, nullable=False, comment="リセットトークン")
     used = Column(Boolean, default=False, nullable=False, comment="使用済みフラグ")

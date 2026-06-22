@@ -60,7 +60,9 @@ if addition:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(int(answer))
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -89,7 +91,9 @@ if subtract:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(int(answer))
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -119,7 +123,9 @@ if multiply:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(int(answer))
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -152,7 +158,9 @@ if divide:
                     st.session_state.questions.append(question)
                     st.session_state.answers.append(answer)
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -183,7 +191,9 @@ if divide:
                 st.session_state.questions.append(question)
                 st.session_state.answers.append(answer)
             else:
-                st.error(f"{response.status_code}エラーが発生しました。詳細は以下を参照ください")
+                st.error(
+                    f"{response.status_code}エラーが発生しました。詳細は以下を参照ください"
+                )
                 st.json(response.json())
                 break
 
@@ -211,7 +221,12 @@ if st.session_state.questions:
                     unsafe_allow_html=True,
                 )
             with col2:
-                p_answer = st.text_input(label="", value=0, placeholder=f"{idx}", label_visibility="collapsed")
+                p_answer = st.text_input(
+                    label="",
+                    value=0,
+                    placeholder=f"{idx}",
+                    label_visibility="collapsed",
+                )
             answer_list.append(p_answer)
 
         if st.button("採点"):
@@ -234,7 +249,10 @@ if st.session_state.questions:
 
         if st.button("間違えた問題の正解表示"):
             if len(st.session_state.incorrect_list) < 1:
-                st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
+                st.write(
+                    '<p style="font-size: 20px;">おめでとう 満点です！</p>',
+                    unsafe_allow_html=True,
+                )
             else:
                 for i in range(len(st.session_state.incorrect_list)):
                     st.write(
@@ -269,7 +287,10 @@ if st.session_state.questions:
                         label_visibility="collapsed",
                     )
                 with col3:
-                    st.write('<p style="font-size: 25px; text-align: center;"> 余り </p>', unsafe_allow_html=True)
+                    st.write(
+                        '<p style="font-size: 25px; text-align: center;"> 余り </p>',
+                        unsafe_allow_html=True,
+                    )
                 with col4:
                     p_answer_2 = st.text_input(
                         label="",
@@ -303,7 +324,10 @@ if st.session_state.questions:
                         label_visibility="collapsed",
                     )
                 with col4:
-                    st.write('<p style="font-size: 25px; text-align: center;"> / </p>', unsafe_allow_html=True)
+                    st.write(
+                        '<p style="font-size: 25px; text-align: center;"> / </p>',
+                        unsafe_allow_html=True,
+                    )
                 with col5:
                     p_answer_3 = st.text_input(
                         label="",
@@ -320,7 +344,9 @@ if st.session_state.questions:
         if st.session_state.show_answers and kinds == "余り":
             for idx, answer in enumerate(st.session_state.answers, 1):
                 list_idx = idx - 1
-                if int(answer_list[list_idx][0]) == int(answer[0]) and int(answer_list[list_idx][1]) == int(answer[1]):
+                if int(answer_list[list_idx][0]) == int(answer[0]) and int(
+                    answer_list[list_idx][1]
+                ) == int(answer[1]):
                     st.session_state.num_correct += 1
                 else:
                     incorrect_list_zero = []
@@ -353,7 +379,10 @@ if st.session_state.questions:
 
         if st.button("間違えた問題の正解表示"):
             if len(st.session_state.incorrect_list) < 1:
-                st.write('<p style="font-size: 20px;">おめでとう 満点です！</p>', unsafe_allow_html=True)
+                st.write(
+                    '<p style="font-size: 20px;">おめでとう 満点です！</p>',
+                    unsafe_allow_html=True,
+                )
             else:
                 if kinds == "余り":
                     for i in range(len(st.session_state.incorrect_list)):

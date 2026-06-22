@@ -4,8 +4,8 @@ from app.api import (
     account_management,
     renrakucho_management,
     chat,
-    archive_management
-    )
+    archive_management,
+)
 from app.websocket import notifications
 from fastapi.middleware.cors import CORSMiddleware
 

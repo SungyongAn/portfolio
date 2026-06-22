@@ -7,7 +7,7 @@ from app.schemas.auth_schema import (
     LoginResponse,
     PasswordResetRequest,
     PasswordResetResponse,
-    PasswordResetConfirm
+    PasswordResetConfirm,
 )
 
 router = APIRouter()
@@ -22,7 +22,9 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
 
 # パスワードリセット要求
 @router.post("/password-reset-request", response_model=PasswordResetResponse)
-def password_reset_request(request: PasswordResetRequest, db: Session = Depends(get_db)):
+def password_reset_request(
+    request: PasswordResetRequest, db: Session = Depends(get_db)
+):
     result = auth.password_reset_request(request, db)
     return result
 
@@ -36,6 +38,8 @@ def verify_reset_token(token: str, db: Session = Depends(get_db)):
 
 # パスワードリセット実行
 @router.post("/password-reset-confirm", response_model=PasswordResetResponse)
-def password_reset_confirm(request: PasswordResetConfirm, db: Session = Depends(get_db)):
+def password_reset_confirm(
+    request: PasswordResetConfirm, db: Session = Depends(get_db)
+):
     result = auth.password_reset_confirm(request, db)
     return result

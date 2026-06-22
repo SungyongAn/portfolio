@@ -25,22 +25,18 @@ def upgrade():
 
     # 2. 既存データ更新（条件付き）
     # status = 'approved' の場合 TRUE
-    op.execute(
-        """
+    op.execute("""
         UPDATE measurements
         SET manager_confirmed = TRUE
         WHERE status = 'approved'
-        """
-    )
+        """)
 
     # それ以外は FALSE
-    op.execute(
-        """
+    op.execute("""
         UPDATE measurements
         SET manager_confirmed = FALSE
         WHERE manager_confirmed IS NULL
-        """
-    )
+        """)
 
     # 3. NOT NULL制約 + デフォルト付与
     op.alter_column(

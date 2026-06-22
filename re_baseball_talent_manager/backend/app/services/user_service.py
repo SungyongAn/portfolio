@@ -80,7 +80,7 @@ def get_user_list(
             grade=row.grade,
             role=row.role,
             status=row.status,
-            status_changed_at=row.status_changed_at, 
+            status_changed_at=row.status_changed_at,
         )
         for row in results
     ]
