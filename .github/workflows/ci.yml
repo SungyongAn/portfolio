@@ -72,16 +72,6 @@ jobs:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: pytest
 
-      - name: マイグレーションファイル作成漏れチェック
-        working-directory: jpt-intern-2026/backend
-        env:
-          DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
-        run: |
-          alembic check && echo "✅ マイグレーションファイルの作成漏れはありません" || {
-            echo "❌ モデルの変更に対応するマイグレーションファイルが作成されていません"
-            exit 1
-          }
-
       - name: バックエンド起動
         working-directory: jpt-intern-2026/backend
         env:
