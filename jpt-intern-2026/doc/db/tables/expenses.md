@@ -35,7 +35,7 @@ CHECK (amount >= 0)
 | ----------- | ------------ |
 | OUTSOURCING | 外注費       |
 | LICENSE     | ライセンス費 |
-| EQUIPMENT   | 機材費       |
+| EQUIPMENT   | 機器・備品   |
 | OTHER       | その他       |
 
 ## 備考

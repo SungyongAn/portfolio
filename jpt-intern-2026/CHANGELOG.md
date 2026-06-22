@@ -1,5 +1,198 @@
 # CHANGELOG
 
+## [docs/update-design-documents] - 2026-06-22
+
+### Changed
+
+#### ER設計・ステータス設計の更新
+
+- `doc/db/er_design.md`
+  - `ExpenseType` の `EQUIPMENT` の説明を「機材費」→「機器・備品」に修正（実装コメントに統一）
+
+- `doc/db/status_design.md`
+  - 操作権限テーブルの「着手」の実行可能ロールを「全ロール」→「APPLICANT / DEPT_MANAGER / HQ_MANAGER」に修正（TASK_MEMBERは着手不可）
+
+#### テーブル定義の更新
+
+- `doc/db/tables/expenses.md`
+  - 経費種別定義の `EQUIPMENT` の表示名を「機材費」→「機器・備品」に修正
+
+#### API設計の更新
+
+- `doc/design/api_design.md`
+  - ユーザーAPIの対象ロールを修正
+    - `GET /users`・`GET /users/{user_id}`・`POST /users` を `HQ_MANAGER` のみに変更
+    - `POST /users`（ユーザー作成）・`GET /users/{user_id}`（ユーザー詳細取得）を追記
+    - `GET /users` のクエリパラメータセクションを削除（実装に存在しないため）
+  - 部門APIに `GET /departments/{department_id}/tasks`（部門内タスク一覧取得）を追加
+
+#### 機能一覧の更新
+
+- `doc/design/functions.md`
+  - `F-TSK-01` タスク登録・削除の対象ロールを「APPLICANT / DEPT_MANAGER」→「APPLICANT / DEPT_MANAGER / HQ_MANAGER」に修正
+  - `F-TSK-02` タスク更新の対象ロールを「APPLICANT / DEPT_MANAGER / TASK_MEMBER」→「APPLICANT / TASK_MEMBER」に修正
+  - `F-BDG-02` 直接経費入力の説明を「機材費」→「機器費」に修正
+
+#### ロール権限マトリクスの更新
+
+- `doc/design/role_matrix.md`
+  - 機能別権限マトリクスの「タスクの登録・削除」本部管理者を `❌` → `✅` に修正
+  - 機能別権限マトリクスの「タスクの更新」部門管理者を `✅` → `❌` に修正
+  - 補足・設計判断の記載を実装に合わせて修正
+    - 「部門管理者・本部管理者は進捗・予算の編集は行わず」→「タスク更新は申請者・担当者のみ実行可能」に変更
+    - 「タスク登録・削除は申請者・部門管理者・本部管理者が実行可能」を追記
+
+#### 画面一覧・画面遷移の更新
+
+- `doc/design/screens/screen-list.md`
+  - `S-APP-02` 案件申請画面の説明に「Drawer表示」を追記
+  - `S-APP-03` 案件詳細画面の関連機能IDから `F-TSK-02` を削除（タスク更新はインラインDialogのため）
+  - `S-TSK-01` のタイトルを「タスク登録・更新画面」→「タスク登録画面」に修正
+  - `S-BDG-04` 予算管理一覧画面（DEPT_MANAGER / HQ_MANAGER）を追加
+  - `S-MBR-01` メンバータスク状況画面（DEPT_MANAGER）を追加
+  - `TASK_MEMBER` ロールをロール定義に追加
+  - 設計方針にタスク更新はインラインDialogで完結する旨を追記
+  - ファイル構成の `budget.md` に `S-BDG-04` を追加
+
+- `doc/design/screens/navigation.md`
+  - 案件申請Drawer（`/?action=create-project`）の導線を追記
+  - タスク更新Dialog（インライン表示）を追記
+  - 予算管理一覧画面（S-BDG-04）を追記
+  - メンバータスク状況画面（S-MBR-01）を追記
+
+#### 各画面設計ファイルの更新
+
+- `doc/design/screens/screens/auth.md`
+  - 備考のトークン管理方式を修正
+    - 「アクセストークンはメモリ管理・リフレッシュトークンはhttpOnly Cookie」→「両方とも sessionStorage で管理」に変更
+  - 「WebSocket通知接続時はアクセストークンをURLクエリパラメータで渡す」を追記
+
+- `doc/design/screens/screens/dashboard.md`
+  - 使用APIに `GET /dashboard/alerts`（アラート案件一覧取得）を追加
+
+- `doc/design/screens/screens/project.md`
+  - 対象ロールを「APPLICANT / DEPT_MANAGER / HQ_MANAGER」→「全ロール」に修正
+  - 表示項目に「アラートレベル」「予算消化率」を追加・「遅延フラグ」を削除
+  - フィルター・検索セクションを新規追加（キーワード検索・ステータス・部門・アラートレベル・ページネーション）
+  - 操作から「新規申請」を削除（案件申請はダッシュボードのDrawerが主導線のため）
+  - バリデーション / 制御に `TASK_MEMBER`（自部門のみ）を追加
+  - URLクエリパラメータによる初期フィルター反映の記載を追加
+  - 使用APIに `GET /departments` を追加
+  - 備考に「案件申請はダッシュボードのDrawerが主導線」を追記
+
+- `doc/design/screens/screens/project_apply.md`
+  - 表示方式の起動元から「案件一覧「新規申請」」を削除
+  - 入力項目「概算予算（万円）」→「概算予算（円）」に修正
+  - 入力項目「人月単価（万円）」を削除（予算登録時に入力するため）
+  - 画面遷移 / 表示制御から「案件一覧「新規申請」選択」を削除
+  - 関連機能から「案件一覧」を削除
+  - 備考に「人月単価は案件申請時ではなく予算登録時（S-BDG-01）に入力する」を追記
+
+- `doc/design/screens/screens/project_detail.md`
+  - 表示項目「概算予算額（万円）」→「概算予算（円）」に修正
+  - 表示項目「人月単価（万円）」を削除
+  - 表示項目「遅延フラグ」→「アラートレベル」に修正
+  - 操作に「案件編集」「着手」「完了」「タスク更新」を追加
+  - タスク登録とタスク更新の操作を分離（登録は専用画面・更新はインラインDialog）
+  - バリデーション / 制御に `TASK_MEMBER`（自部門のみ）を追加
+  - 使用APIに `PUT /projects/{project_id}/tasks/{task_id}`・`PATCH /projects/{project_id}/start`・`PATCH /projects/{project_id}/complete` を追加
+  - 備考にタスク更新・削除はインラインDialogで完結する旨を追記
+
+- `doc/design/screens/screens/approval.md`
+  - 表示項目「目的・概要」を削除・「ステータス」を追加
+  - 表示項目「概算予算額（万円）」→「概算予算」に修正
+  - 入力項目「コメント」を削除（APIに存在しないため）
+  - バリデーションに「500字以内」「二重送信防止」を追記
+  - 使用APIを修正
+    - `POST /projects/{project_id}/approval/approve` / `POST /projects/{project_id}/approval/reject` → `POST /projects/{project_id}/approve`（単一エンドポイント）に統一
+    - `GET /projects/{project_id}` を追加
+  - 備考に `reject_reason` の有無で承認・却下を判定する旨を追記
+
+- `doc/design/screens/screens/task.md`
+  - タイトルを「タスク登録・更新画面」→「タスク登録画面」に修正
+  - 入力項目に「工程名」（必須）を追加
+  - 操作から「更新」「削除」を削除（インラインDialogで実行のため）
+  - バリデーションに「タスク更新・削除はS-APP-03のインラインDialogで実行」を追記
+  - 使用APIに `GET /projects/{project_id}`・`GET /users/department/{department_id}` を追加
+  - タスク更新・削除のAPIを削除
+  - 備考にタスク更新・削除はTaskDetailDialog（インライン表示）で完結する旨を追記
+
+- `doc/design/screens/screens/budget.md`
+  - S-BDG-01：予算管理画面
+    - 表示項目「予算工数」→「計画工数」に修正
+    - 工数実績一覧・直接経費一覧の表示項目を追加
+    - 操作に「工数実績編集・削除」「直接経費編集・削除」を追加
+    - 使用APIに `GET /projects/{project_id}`・工数実績・直接経費の取得・削除APIを追加
+    - 承認前ステータスでAPIを呼び出さない制御を追記
+  - S-BDG-02：工数実績入力・編集画面
+    - タイトルを「入力画面」→「入力・編集画面」に修正
+    - 入力項目「備考」を削除（実装に存在しないため）
+    - 編集モード（worklog-edit）の記載を追加
+    - 使用APIに工数実績更新・案件情報取得を追加
+  - S-BDG-03：直接経費入力・編集画面
+    - タイトルを「入力画面」→「入力・編集画面」に修正
+    - 入力項目「金額（万円）」→「金額（円）」に修正
+    - 発生日のバリデーション（未来の日付・案件開始日より前は不可）を追記
+    - 編集モード（expense-edit）の記載を追加
+    - 使用APIに直接経費更新・案件情報取得を追加
+  - S-BDG-04：予算管理一覧画面を新規追加
+    - 対象ロール：DEPT_MANAGER / HQ_MANAGER
+    - 表示項目・フィルター・検索・操作・使用APIを定義
+
+- `doc/design/screens/screens/notification.md`
+  - 使用APIのメソッドを `POST` → `PUT` に修正
+  - 既読化エンドポイントを `/notifications/read` → `/notifications/{notification_id}/read` に修正
+  - WebSocket接続エンドポイント `GET /notifications/ws?token={token}` を追加
+  - WebSocket自動再接続の仕様（最大10回・5秒間隔）を追記
+
+#### ユースケースの更新
+
+- `doc/usecases/usecase_applicant.md`
+  - UC-A05 タスク登録に「工程名」（必須）を追加
+  - UC-A05 タスク更新・削除はS-APP-03のインラインDialogで完結する旨を追記
+  - UC-A06 工数実績の入力項目「備考」を削除
+  - UC-A07 経費種別の「EQUIPMENT」の説明を「機材費相当」→「機器・備品」に修正
+  - UC-A08 「予算工数」→「計画工数」に修正
+
+- `doc/usecases/usecase_dept_manager.md`
+  - UC-D03 「消化率が100%以上で危険」→「100%以上で超過」に修正
+  - UC-D05 部門メンバーのタスク状況確認を新規追加
+    - メンバー別サマリーカード表示（担当タスク件数・進行中・完了・未着手・期限超過・完了率）
+    - メンバーフィルター・ステータスフィルターによる絞り込み
+
+- `doc/usecases/usecase_hq_manager.md`
+  - UC-H02 絞り込み条件に「部門フィルター」を追記
+  - UC-H03 「消化率が100%以上で危険」→「100%以上で超過」に修正
+  - UC-H03 「部門フィルター・予算帯フィルター」を追記
+  - UC-H05 ダッシュボードによる全社KPI監視を新規追加
+    - 全社KPIサマリーカード確認
+    - 部門別グラフ（案件数・予算消化率・期限超過タスク件数）
+    - 注視案件一覧（アラートレベル・注視理由・SPI・CPI）
+    - 部門別ドリルダウン機能
+
+**修正ファイル：**
+
+- `doc/db/er_design.md`
+- `doc/db/status_design.md`
+- `doc/db/tables/expenses.md`
+- `doc/design/api_design.md`
+- `doc/design/functions.md`
+- `doc/design/role_matrix.md`
+- `doc/design/screens/screen-list.md`
+- `doc/design/screens/navigation.md`
+- `doc/design/screens/screens/auth.md`
+- `doc/design/screens/screens/dashboard.md`
+- `doc/design/screens/screens/project.md`
+- `doc/design/screens/screens/project_apply.md`
+- `doc/design/screens/screens/project_detail.md`
+- `doc/design/screens/screens/approval.md`
+- `doc/design/screens/screens/task.md`
+- `doc/design/screens/screens/budget.md`
+- `doc/design/screens/screens/notification.md`
+- `doc/usecases/usecase_applicant.md`
+- `doc/usecases/usecase_dept_manager.md`
+- `doc/usecases/usecase_hq_manager.md`
+
 ## [chore/ci-alembic-check] - 2026-06-19
 
 ### Added
@@ -136,6 +329,16 @@
 - `src/api/core/` 配下にAPIクライアント基盤ファイルを自動生成
   - `ApiError` / `ApiRequestOptions` / `ApiResult` / `CancelablePromise` / `OpenAPI` / `request`
 - `src/api/services/` 配下に `DefaultService` / `Service` を自動生成
+
+#### UIロジック用定数ファイルの整備
+
+- `src/constants/chartColors.ts` を新規作成
+  - 部門別グラフ（ECharts）用カラーパレット定数（`DEPARTMENT_CHART_COLORS`）を定義
+- `src/constants/gantt.ts` を新規作成
+  - ガントチャート左固定列幅定数（`PHASE_WIDTH` / `PERSON_WIDTH` / `TASK_WIDTH`）を定義
+- `src/constants/taskStatus.ts` を新規作成
+  - タスクステータスのラベル変換（`getTaskStatusLabel`）・タグ種別変換（`getTaskStatusTagType`）・CSSクラス変換（`getTaskStatusClass`）を実装
+  - `TODO` / `NOT_STARTED` など表記ゆれに対応した統一処理を追加
 
 ### Changed
 
