@@ -77,14 +77,10 @@ jobs:
         env:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: |
-          OUTPUT=$(alembic check 2>&1)
-          if echo "$OUTPUT" | grep -q "New upgrade operations detected"; then
+          alembic check && echo "✅ マイグレーションファイルの作成漏れはありません" || {
             echo "❌ モデルの変更に対応するマイグレーションファイルが作成されていません"
-            echo "$OUTPUT"
             exit 1
-          else
-            echo "✅ マイグレーションファイルの作成漏れはありません"
-          fi
+          }
 
       - name: バックエンド起動
         working-directory: jpt-intern-2026/backend
