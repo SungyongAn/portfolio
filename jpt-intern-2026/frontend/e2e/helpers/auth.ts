@@ -2,22 +2,22 @@ import { Page } from "@playwright/test";
 
 export const TEST_ACCOUNTS = {
   applicant: {
-    email: "tanaka@example.com",
+    email: "tanaka@nextflow.example.com",
     password: "password",
     role: "APPLICANT",
   },
   deptManager: {
-    email: "yamada@example.com",
+    email: "yamada@nextflow.example.com",
     password: "password",
     role: "DEPT_MANAGER",
   },
   hqManager: {
-    email: "suzuki@example.com",
+    email: "suzuki@nextflow.example.com",
     password: "password",
     role: "HQ_MANAGER",
   },
   taskMember: {
-    email: "kameda@example.com",
+    email: "kameda@nextflow.example.com",
     password: "password",
     role: "TASK_MEMBER",
   },
