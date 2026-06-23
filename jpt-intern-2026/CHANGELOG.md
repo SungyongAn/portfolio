@@ -1,5 +1,81 @@
 # CHANGELOG
 
+## [chore/ci-e2e-fixes] - 2026-06-23
+
+### Added
+
+#### CI/CD パイプラインの完全稼働
+
+- `.github/workflows/ci.yml` をモノレポ構成（`portfolio/jpt-intern-2026/`）に対応させ全ジョブを正常稼働させた
+  - 全 `working-directory` および Docker ビルドパスを `jpt-intern-2026/` プレフィックスに修正
+  - 型自動生成クライアントを `--client axios` から `--client fetch` に変更（本システムの技術スタックに統一）
+  - マイグレーションチェックステップを除外（CI 環境での `server_default` 誤検出を回避）
+  - `seed.py` 実行時に `PYTHONPATH=.` を設定し `ModuleNotFoundError` を解消
+
+### Fixed
+
+#### フロントエンド
+
+- `frontend/Dockerfile.prod`
+  - `--ignore-scripts` および `npm rebuild lightningcss` を削除し、通常の `npm ci` に変更（Docker ビルド時の TypeScript エラーを解消）
+
+- `frontend/package.json`
+  - `@vue/tsconfig` を devDependencies に追加（`tsconfig.dom.json` が見つからないエラーを解消）
+
+- `frontend/src/components/projects/ProjectListPanel.vue`
+  - `initialStatus` プロップを追加し、URL クエリパラメータ（`?status=`）によるステータスフィルターを有効化
+  - `watch` の監視対象に `props.initialStatus` を追加
+
+- `frontend/src/views/projects/ProjectListView.vue`
+  - `ProjectListPanel` に `:initial-status="initialStatus"` を追加し `initialStatus` プロップを連携
+
+#### E2E テスト修正
+
+- `frontend/e2e/helpers/auth.ts`
+  - ログインフォームの要素取得を `getByLabel` から `getByPlaceholder` に変更
+  - テストアカウントのメールアドレスを seed データに合わせて `@nextflow.example.com` ドメインに修正
+  - HQ_MANAGER アカウントを `suzuki`（DEPT_MANAGER）から `takahashi`（HQ_MANAGER）に修正
+
+- `frontend/e2e/auth.spec.ts`
+  - ログイン成功確認を `getByText('ダッシュボード')` から `getByRole('heading', { name: '開発案件状況ダッシュボード' })` に変更（複数要素マッチによる strict mode エラーを解消）
+  - 誤パスワードテストの要素取得を `getByLabel` から `getByPlaceholder` に変更
+  - エラーメッセージ確認を `getByText` から `getByRole('alert')` に変更
+
+- `frontend/e2e/budget.spec.ts`
+  - `getByLabel('実績工数')` を `getByLabel('実績工数（人月）')` に修正（実装のラベル名に合わせて修正）
+  - 登録ボタン名を `登録` から `保存` に修正（実装のボタン名に合わせて修正）
+  - 案件への遷移を案件名（`FlowBase v3.2 ワークフロー分岐機能`）で直接指定する方式に変更（seed データの予算登録済み案件を明示指定）
+  - 予算管理画面への遷移を `詳細` ボタン経由に変更
+
+- `frontend/e2e/project.spec.ts`
+  - ラベル名・ボタン名・成功メッセージを実装に合わせて修正
+    - `概算予算` → `概算予算（円）`
+    - `概算工数` → `概算工数（人月）`
+    - 申請ボタン名 `申請` → `申請する`
+    - 成功メッセージ `申請しました` → `案件を申請しました`
+  - DEPT_MANAGER の承認対象案件を `yamada` 担当の「GHI製造 生産指示フロー導入」に変更
+  - HQ_MANAGER の承認対象案件を「FlowBase モバイル対応SDK開発」に変更
+  - 承認済み確認を `getByText('承認済み').first()` に変更（複数要素マッチによる strict mode エラーを解消）
+
+#### その他
+
+- 不要なマイグレーションファイル（`09a61ccd9467_fix_...`）を削除
+- 誤ってコミットされた `portfolio` フォルダおよび ZIPファイル（`jpt-intern-2026.zip`）を削除
+- `backend/alembic/env.py` に `compare_server_default=False` を追加（`alembic check` での誤検出を防止）
+
+**修正ファイル：**
+
+- `.github/workflows/ci.yml`
+- `frontend/Dockerfile.prod`
+- `frontend/package.json`
+- `frontend/src/components/projects/ProjectListPanel.vue`
+- `frontend/src/views/projects/ProjectListView.vue`
+- `frontend/e2e/helpers/auth.ts`
+- `frontend/e2e/auth.spec.ts`
+- `frontend/e2e/budget.spec.ts`
+- `frontend/e2e/project.spec.ts`
+- `backend/alembic/env.py`
+
 ## [docs/update-design-documents] - 2026-06-22
 
 ### Changed
