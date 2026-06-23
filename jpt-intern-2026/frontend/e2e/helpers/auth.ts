@@ -12,7 +12,7 @@ export const TEST_ACCOUNTS = {
     role: "DEPT_MANAGER",
   },
   hqManager: {
-    email: "suzuki@nextflow.example.com",
+    email: "takahashi@nextflow.example.com",
     password: "password",
     role: "HQ_MANAGER",
   },
