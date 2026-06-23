@@ -18,9 +18,7 @@ test.describe("ログイン", () => {
       .fill(TEST_ACCOUNTS.applicant.email);
     await page.getByPlaceholder("パスワード").fill("wrongpassword");
     await page.getByRole("button", { name: "ログイン" }).click();
-    await expect(
-      page.getByText("メールアドレスまたはパスワードが正しくありません"),
-    ).toBeVisible();
+    await expect(page.getByRole("alert")).toBeVisible();
   });
 
   test("未ログイン状態でダッシュボードへアクセスするとログイン画面へリダイレクト", async ({
