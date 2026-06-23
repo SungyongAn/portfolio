@@ -8,7 +8,7 @@ test.describe("予算・工数入力", () => {
 
     await page.goto("/projects?status=IN_PROGRESS");
     await page.getByRole("link").first().click();
-    await page.getByRole("button", { name: "予算管理" }).click();
+    await page.getByRole("button", { name: "詳細" }).click();
 
     await page.getByRole("button", { name: "工数実績入力" }).click();
     await page.getByLabel("対象月").fill("2026-06");

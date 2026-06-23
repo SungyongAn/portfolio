@@ -26,9 +26,13 @@ test.describe("案件申請・承認フロー", () => {
 
     await page.goto("/projects?status=PENDING_DEPT");
     await page.getByRole("link").first().click();
+    await page.waitForURL(/\/projects\/\d+/);
+    const url = page.url();
+    const projectId = url.match(/\/projects\/(\d+)/)?.[1];
+    await page.goto(`/projects/${projectId}/approval`);
 
     await page.getByRole("button", { name: "承認" }).click();
-    await page.getByRole("button", { name: "確認" }).click();
+    await page.getByRole("button", { name: "承認" }).nth(1).click();
 
     await expect(page.getByText("承認しました")).toBeVisible();
   });
@@ -39,9 +43,13 @@ test.describe("案件申請・承認フロー", () => {
 
     await page.goto("/projects?status=PENDING_HQ");
     await page.getByRole("link").first().click();
+    await page.waitForURL(/\/projects\/\d+/);
+    const url = page.url();
+    const projectId = url.match(/\/projects\/(\d+)/)?.[1];
+    await page.goto(`/projects/${projectId}/approval`);
 
     await page.getByRole("button", { name: "承認" }).click();
-    await page.getByRole("button", { name: "確認" }).click();
+    await page.getByRole("button", { name: "承認" }).nth(1).click();
 
     await expect(page.getByText("承認しました")).toBeVisible();
     await expect(page.getByText("承認済み")).toBeVisible();
