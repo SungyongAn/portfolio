@@ -6,8 +6,10 @@ test.describe("予算・工数入力", () => {
     const { email, password } = TEST_ACCOUNTS.applicant;
     await login(page, email, password);
 
-    await page.goto("/projects?status=IN_PROGRESS");
-    await page.getByRole("link").first().click();
+    await page.goto("/projects");
+    await page.getByText("FlowBase v3.2 ワークフロー分岐機能").click();
+    await page.waitForURL(/\/projects\/\d+$/);
+
     await page.getByRole("button", { name: "詳細" }).click();
 
     await page.getByRole("button", { name: "工数実績入力" }).click();
