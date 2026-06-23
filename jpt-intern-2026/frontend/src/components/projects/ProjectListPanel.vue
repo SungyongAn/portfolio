@@ -153,10 +153,12 @@ import type { ProjectResponse } from "@/api/models/ProjectResponse";
 
 const props = withDefaults(
   defineProps<{
+    initialStatus?: string;
     initialAlertLevel?: string;
     initialDepartmentId?: number | null;
   }>(),
   {
+    initialStatus: "",
     initialAlertLevel: "",
     initialDepartmentId: null,
   },
@@ -207,7 +209,7 @@ const limit = ref(10);
 const total = ref(0);
 
 const keyword = ref("");
-const statusFilter = ref("");
+const statusFilter = ref(props.initialStatus);
 const departmentId = ref<number | null>(props.initialDepartmentId);
 const alertLevel = ref(props.initialAlertLevel);
 
@@ -351,10 +353,15 @@ const formatDate = (value?: string | null) => {
 };
 
 watch(
-  () => [props.initialAlertLevel, props.initialDepartmentId],
+  () => [
+    props.initialAlertLevel,
+    props.initialDepartmentId,
+    props.initialStatus,
+  ],
   async () => {
     alertLevel.value = props.initialAlertLevel ?? "";
     departmentId.value = props.initialDepartmentId ?? null;
+    statusFilter.value = props.initialStatus ?? "";
     page.value = 1;
     await fetchProjects();
   },
