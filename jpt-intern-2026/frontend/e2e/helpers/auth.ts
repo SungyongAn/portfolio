@@ -25,8 +25,8 @@ export const TEST_ACCOUNTS = {
 
 export const login = async (page: Page, email: string, password: string) => {
   await page.goto("/login");
-  await page.getByLabel("メールアドレス").fill(email);
-  await page.getByLabel("パスワード").fill(password);
+  await page.getByPlaceholder("メールアドレス").fill(email);
+  await page.getByPlaceholder("パスワード").fill(password);
   await page.getByRole("button", { name: "ログイン" }).click();
   await page.waitForURL("/");
 };
