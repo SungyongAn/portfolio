@@ -24,8 +24,8 @@ test.describe("案件申請・承認フロー", () => {
     const { email, password } = TEST_ACCOUNTS.deptManager;
     await login(page, email, password);
 
-    await page.goto("/projects");
-    await page.getByText("部門承認待ち").first().locator("..").click();
+    await page.goto("/projects?status=PENDING_DEPT");
+    await page.getByRole("link").first().click();
 
     await page.getByRole("button", { name: "承認" }).click();
     await page.getByRole("button", { name: "確認" }).click();
@@ -37,8 +37,8 @@ test.describe("案件申請・承認フロー", () => {
     const { email, password } = TEST_ACCOUNTS.hqManager;
     await login(page, email, password);
 
-    await page.goto("/projects");
-    await page.getByText("本部承認待ち").first().locator("..").click();
+    await page.goto("/projects?status=PENDING_HQ");
+    await page.getByRole("link").first().click();
 
     await page.getByRole("button", { name: "承認" }).click();
     await page.getByRole("button", { name: "確認" }).click();
