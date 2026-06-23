@@ -25,7 +25,7 @@ test.describe("案件申請・承認フロー", () => {
     await login(page, email, password);
 
     await page.goto("/projects");
-    await page.getByText("プラットフォーム共通認証基盤リプレイス").click();
+    await page.getByText("GHI製造 生産指示フロー導入").click();
     await page.waitForURL(/\/projects\/\d+$/);
     const url = page.url();
     const projectId = url.match(/\/projects\/(\d+)$/)?.[1];
@@ -52,6 +52,6 @@ test.describe("案件申請・承認フロー", () => {
     await page.getByRole("button", { name: "承認" }).nth(1).click();
 
     await expect(page.getByText("承認しました")).toBeVisible();
-    await expect(page.getByText("承認済み")).toBeVisible();
+    await expect(page.getByText("承認済み").first()).toBeVisible();
   });
 });
