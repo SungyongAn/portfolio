@@ -25,7 +25,7 @@ test.describe("案件申請・承認フロー", () => {
     await login(page, email, password);
 
     await page.goto("/projects");
-    await page.getByText("部門承認待ち").first().click();
+    await page.getByText("部門承認待ち").first().locator("..").click();
 
     await page.getByRole("button", { name: "承認" }).click();
     await page.getByRole("button", { name: "確認" }).click();
@@ -38,7 +38,7 @@ test.describe("案件申請・承認フロー", () => {
     await login(page, email, password);
 
     await page.goto("/projects");
-    await page.getByText("本部承認待ち").first().click();
+    await page.getByText("本部承認待ち").first().locator("..").click();
 
     await page.getByRole("button", { name: "承認" }).click();
     await page.getByRole("button", { name: "確認" }).click();

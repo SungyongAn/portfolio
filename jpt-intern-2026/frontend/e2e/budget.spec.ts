@@ -7,7 +7,7 @@ test.describe("予算・工数入力", () => {
     await login(page, email, password);
 
     await page.goto("/projects");
-    await page.getByText("進行中").first().click();
+    await page.getByText("進行中").first().locator("..").click();
     await page.getByRole("button", { name: "予算管理" }).click();
 
     await page.getByRole("button", { name: "工数実績入力" }).click();
