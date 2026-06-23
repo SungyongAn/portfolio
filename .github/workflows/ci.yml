@@ -186,7 +186,7 @@ jobs:
           DATABASE_URL: mysql+pymysql://root:root@localhost:3306/nextflow_test
         run: |
           alembic upgrade head
-          python app/scripts/seed.py
+          PYTHONPATH=. python app/scripts/seed.py
 
       - name: バックエンド起動
         working-directory: jpt-intern-2026/backend
